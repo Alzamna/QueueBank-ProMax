@@ -48,7 +48,17 @@ class AntrianModel extends Model
 
     public function getNextNomorAntrian($kategori_id)
     {
-        $kategori = $this->db->table('kategori_antrians')->where('id', $kategori_id)->get()->getRowArray();
+        // Validate input
+        if (!$kategori_id || !is_numeric($kategori_id)) {
+            return null;
+        }
+
+        $kategori = $this->db->table('kategori_antrians')
+                             ->where('id', $kategori_id)
+                             ->where('status', 'aktif')
+                             ->get()
+                             ->getRowArray();
+        
         if (!$kategori) {
             return null;
         }
@@ -56,10 +66,10 @@ class AntrianModel extends Model
         $prefix = $kategori['prefix'];
         $today = date('Y-m-d');
 
-        $lastAntrian = $this->db->table($this->table . ' as antrians')
-            ->where('antrians.kategori_id', $kategori_id)
-            ->where('DATE(antrians.waktu_ambil)', $today)
-            ->orderBy('antrians.id', 'DESC')
+        $lastAntrian = $this->db->table($this->table)
+            ->where('kategori_id', $kategori_id)
+            ->where('DATE(waktu_ambil)', $today)
+            ->orderBy('id', 'DESC')
             ->get()
             ->getRowArray();
 
@@ -69,6 +79,7 @@ class AntrianModel extends Model
             $nextNumber = $lastNumber + 1;
         }
 
+        // Format: prefix + 3-digit number (e.g., T001, C001, P001)
         return $prefix . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
     }
 
