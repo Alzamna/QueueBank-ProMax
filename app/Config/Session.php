@@ -21,7 +21,7 @@ class Session extends BaseConfig
      *
      * @var class-string<BaseHandler>
      */
-    public string $driver = FileHandler::class;
+    public string $driver = FileHandler::class; // Tetap menggunakan FileHandler
 
     /**
      * --------------------------------------------------------------------------
@@ -58,6 +58,36 @@ class Session extends BaseConfig
      * IMPORTANT: You are REQUIRED to set a valid save path!
      */
     public string $savePath = WRITEPATH . 'session';
+    
+    /**
+     * --------------------------------------------------------------------------
+     * Session Cookie Domain
+     * --------------------------------------------------------------------------
+     *
+     * Set to specify a specific domain for the session cookie.
+     * Leave it empty for the default value.
+     */
+    public string $cookieDomain = '';
+    
+    /**
+     * --------------------------------------------------------------------------
+     * Session Cookie Secure
+     * --------------------------------------------------------------------------
+     *
+     * Set to true if you want to make sure the cookie is only sent over secure
+     * connections.
+     */
+    public bool $cookieSecure = false;
+    
+    /**
+     * --------------------------------------------------------------------------
+     * Session Cookie SameSite
+     * --------------------------------------------------------------------------
+     *
+     * Value for the SameSite attribute of the session cookie.
+     * Allowed values are: None, Lax, Strict.
+     */
+    public string $cookieSameSite = 'Lax';
 
     /**
      * --------------------------------------------------------------------------

@@ -29,7 +29,7 @@ class AntrianModel extends Model
 
     public function getAntrianAktif($kategori_id = null)
     {
-        $builder = $this->db->table($this->table)
+        $builder = $this->db->table($this->table . ' as antrians')
             ->select('antrians.*, kategori_antrians.nama_kategori, kategori_antrians.prefix, lokets.nama_loket, users.nama_lengkap as nama_petugas')
             ->join('kategori_antrians', 'kategori_antrians.id = antrians.kategori_id')
             ->join('lokets', 'lokets.id = antrians.loket_id', 'left')
@@ -44,9 +44,37 @@ class AntrianModel extends Model
         return $builder->get()->getResultArray();
     }
 
+
+
+    public function getNextNomorAntrian($kategori_id)
+    {
+        $kategori = $this->db->table('kategori_antrians')->where('id', $kategori_id)->get()->getRowArray();
+        if (!$kategori) {
+            return null;
+        }
+
+        $prefix = $kategori['prefix'];
+        $today = date('Y-m-d');
+
+        $lastAntrian = $this->db->table($this->table . ' as antrians')
+            ->where('antrians.kategori_id', $kategori_id)
+            ->where('DATE(antrians.waktu_ambil)', $today)
+            ->orderBy('antrians.id', 'DESC')
+            ->get()
+            ->getRowArray();
+
+        $nextNumber = 1;
+        if ($lastAntrian) {
+            $lastNumber = (int)substr($lastAntrian['nomor_antrian'], strlen($prefix));
+            $nextNumber = $lastNumber + 1;
+        }
+
+        return $prefix . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+    }
+
     public function getAntrianDipanggil($loket_id = null)
     {
-        $builder = $this->db->table($this->table)
+        $builder = $this->db->table($this->table . ' as antrians')
             ->select('antrians.*, kategori_antrians.nama_kategori, kategori_antrians.prefix, lokets.nama_loket, users.nama_lengkap as nama_petugas')
             ->join('kategori_antrians', 'kategori_antrians.id = antrians.kategori_id')
             ->join('lokets', 'lokets.id = antrians.loket_id', 'left')
@@ -61,59 +89,41 @@ class AntrianModel extends Model
         return $builder->get()->getResultArray();
     }
 
-    public function getNextNomorAntrian($kategori_id)
+    public function getAntrianSelesai($loket_id = null, $limit = null)
     {
-        $kategori = $this->db->table('kategori_antrians')->where('id', $kategori_id)->get()->getRowArray();
-        if (!$kategori) {
-            return null;
-        }
-
-        $prefix = $kategori['prefix'];
-        $today = date('Y-m-d');
-
-        $lastAntrian = $this->db->table($this->table)
-            ->where('kategori_id', $kategori_id)
-            ->where('DATE(waktu_ambil)', $today)
-            ->orderBy('id', 'DESC')
-            ->get()
-            ->getRowArray();
-
-        $nextNumber = 1;
-        if ($lastAntrian) {
-            $lastNumber = (int)substr($lastAntrian['nomor_antrian'], 1);
-            $nextNumber = $lastNumber + 1;
-        }
-
-        return $prefix . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
-    }
-
-    public function getAntrianSelesai($limit = 10)
-    {
-        return $this->db->table($this->table)
+        $builder = $this->db->table($this->table . ' as antrians')
             ->select('antrians.*, kategori_antrians.nama_kategori, kategori_antrians.prefix, lokets.nama_loket, users.nama_lengkap as nama_petugas')
             ->join('kategori_antrians', 'kategori_antrians.id = antrians.kategori_id')
             ->join('lokets', 'lokets.id = antrians.loket_id', 'left')
             ->join('users', 'users.id = antrians.petugas_id', 'left')
             ->where('antrians.status', 'selesai')
-            ->orderBy('antrians.waktu_selesai', 'DESC')
-            ->limit($limit)
-            ->get()
-            ->getResultArray();
-    }
+            ->orderBy('antrians.waktu_selesai', 'DESC');
 
-    public function getStatistikHarian($date = null)
-    {
-        if ($date === null) {
-            $date = date('Y-m-d');
+        if ($loket_id !== null) {
+            $builder->where('antrians.loket_id', $loket_id);
         }
 
-        return $this->db->table($this->table)
-            ->select('kategori_antrians.nama_kategori, COUNT(*) as total_antrian, AVG(TIMESTAMPDIFF(SECOND, waktu_ambil, waktu_selesai)) as rata_rata_waktu')
+        if ($limit !== null) {
+            $builder->limit($limit);
+        }
+
+        return $builder->get()->getResultArray();
+    }
+
+    public function getStatistikHarian($tanggal = null)
+    {
+        if ($tanggal === null) {
+            $tanggal = date('Y-m-d');
+        }
+
+        $builder = $this->db->table($this->table . ' as antrians')
+            ->select('antrians.kategori_id, kategori_antrians.nama_kategori, COUNT(*) as total_antrian, AVG(TIMESTAMPDIFF(SECOND, antrians.waktu_ambil, antrians.waktu_selesai)) as rata_waktu_layanan')
             ->join('kategori_antrians', 'kategori_antrians.id = antrians.kategori_id')
-            ->where('DATE(waktu_ambil)', $date)
-            ->where('status', 'selesai')
-            ->groupBy('kategori_antrians.id')
-            ->get()
-            ->getResultArray();
+            ->where('DATE(antrians.waktu_ambil)', $tanggal)
+            ->where('antrians.status', 'selesai')
+            ->groupBy('antrians.kategori_id, kategori_antrians.nama_kategori')
+            ->orderBy('antrians.kategori_id', 'ASC');
+
+        return $builder->get()->getResultArray();
     }
 }

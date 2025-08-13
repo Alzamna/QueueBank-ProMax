@@ -33,7 +33,7 @@ class AdminController extends BaseController
             'totalUsers' => $this->userModel->countAll(),
             'totalLokets' => $this->loketModel->countAll(),
             'totalKategori' => $this->kategoriAntrianModel->countAll(),
-            'totalAntrianHariIni' => $this->antrianModel->where('DATE(waktu_ambil)', date('Y-m-d'))->countAllResults(),
+            'totalAntrianHariIni' => $this->antrianModel->where('DATE(antrians.waktu_ambil)', date('Y-m-d'))->countAllResults(),
             'statistik' => $this->antrianModel->getStatistikHarian(),
         ];
 
