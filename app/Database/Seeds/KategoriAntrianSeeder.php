@@ -11,7 +11,7 @@ class KategoriAntrianSeeder extends Seeder
         $data = [
             [
                 'nama_kategori' => 'Teller',
-                'prefix' => 'A',
+                'prefix' => 'T',
                 'deskripsi' => 'Layanan teller untuk transaksi perbankan',
                 'status' => 'aktif',
                 'created_at' => date('Y-m-d H:i:s'),
@@ -19,7 +19,7 @@ class KategoriAntrianSeeder extends Seeder
             ],
             [
                 'nama_kategori' => 'Customer Service',
-                'prefix' => 'B',
+                'prefix' => 'C',
                 'deskripsi' => 'Layanan customer service untuk informasi dan konsultasi',
                 'status' => 'aktif',
                 'created_at' => date('Y-m-d H:i:s'),
@@ -27,7 +27,7 @@ class KategoriAntrianSeeder extends Seeder
             ],
             [
                 'nama_kategori' => 'Prioritas',
-                'prefix' => 'C',
+                'prefix' => 'P',
                 'deskripsi' => 'Layanan prioritas untuk nasabah prioritas',
                 'status' => 'aktif',
                 'created_at' => date('Y-m-d H:i:s'),

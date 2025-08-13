@@ -34,6 +34,5 @@ $routes->get('display/antrian', 'DisplayController::getAntrian');
 $routes->get('display/pengaturan', 'DisplayController::getPengaturan');
 
 // Antrian Routes
-$routes->get('ambil-nomor', 'AntrianController::index');
 $routes->post('ambil-nomor', 'AntrianController::ambilNomor');
 $routes->get('cek-status/(:any)', 'AntrianController::cekStatus/$1');
