@@ -8,6 +8,7 @@ use App\Models\LoketModel;
 use App\Models\KategoriAntrianModel;
 use App\Models\AntrianModel;
 use App\Models\PengaturanDisplayModel;
+use App\Models\PenggunaModel;
 
 class AdminController extends BaseController
 {
