@@ -6,40 +6,117 @@
     <title>Ambil Nomor Antrian - QueueBank ProMax</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            700: '#6d28d9',
+                        },
+                        secondary: {
+                            500: '#64748b',
+                            600: '#475569',
+                        },
+                        success: {
+                            500: '#10b981',
+                            600: '#059669',
+                        },
+                        dark: {
+                            500: '#1e293b',
+                            600: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        display: ['Poppins', 'sans-serif']
+                    },
+                    animation: {
+                        'float': 'float 3s ease-in-out infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style type="text/css">
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap');
+        
+        .bg-glass {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
-        .animate-float {
-            animation: float 3s ease-in-out infinite;
-        }
-        .bg-gradient-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .bg-gradient-success {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        }
-        .bg-gradient-info {
-            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
-        }
-        .category-card {
+        
+        .card-hover-effect {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
-        .category-card:hover {
-            transform: translateY(-5px);
+        
+        .card-hover-effect:hover {
+            transform: translateY(-4px);
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
+        
+        .category-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(245, 245, 245, 0.9) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: 0.5s;
+        }
+        
+        .category-card:hover::before {
+            left: 100%;
+        }
+        
         .category-card.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
         }
+        
         .queue-number {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-            letter-spacing: 2px;
+            font-family: 'Poppins', sans-serif;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            letter-spacing: 1px;
         }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+            box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.3), 0 2px 4px -1px rgba(124, 58, 237, 0.2);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(124, 58, 237, 0.4), 0 4px 6px -2px rgba(124, 58, 237, 0.3);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(100, 116, 139, 0.4), 0 4px 6px -2px rgba(100, 116, 139, 0.3);
+        }
+        
         @media print {
             .queue-number {
                 color: #000 !important;
@@ -52,73 +129,75 @@
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-primary font-sans antialiased">
-    <!-- Desktop Container -->
+<body class="min-h-screen bg-gradient-to-br from-primary-600 to-primary-700 font-sans antialiased text-gray-800">
+    <!-- Main Container -->
     <div class="container mx-auto px-4 py-8 max-w-7xl">
-        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
-            <!-- Desktop Header -->
-            <div class="text-center py-8 px-4 border-b border-gray-200">
-                <h1 class="text-4xl font-bold text-indigo-600 mb-2">
-                    <i class="fas fa-ticket-alt mr-2"></i> MESIN ANTRIAN
-                </h1>
-                <p class="text-lg text-gray-700 font-medium">
-                    Silakan pilih kategori layanan dan ambil nomor antrian
-                </p>
-                <div class="text-gray-500 text-sm mt-2">
-                    <i class="fas fa-mobile-alt mr-1"></i> Tersedia dalam 2 tampilan
+        <!-- Glass Panel -->
+        <div class="bg-glass rounded-3xl shadow-xl overflow-hidden backdrop-blur-lg border border-white/10">
+            <!-- Header Section -->
+            <div class="text-center py-10 px-6 border-b border-white/10">
+                <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-ticket-alt text-3xl text-white"></i>
                 </div>
-                <div class="flex justify-center gap-2 mt-4">
-                    <a href="/antrian/desktop" class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700">
-                        <i class="fas fa-desktop mr-1"></i> Desktop
+                <h1 class="text-4xl font-bold text-white font-display mb-3">
+                    MESIN ANTRIAN DIGITAL
+                </h1>
+                <p class="text-lg text-white/90 font-medium max-w-2xl mx-auto">
+                    Silakan pilih kategori layanan dan ambil nomor antrian Anda
+                </p>
+                
+                <div class="flex justify-center gap-3 mt-6">
+                    <a href="/antrian/desktop" class="px-5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full text-sm font-medium transition-colors">
+                        <i class="fas fa-desktop mr-2"></i> Mode Desktop
                     </a>
-                    <a href="/antrian/mobile" class="px-4 py-2 border border-gray-300 rounded-full text-sm font-medium text-gray-700">
-                        <i class="fas fa-mobile-alt mr-1"></i> Mobile
+                    <a href="/antrian/mobile" class="px-5 py-2 border border-white/30 hover:bg-white/10 text-white rounded-full text-sm font-medium transition-colors">
+                        <i class="fas fa-mobile-alt mr-2"></i> Mode Mobile
                     </a>
                 </div>
             </div>
 
-            <!-- Current Queue Status (Mobile) -->
+            <!-- Current Queue Status -->
             <div id="currentQueueStatus" class="hidden px-6 py-8">
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-green-500">
-                    <div class="bg-green-600 px-6 py-4 text-white">
+                <div class="bg-white rounded-xl shadow-2xl overflow-hidden border-2 border-success-500">
+                    <div class="bg-success-600 px-6 py-5 text-white">
                         <div class="flex justify-between items-center">
-                            <div class="flex items-center space-x-3">
-                                <div class="bg-white/20 rounded-full w-8 h-8 flex items-center justify-center">
-                                    <i class="fas fa-ticket-alt text-white"></i>
+                            <div class="flex items-center space-x-4">
+                                <div class="bg-white/20 rounded-full w-10 h-10 flex items-center justify-center">
+                                    <i class="fas fa-ticket-alt text-white text-lg"></i>
                                 </div>
-                                <h2 class="text-lg font-semibold">Nomor Antrian Aktif Anda</h2>
+                                <h2 class="text-xl font-bold font-display">Nomor Antrian Aktif Anda</h2>
                             </div>
                         </div>
                     </div>
-                    <div class="p-6 text-center">
-                        <div class="mb-6">
-                            <div class="text-xs uppercase tracking-wider text-gray-500 mb-2">Nomor Antrian</div>
-                            <div class="queue-number text-6xl font-bold text-gray-800" id="currentNomorAntrian">-</div>
-                            <div class="mt-4">
-                                <span class="inline-block bg-green-600 text-white text-sm font-medium px-4 py-2 rounded-full" id="currentKategoriAntrian">-</span>
+                    <div class="p-8 text-center">
+                        <div class="mb-8">
+                            <div class="text-xs uppercase tracking-wider text-gray-500 mb-3 font-medium">NOMOR ANDA</div>
+                            <div class="queue-number text-7xl font-bold text-gray-800 animate-float" id="currentNomorAntrian">-</div>
+                            <div class="mt-5">
+                                <span class="inline-block bg-success-600 text-white text-sm font-bold px-5 py-2 rounded-full" id="currentKategoriAntrian">-</span>
                             </div>
                         </div>
-                        <div class="grid grid-cols-2 gap-4 text-center">
-                            <div class="p-4">
-                                <div class="text-blue-500 mb-2">
-                                    <i class="fas fa-users text-2xl"></i>
+                        <div class="grid grid-cols-2 gap-6 text-center mb-8">
+                            <div class="p-5 bg-gray-50 rounded-xl">
+                                <div class="text-primary-600 mb-3">
+                                    <i class="fas fa-users text-3xl"></i>
                                 </div>
-                                <div class="text-xs text-gray-500">Posisi Antrian</div>
-                                <div class="text-xl font-bold text-blue-500" id="currentPosisiAntrian">-</div>
+                                <div class="text-xs text-gray-500 font-medium uppercase tracking-wider">Posisi Antrian</div>
+                                <div class="text-2xl font-bold text-primary-600 mt-1" id="currentPosisiAntrian">-</div>
                             </div>
-                            <div class="p-4">
-                                <div class="text-green-500 mb-2">
-                                    <i class="fas fa-clock text-2xl"></i>
+                            <div class="p-5 bg-gray-50 rounded-xl">
+                                <div class="text-success-600 mb-3">
+                                    <i class="fas fa-clock text-3xl"></i>
                                 </div>
-                                <div class="text-xs text-gray-500">Estimasi Waktu</div>
-                                <div class="text-xl font-bold text-green-500" id="currentEstimasiWaktu">-</div>
+                                <div class="text-xs text-gray-500 font-medium uppercase tracking-wider">Estimasi Waktu</div>
+                                <div class="text-2xl font-bold text-success-600 mt-1" id="currentEstimasiWaktu">-</div>
                             </div>
                         </div>
-                        <div class="mt-6 flex justify-center space-x-3">
-                            <button onclick="refreshQueueStatus()" class="px-5 py-2 border border-green-600 text-green-600 rounded-lg font-medium hover:bg-green-50 transition-colors">
+                        <div class="flex justify-center space-x-4">
+                            <button onclick="refreshQueueStatus()" class="btn-secondary px-6 py-3 text-white rounded-lg font-bold transition-all">
                                 <i class="fas fa-sync-alt mr-2"></i> Refresh Status
                             </button>
-                            <button onclick="printCurrentQueue()" class="px-5 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+                            <button onclick="printCurrentQueue()" class="btn-primary px-6 py-3 text-white rounded-lg font-bold transition-all">
                                 <i class="fas fa-print mr-2"></i> Cetak
                             </button>
                         </div>
@@ -126,34 +205,41 @@
                 </div>
             </div>
 
-            <!-- Debug information -->
+            <!-- Debug Information -->
             <?php if(empty($kategori)): ?>
-                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mx-6 my-4">
-                    <strong>Debug Info:</strong> Tidak ada kategori yang ditemukan. 
-                    <br>Total kategori: <?= count($kategori ?? []) ?>
-                    <br>Kategori data: <?= json_encode($kategori ?? []) ?>
+                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-4 mx-6 my-6 rounded-lg">
+                    <div class="flex items-start">
+                        <i class="fas fa-exclamation-triangle text-xl mr-3 mt-0.5"></i>
+                        <div>
+                            <strong class="font-bold">Debug Info:</strong> Tidak ada kategori yang ditemukan. 
+                            <div class="text-sm mt-1">
+                                Total kategori: <?= count($kategori ?? []) ?><br>
+                                Kategori data: <?= json_encode($kategori ?? []) ?>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             <?php endif; ?>
 
-            <!-- Desktop Categories -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6" id="categories">
+            <!-- Categories Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-8" id="categories">
                 <?php foreach ($kategori as $kat): ?>
-                <div class="category-card rounded-2xl p-6 cursor-pointer flex flex-col items-center justify-between h-48" data-kategori-id="<?= $kat['id'] ?>">
-                    <div class="text-xl font-bold text-gray-800 text-center"><?= $kat['nama_kategori'] ?></div>
+                <div class="category-card card-hover-effect rounded-2xl p-8 cursor-pointer flex flex-col items-center justify-between h-60 border border-white/20 shadow-sm" data-kategori-id="<?= $kat['id'] ?>">
+                    <div class="text-2xl font-bold text-gray-800 text-center font-display"><?= $kat['nama_kategori'] ?></div>
                     <div class="text-gray-600 text-center font-medium flex-grow flex items-center justify-center">
                         <?= $kat['deskripsi'] ?? 'Layanan ' . $kat['nama_kategori'] ?>
                     </div>
-                    <div class="text-gray-700 text-center text-sm">
+                    <div class="text-gray-700 text-center text-sm mt-4">
                         <span class="font-semibold">Prefix: </span>
-                        <span class="font-bold text-indigo-600"><?= $kat['prefix'] ?></span>
+                        <span class="font-bold text-primary-600"><?= $kat['prefix'] ?></span>
                     </div>
                 </div>
                 <?php endforeach; ?>
             </div>
 
-            <!-- Desktop Action Button -->
-            <div class="px-6 pb-8">
-                <button id="btnAmbil" disabled class="w-full py-4 px-6 bg-gradient-success hover:shadow-lg text-white font-bold rounded-full transition-all duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed">
+            <!-- Action Button -->
+            <div class="px-8 pb-10">
+                <button id="btnAmbil" disabled class="w-full py-5 px-6 btn-primary text-white font-bold rounded-xl transition-all duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
                     <span class="btn-text">Pilih kategori terlebih dahulu</span>
                     <span class="loading hidden">
                         <i class="fas fa-spinner fa-spin mr-2"></i> Memproses...
@@ -163,63 +249,67 @@
         </div>
     </div>
 
-    <!-- Modal untuk menampilkan nomor antrian -->
-    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden" id="nomorModal">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden">
-            <div class="bg-gradient-primary text-white px-6 py-4">
+    <!-- Queue Number Modal -->
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden" id="nomorModal">
+        <div class="bg-white rounded-2xl shadow-3xl w-full max-w-2xl overflow-hidden transform transition-all duration-300 scale-95">
+            <div class="bg-gradient-to-r from-primary-600 to-primary-700 text-white px-8 py-6">
                 <div class="flex justify-between items-center">
-                    <div class="flex items-center space-x-3">
-                        <i class="fas fa-ticket-alt text-xl"></i>
-                        <h3 class="text-xl font-semibold">Nomor Antrian Anda</h3>
+                    <div class="flex items-center space-x-4">
+                        <i class="fas fa-ticket-alt text-2xl"></i>
+                        <h3 class="text-2xl font-bold font-display">Nomor Antrian Anda</h3>
                     </div>
-                    <button onclick="document.getElementById('nomorModal').classList.add('hidden')" class="text-white hover:text-white/80">
+                    <button onclick="document.getElementById('nomorModal').classList.add('hidden')" class="text-white hover:text-white/80 transition-colors">
                         <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
             </div>
-            <div class="p-8 text-center">
-                <div class="mb-8">
-                    <div class="mb-4">
-                        <i class="fas fa-building text-indigo-500 text-4xl"></i>
-                        <h4 class="text-gray-500 mt-2">QueueBank ProMax</h4>
+            <div class="p-10 text-center">
+                <div class="mb-10">
+                    <div class="mb-6">
+                        <div class="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto">
+                            <i class="fas fa-building text-primary-600 text-3xl"></i>
+                        </div>
+                        <h4 class="text-gray-500 mt-3 font-medium">QueueBank ProMax</h4>
                         <p class="text-gray-400 text-sm">Sistem Antrian Modern</p>
                     </div>
                     
-                    <div class="mb-6">
-                        <div class="text-xs uppercase tracking-wider text-gray-500 mb-2">Nomor Antrian</div>
-                        <div class="queue-number text-7xl font-bold text-gray-800 animate-float" id="nomorAntrian">-</div>
-                        <div class="mt-4">
-                            <span class="inline-block bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-full" id="kategoriAntrian">-</span>
+                    <div class="mb-8">
+                        <div class="text-xs uppercase tracking-wider text-gray-500 mb-3 font-medium">NOMOR ANTRIAN</div>
+                        <div class="queue-number text-8xl font-bold text-gray-800 animate-float" id="nomorAntrian">-</div>
+                        <div class="mt-6">
+                            <span class="inline-block bg-primary-600 text-white text-sm font-bold px-6 py-3 rounded-full" id="kategoriAntrian">-</span>
                         </div>
                     </div>
                     
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div class="p-4">
-                            <div class="text-blue-500 mb-2">
-                                <i class="fas fa-users text-2xl"></i>
+                    <div class="grid grid-cols-2 gap-6 mb-8">
+                        <div class="p-5 bg-gray-50 rounded-xl">
+                            <div class="text-primary-600 mb-3">
+                                <i class="fas fa-users text-3xl"></i>
                             </div>
-                            <div class="text-xs text-gray-500">Antrian di Depan</div>
-                            <div class="text-xl font-bold text-blue-500" id="posisiAntrian">-</div>
+                            <div class="text-xs text-gray-500 font-medium uppercase tracking-wider">Antrian di Depan</div>
+                            <div class="text-2xl font-bold text-primary-600 mt-1" id="posisiAntrian">-</div>
                         </div>
-                        <div class="p-4">
-                            <div class="text-green-500 mb-2">
-                                <i class="fas fa-clock text-2xl"></i>
+                        <div class="p-5 bg-gray-50 rounded-xl">
+                            <div class="text-success-600 mb-3">
+                                <i class="fas fa-clock text-3xl"></i>
                             </div>
-                            <div class="text-xs text-gray-500">Estimasi Waktu</div>
-                            <div class="text-xl font-bold text-green-500" id="estimasiWaktu">-</div>
+                            <div class="text-xs text-gray-500 font-medium uppercase tracking-wider">Estimasi Waktu</div>
+                            <div class="text-2xl font-bold text-success-600 mt-1" id="estimasiWaktu">-</div>
                         </div>
                     </div>
                     
-                    <div class="bg-blue-50 border-l-4 border-blue-500 rounded p-3 text-left">
-                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
-                        <span id="waktuTunggu" class="text-gray-700">Silakan tunggu panggilan di display</span>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 rounded-lg p-4 text-left max-w-md mx-auto">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-blue-500 text-xl mr-3 mt-0.5"></i>
+                            <span id="waktuTunggu" class="text-gray-700">Silakan tunggu panggilan di display. Jaga jarak dan patuhi protokol kesehatan.</span>
+                        </div>
                     </div>
                 </div>
-                <div class="flex justify-center space-x-3">
-                    <button onclick="document.getElementById('nomorModal').classList.add('hidden')" class="px-5 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                <div class="flex justify-center space-x-4">
+                    <button onclick="document.getElementById('nomorModal').classList.add('hidden')" class="btn-secondary px-6 py-3 text-white rounded-lg font-bold transition-all">
                         <i class="fas fa-times mr-2"></i> Tutup
                     </button>
-                    <button onclick="printAntrian()" class="px-5 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+                    <button onclick="printAntrian()" class="btn-primary px-6 py-3 text-white rounded-lg font-bold transition-all">
                         <i class="fas fa-print mr-2"></i> Cetak
                     </button>
                 </div>
@@ -460,7 +550,7 @@
                         }
                         
                         body { 
-                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                            font-family: 'Poppins', sans-serif; 
                             text-align: center; 
                             margin: 0; 
                             padding: 0;
@@ -481,28 +571,28 @@
                         }
                         
                         .company-header {
-                            border-bottom: 2px solid #667eea;
+                            border-bottom: 2px solid #7c3aed;
                             padding-bottom: 8mm;
                             margin-bottom: 6mm;
                         }
                         
                         .company-logo {
                             font-size: 24px;
-                            color: #667eea;
+                            color: #7c3aed;
                             margin-bottom: 3mm;
                         }
                         
                         .company-name {
                             font-size: 16px;
                             font-weight: 700;
-                            color: #2c3e50;
+                            color: #1e293b;
                             margin: 0;
                             letter-spacing: 0.5px;
                         }
                         
                         .company-tagline {
                             font-size: 10px;
-                            color: #7f8c8d;
+                            color: #64748b;
                             margin: 2mm 0 0 0;
                             font-weight: 300;
                         }
@@ -510,7 +600,7 @@
                         .queue-number-section {
                             margin: 8mm 0;
                             padding: 6mm;
-                            border: 2px solid #667eea;
+                            border: 2px solid #7c3aed;
                             border-radius: 8px;
                             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
                             flex-grow: 1;
@@ -522,7 +612,7 @@
                         .number-label {
                             font-size: 10px;
                             font-weight: 600;
-                            color: #495057;
+                            color: #475569;
                             text-transform: uppercase;
                             letter-spacing: 1px;
                             margin-bottom: 4mm;
@@ -531,7 +621,7 @@
                         .queue-number {
                             font-size: 36px;
                             font-weight: 800;
-                            color: #2c3e50;
+                            color: #1e293b;
                             margin: 4mm 0;
                             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
                             letter-spacing: 1px;
@@ -540,7 +630,7 @@
                         
                         .category-badge {
                             display: inline-block;
-                            background: #667eea;
+                            background: #7c3aed;
                             color: white;
                             padding: 3mm 6mm;
                             border-radius: 12px;
@@ -554,7 +644,7 @@
                             padding: 4mm;
                             background: #fff;
                             border-radius: 6px;
-                            border: 1px solid #dee2e6;
+                            border: 1px solid #e2e8f0;
                             font-size: 9px;
                         }
                         
@@ -563,26 +653,26 @@
                             justify-content: space-between;
                             margin: 2mm 0;
                             padding: 1mm 0;
-                            border-bottom: 0.5px solid #f1f3f4;
+                            border-bottom: 0.5px solid #f1f5f9;
                         }
                         
                         .info-label {
                             font-weight: 600;
-                            color: #495057;
+                            color: #475569;
                             font-size: 9px;
                         }
                         
                         .info-value {
                             font-weight: 700;
-                            color: #2c3e50;
+                            color: #1e293b;
                             font-size: 9px;
                         }
                         
                         .footer {
                             margin-top: 6mm;
                             padding-top: 4mm;
-                            border-top: 1px solid #dee2e6;
-                            color: #6c757d;
+                            border-top: 1px solid #e2e8f0;
+                            color: #64748b;
                             font-size: 8px;
                             line-height: 1.3;
                         }

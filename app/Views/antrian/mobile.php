@@ -91,8 +91,8 @@
         }
         
         .service-card.disabled {
-            opacity: 0.5;
-            filter: grayscale(50%);
+            opacity: 0.6;
+            filter: grayscale(60%);
             cursor: not-allowed;
             pointer-events: none;
         }
@@ -106,6 +106,16 @@
             display: none;
         }
         
+        .disabled-overlay {
+            z-index: 20;
+        }
+        
+        .disabled-overlay > div {
+            backdrop-filter: blur(4px);
+            min-width: 120px;
+            text-align: center;
+        }
+        
         .bottom-bar {
             box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
             backdrop-filter: blur(10px);
@@ -116,6 +126,53 @@
         @media (max-width: 640px) {
             .info-grid {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            
+            /* Status bar responsive adjustments */
+            #currentQueueStatusBar .text-base {
+                font-size: 0.875rem;
+                line-height: 1.25rem;
+            }
+            
+            #currentQueueStatusBar .text-sm {
+                font-size: 0.75rem;
+            }
+            
+            #currentQueueStatusBar .text-lg {
+                font-size: 1rem;
+            }
+            
+            #currentQueueStatusBar .gap-2 {
+                gap: 0.5rem;
+            }
+            
+            #currentQueueStatusBar .p-4 {
+                padding: 0.75rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            #currentQueueStatusBar .text-base {
+                font-size: 0.8rem;
+            }
+            
+            #currentQueueStatusBar .text-sm {
+                font-size: 0.7rem;
+            }
+            
+            #currentQueueStatusBar .text-lg {
+                font-size: 0.9rem;
+            }
+            
+            #currentQueueStatusBar .p-4 {
+                padding: 0.5rem;
+            }
+            
+            /* Overlay responsive adjustments */
+            .disabled-overlay > div {
+                min-width: 100px;
+                padding: 0.25rem 0.5rem;
+                font-size: 0.65rem;
             }
         }
     </style>
@@ -154,26 +211,39 @@
 
     <!-- Current Queue Status Bar -->
     <div class="px-4 mb-4" id="currentQueueStatusBar" style="display: none;">
-        <div class="bg-success-500/20 backdrop-blur-sm border border-success-500/30 rounded-xl p-4 text-center">
-            <div class="flex items-center justify-center gap-3 mb-2">
-                <div class="bg-success-500 rounded-full w-6 h-6 flex items-center justify-center">
+        <div class="bg-white border-2 border-success-500 rounded-xl p-4 shadow-lg">
+            <!-- Header -->
+            <div class="flex items-center justify-center gap-2 mb-3">
+                <div class="bg-success-500 rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-check text-white text-xs"></i>
                 </div>
-                <h3 class="text-lg font-semibold text-success-600">Anda Sudah Mengambil Antrian</h3>
+                <h3 class="text-base font-semibold text-success-600 text-center leading-tight">Anda Sudah Mengambil Antrian</h3>
             </div>
-            <div class="text-sm text-success-700 mb-3">
-                <span class="font-medium">Nomor:</span> 
-                <span class="text-xl font-bold" id="statusBarNomorAntrian">-</span>
-                <span class="mx-2">•</span>
-                <span class="font-medium">Layanan:</span> 
-                <span id="statusBarKategori">-</span>
+            
+            <!-- Queue Info -->
+            <div class="text-center mb-4">
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 text-sm">
+                    <div class="flex items-center gap-1">
+                        <span class="font-medium text-gray-700">Nomor:</span> 
+                        <span class="text-lg font-bold text-success-600" id="statusBarNomorAntrian">-</span>
+                    </div>
+                    <div class="hidden sm:block text-success-500">•</div>
+                    <div class="flex items-center gap-1">
+                        <span class="font-medium text-gray-700">Layanan:</span> 
+                        <span class="text-success-600 font-medium" id="statusBarKategori">-</span>
+                    </div>
+                </div>
             </div>
-            <div class="flex justify-center gap-2">
-                <button onclick="showQueueNumberFromStatusBar()" class="px-4 py-2 bg-success-600 hover:bg-success-700 text-white rounded-lg text-sm font-medium transition-colors">
-                    <i class="fas fa-eye mr-1"></i> Lihat Detail
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row justify-center gap-2">
+                <button onclick="showQueueNumberFromStatusBar()" class="px-4 py-2 bg-success-600 hover:bg-success-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1">
+                    <i class="fas fa-eye text-xs"></i> 
+                    <span>Lihat Detail</span>
                 </button>
-                <button onclick="printAntrianFromStatusBar()" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors">
-                    <i class="fas fa-print mr-1"></i> Cetak
+                <button onclick="printAntrianFromStatusBar()" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1">
+                    <i class="fas fa-print text-xs"></i> 
+                    <span>Cetak</span>
                 </button>
             </div>
         </div>
@@ -238,7 +308,7 @@
             </div>
             <!-- Disabled Overlay -->
             <div class="disabled-overlay absolute inset-0 bg-black/20 rounded-xl flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
-                <div class="bg-white/90 rounded-lg px-3 py-1 text-xs font-medium text-gray-700">
+                <div class="bg-white/95 rounded-lg px-3 py-2 text-xs font-medium text-gray-700 shadow-lg border border-gray-200">
                     <i class="fas fa-lock mr-1"></i> Sudah Ambil Antrian
                 </div>
             </div>
