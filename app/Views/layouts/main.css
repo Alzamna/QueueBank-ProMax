@@ -22,9 +22,17 @@
 
 body {
     font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-    background: var(--gradient-primary);
     min-height: 100vh;
     color: var(--dark-color);
+}
+
+/* Login Page Specific Styles */
+.min-h-screen {
+    min-height: 100vh;
+}
+
+.bg-gradient-to-br {
+    background: linear-gradient(to bottom right, #f8fafc, #e2e8f0);
 }
 
 /* Card Styles */
@@ -35,6 +43,7 @@ body {
     backdrop-filter: blur(10px);
     background: rgba(255,255,255,0.95);
     transition: all 0.3s ease;
+    padding: 2rem;
 }
 
 .card:hover {
@@ -51,6 +60,8 @@ body {
     font-weight: 600;
     transition: all 0.3s ease;
     color: white;
+    width: 100%;
+    cursor: pointer;
 }
 
 .btn-primary:hover {
@@ -76,6 +87,29 @@ body {
 }
 
 /* Form Styles */
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(30, 64, 175, 0.25);
+}
+
+.form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+}
+
 .form-select, .form-control {
     border-radius: 12px;
     border: 2px solid var(--border-color);
@@ -98,6 +132,60 @@ body {
 .alert-info {
     background: var(--gradient-info);
     color: var(--primary-color);
+}
+
+.alert-danger {
+    background: #fef2f2;
+    border-left: 4px solid #ef4444;
+    color: #dc2626;
+    padding: 1rem;
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 1rem;
+}
+
+/* Utility Classes */
+.text-2xl {
+    font-size: 1.5rem;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mb-6 {
+    margin-bottom: 1.5rem;
+}
+
+.text-gray-800 {
+    color: #1f2937;
+}
+
+.mb-4 {
+    margin-bottom: 1rem;
+}
+
+.mb-6 {
+    margin-bottom: 1.5rem;
+}
+
+.w-96 {
+    width: 24rem;
+}
+
+.flex {
+    display: flex;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.items-center {
+    align-items: center;
 }
 
 /* Queue Number Display */
@@ -241,6 +329,11 @@ body {
     
     .service-card {
         padding: 1.5rem;
+    }
+    
+    .w-96 {
+        width: 90%;
+        margin: 0 1rem;
     }
 }
 
