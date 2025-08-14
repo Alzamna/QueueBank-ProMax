@@ -4,750 +4,231 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ambil Nomor Antrian - QueueBank ProMax</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <style>
-        /* Professional Queue Number Styles */
+    <style type="text/css">
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
         .bg-gradient-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
-
-        .queue-number-display {
-            position: relative;
+        .bg-gradient-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
         }
-
+        .bg-gradient-info {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+        }
+        .category-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .category-card.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
         .queue-number {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 6rem;
-            font-weight: 700;
-            color: #2c3e50;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
             letter-spacing: 2px;
-            margin: 0;
-            line-height: 1;
         }
-
-        .number-label {
-            font-size: 0.875rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
-
-        .category-info .badge {
-            font-weight: 500;
-            border-radius: 25px;
-        }
-
-        .status-item {
-            padding: 1rem;
-        }
-
-        .status-icon {
-            opacity: 0.8;
-        }
-
-        .status-label {
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-
-        .status-value {
-            font-size: 1.5rem;
-        }
-
-        .instruction-box {
-            border-left: 4px solid #007bff;
-        }
-
-        .company-branding {
-            opacity: 0.8;
-        }
-
-        .company-logo {
-            color: #667eea;
-        }
-
-        /* Print-specific styles */
         @media print {
             .queue-number {
-                font-size: 4rem;
-                color: #000;
-                text-shadow: none;
+                color: #000 !important;
+                text-shadow: none !important;
             }
-            
-            .status-value {
-                font-size: 1.25rem;
-            }
-            
             .badge {
                 background-color: #000 !important;
                 color: #fff !important;
             }
         }
-
-        /* Custom styles for standalone page */
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        .queue-machine {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            padding: 2rem;
-            margin: 2rem auto;
-            max-width: 1200px;
-            width: 100%;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 3px solid #667eea;
-        }
-        
-        .header h1 {
-            color: #667eea;
-            font-weight: bold;
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .header p {
-            color: #374151;
-            font-size: 1.1rem;
-            margin: 0;
-            font-weight: 500;
-        }
-        
-        .card {
-            border: none;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
-            background: rgba(255,255,255,0.95);
-            transition: all 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            border: none;
-            border-radius: 50px;
-            padding: 1rem 3rem;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: white;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 1rem;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(40, 167, 69, 0.3);
-            color: white;
-        }
-        
-        .btn-primary:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .loading {
-            display: none;
-        }
-        
-        .spinner-border-sm {
-            width: 1rem;
-            height: 1rem;
-        }
-        
-        .btn-info {
-            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
-            border: none;
-            border-radius: 12px;
-            padding: 0.75rem 2rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-info:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(6, 182, 212, 0.4);
-        }
-        
-        .form-select {
-            border-radius: 12px;
-            border: 2px solid #e2e8f0;
-            padding: 0.75rem 1rem;
-        }
-        
-        .form-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-        
-        .alert {
-            border-radius: 12px;
-            border: none;
-        }
-        
-        .mobile-mode-alert {
-            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-            color: #1e40af;
-        }
-        
-        .card {
-            border-radius: 10px;
-            box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04);
-            border: none;
-            transition: all 0.3s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-        }
-        
-        .card.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .card.selected .card-title,
-        .card.selected .card-text {
-            color: white !important;
-        }
-        
-        .card.selected .btn-primary {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            color: white;
-        }
-        
-        .card.selected .btn-primary:hover {
-            background: rgba(255, 255, 255, 0.3);
-            border-color: rgba(255, 255, 255, 0.5);
-        }
-        
-        /* Category Card Styling - Same as Desktop */
-        .category-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border: none;
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            height: 200px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        
-        .category-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-        }
-        
-        .category-card.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
-        }
-        
-        .category-card.selected .category-name {
-            color: white;
-        }
-        
-        .category-card.selected .category-description {
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 500;
-        }
-        
-        .category-card.selected .text-dark {
-            color: rgba(255, 255, 255, 0.9) !important;
-        }
-        
-        .category-card.selected .text-primary {
-            color: rgba(255, 255, 255, 0.95) !important;
-        }
-        
-        .category-card.selected small {
-            color: rgba(255, 255, 255, 0.85) !important;
-        }
-        
-        .category-card.selected strong {
-            color: rgba(255, 255, 255, 1) !important;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        }
-        
-        .category-name {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #1f2937;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-        
-        .category-description {
-            color: #374151;
-            font-size: 1rem;
-            font-weight: 500;
-            text-align: center;
-            line-height: 1.5;
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .card-header {
-            border-radius: 10px 10px 0 0 !important;
-            background-color: #fff;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-        }
-        
-        /* Mobile-specific styles */
-        .mobile-header {
-            display: none;
-            text-align: center;
-            margin-bottom: 1.5rem;
-            padding: 1rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
-            color: white;
-        }
-        
-        .mobile-header h1 {
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
-        }
-        
-        .mobile-header p {
-            font-size: 0.9rem;
-            margin: 0;
-            opacity: 0.9;
-        }
-        
-        .mobile-info-cards {
-            display: none;
-            margin-bottom: 1.5rem;
-        }
-        
-        .mobile-info-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        
-        .mobile-info-card .card-title {
-            font-size: 0.8rem;
-            color: #6b7280;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .mobile-info-card .card-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #1f2937;
-            margin: 0;
-        }
-        
-        .mobile-service-cards {
-            display: none;
-            margin-bottom: 1.5rem;
-        }
-        
-        .mobile-service-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .mobile-service-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-        }
-        
-        .mobile-service-card.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            transform: translateY(-2px);
-        }
-        
-        .mobile-service-card .service-name {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-        
-        .mobile-service-card .service-description {
-            font-size: 0.9rem;
-            margin-bottom: 0.75rem;
-            opacity: 0.8;
-        }
-        
-        .mobile-service-card .service-prefix {
-            font-size: 0.8rem;
-            font-weight: 600;
-            opacity: 0.9;
-        }
-        
-        .mobile-bottom-bar {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            padding: 1rem;
-            box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
-            border-radius: 20px 20px 0 0;
-            z-index: 1000;
-        }
-        
-        .mobile-bottom-bar .btn {
-            width: 100%;
-            padding: 1rem;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border-radius: 12px;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 1200px) {
-            .queue-machine {
-                max-width: 95%;
-                margin: 1rem auto;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .queue-machine {
-                max-width: 98%;
-                padding: 1rem;
-                margin: 1rem auto;
-            }
-            
-            .category-card {
-                height: 180px;
-                padding: 1.5rem;
-            }
-            
-            .category-name {
-                font-size: 1.3rem;
-            }
-            
-            .category-description {
-                font-size: 0.9rem;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .header p {
-                font-size: 1rem;
-            }
-        }
-        
-        /* Mobile-first responsive design */
-        @media (max-width: 480px) {
-            .header, .main-content, .running-text {
-                display: none;
-            }
-            
-            .mobile-header {
-                display: block;
-            }
-            
-            .mobile-info-cards {
-                display: block;
-            }
-            
-            .mobile-service-cards {
-                display: block;
-            }
-            
-            .mobile-bottom-bar {
-                display: block;
-            }
-            
-            .queue-machine {
-                padding: 0.5rem;
-                margin: 0.5rem auto;
-                border-radius: 15px;
-            }
-            
-            .queue-machine {
-                margin-bottom: 100px; /* Space for bottom bar */
-            }
-            
-            /* Optimize for touch devices */
-            .mobile-service-card {
-                padding: 1.25rem;
-                margin-bottom: 0.75rem;
-            }
-            
-            .mobile-service-card .service-name {
-                font-size: 1.1rem;
-            }
-            
-            .mobile-service-card .service-description {
-                font-size: 0.85rem;
-            }
-            
-            .mobile-bottom-bar .btn {
-                padding: 0.875rem;
-                font-size: 1rem;
-            }
-        }
-        
-        /* Landscape orientation adjustments */
-        @media (max-width: 480px) and (orientation: landscape) {
-            .mobile-header h1 {
-                font-size: 1.5rem;
-            }
-            
-            .mobile-header p {
-                font-size: 0.8rem;
-            }
-            
-            .mobile-info-cards {
-                display: grid;
-                grid-template-columns: repeat(4, 1fr);
-                gap: 0.5rem;
-                margin-bottom: 1rem;
-            }
-            
-            .mobile-info-card {
-                margin-bottom: 0;
-                padding: 0.75rem;
-            }
-            
-            .mobile-info-card .card-title {
-                font-size: 0.7rem;
-            }
-            
-            .mobile-info-card .card-value {
-                font-size: 1.2rem;
-            }
-        }
     </style>
 </head>
-<body>
-            <div class="container">
-            <div class="queue-machine">
+<body class="min-h-screen bg-gradient-primary font-sans antialiased">
+    <!-- Desktop Container -->
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
             <!-- Desktop Header -->
-                <div class="header">
-                    <h1><i class="fas fa-ticket-alt"></i> MESIN ANTRIAN</h1>
-                    <p>Silakan pilih kategori layanan dan ambil nomor antrian</p>
-                <div class="text-muted mb-3">
-                    <small><i class="fas fa-mobile-alt"></i> Tersedia dalam 2 tampilan</small>
+            <div class="text-center py-8 px-4 border-b border-gray-200">
+                <h1 class="text-4xl font-bold text-indigo-600 mb-2">
+                    <i class="fas fa-ticket-alt mr-2"></i> MESIN ANTRIAN
+                </h1>
+                <p class="text-lg text-gray-700 font-medium">
+                    Silakan pilih kategori layanan dan ambil nomor antrian
+                </p>
+                <div class="text-gray-500 text-sm mt-2">
+                    <i class="fas fa-mobile-alt mr-1"></i> Tersedia dalam 2 tampilan
                 </div>
-                <!-- Switch to Mobile View Button -->
-                <div class="d-flex gap-2 justify-content-center">
-                    <a href="/antrian/desktop" class="btn btn-light btn-sm active">
-                        <i class="fas fa-desktop"></i> Desktop
+                <div class="flex justify-center gap-2 mt-4">
+                    <a href="/antrian/desktop" class="px-4 py-2 bg-gray-100 rounded-full text-sm font-medium text-gray-700">
+                        <i class="fas fa-desktop mr-1"></i> Desktop
                     </a>
-                    <a href="/antrian/mobile" class="btn btn-outline-light btn-sm">
-                        <i class="fas fa-mobile-alt"></i> Mobile
+                    <a href="/antrian/mobile" class="px-4 py-2 border border-gray-300 rounded-full text-sm font-medium text-gray-700">
+                        <i class="fas fa-mobile-alt mr-1"></i> Mobile
                     </a>
                 </div>
             </div>
-            
 
-        
-        <!-- Current Queue Status (Mobile) -->
-        <div class="row justify-content-center mb-4" id="currentQueueStatus" style="display: none;">
-            <div class="col-md-8">
-                <div class="card border-success">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-ticket-alt"></i> Nomor Antrian Aktif Anda
-                        </h5>
+            <!-- Current Queue Status (Mobile) -->
+            <div id="currentQueueStatus" class="hidden px-6 py-8">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-green-500">
+                    <div class="bg-green-600 px-6 py-4 text-white">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-3">
+                                <div class="bg-white/20 rounded-full w-8 h-8 flex items-center justify-center">
+                                    <i class="fas fa-ticket-alt text-white"></i>
+                                </div>
+                                <h2 class="text-lg font-semibold">Nomor Antrian Aktif Anda</h2>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body text-center">
-                        <div class="queue-number-display mb-3">
-                            <div class="number-label text-uppercase text-muted mb-2">Nomor Antrian</div>
-                            <div class="queue-number" id="currentNomorAntrian">-</div>
-                            <div class="category-info mt-3">
-                                <span class="badge bg-success fs-6 px-3 py-2" id="currentKategoriAntrian">-</span>
+                    <div class="p-6 text-center">
+                        <div class="mb-6">
+                            <div class="text-xs uppercase tracking-wider text-gray-500 mb-2">Nomor Antrian</div>
+                            <div class="queue-number text-6xl font-bold text-gray-800" id="currentNomorAntrian">-</div>
+                            <div class="mt-4">
+                                <span class="inline-block bg-green-600 text-white text-sm font-medium px-4 py-2 rounded-full" id="currentKategoriAntrian">-</span>
                             </div>
                         </div>
-                        <div class="row text-center">
-                            <div class="col-6">
-                                <div class="status-item">
-                                    <div class="status-icon text-info mb-2">
-                                        <i class="fas fa-users fa-2x"></i>
-                                    </div>
-                                    <div class="status-label text-muted">Posisi Antrian</div>
-                                    <div class="status-value fw-bold text-info" id="currentPosisiAntrian">-</div>
+                        <div class="grid grid-cols-2 gap-4 text-center">
+                            <div class="p-4">
+                                <div class="text-blue-500 mb-2">
+                                    <i class="fas fa-users text-2xl"></i>
                                 </div>
+                                <div class="text-xs text-gray-500">Posisi Antrian</div>
+                                <div class="text-xl font-bold text-blue-500" id="currentPosisiAntrian">-</div>
                             </div>
-                            <div class="col-6">
-                                <div class="status-item">
-                                    <div class="status-icon text-success mb-2">
-                                        <i class="fas fa-clock fa-2x"></i>
-                                    </div>
-                                    <div class="status-label text-muted">Estimasi Waktu</div>
-                                    <div class="status-value fw-bold text-success" id="currentEstimasiWaktu">-</div>
+                            <div class="p-4">
+                                <div class="text-green-500 mb-2">
+                                    <i class="fas fa-clock text-2xl"></i>
                                 </div>
+                                <div class="text-xs text-gray-500">Estimasi Waktu</div>
+                                <div class="text-xl font-bold text-green-500" id="currentEstimasiWaktu">-</div>
                             </div>
                         </div>
-                        <div class="mt-3">
-                            <button class="btn btn-outline-success me-2" onclick="refreshQueueStatus()">
-                                <i class="fas fa-sync-alt"></i> Refresh Status
+                        <div class="mt-6 flex justify-center space-x-3">
+                            <button onclick="refreshQueueStatus()" class="px-5 py-2 border border-green-600 text-green-600 rounded-lg font-medium hover:bg-green-50 transition-colors">
+                                <i class="fas fa-sync-alt mr-2"></i> Refresh Status
                             </button>
-                            <button class="btn btn-success" onclick="printCurrentQueue()">
-                                <i class="fas fa-print"></i> Cetak
+                            <button onclick="printCurrentQueue()" class="px-5 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+                                <i class="fas fa-print mr-2"></i> Cetak
                             </button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Debug information -->
-        <?php if(empty($kategori)): ?>
-            <div class="alert alert-warning">
-                <strong>Debug Info:</strong> Tidak ada kategori yang ditemukan. 
-                <br>Total kategori: <?= count($kategori ?? []) ?>
-                <br>Kategori data: <?= json_encode($kategori ?? []) ?>
-            </div>
-        <?php endif; ?>
-        
+
+            <!-- Debug information -->
+            <?php if(empty($kategori)): ?>
+                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mx-6 my-4">
+                    <strong>Debug Info:</strong> Tidak ada kategori yang ditemukan. 
+                    <br>Total kategori: <?= count($kategori ?? []) ?>
+                    <br>Kategori data: <?= json_encode($kategori ?? []) ?>
+                </div>
+            <?php endif; ?>
+
             <!-- Desktop Categories -->
-        <div class="row" id="categories">
-            <?php foreach ($kategori as $kat): ?>
-            <div class="col-lg-4 col-md-6 mb-4">
-                <div class="category-card" data-kategori-id="<?= $kat['id'] ?>">
-                    <div class="category-name"><?= $kat['nama_kategori'] ?></div>
-                    <div class="category-description"><?= $kat['deskripsi'] ?? 'Layanan ' . $kat['nama_kategori'] ?></div>
-                    <div class="text-dark text-center">
-                        <small class="fw-semibold">Prefix: <strong class="text-primary"><?= $kat['prefix'] ?></strong></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-        </div>
-        
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6" id="categories">
+                <?php foreach ($kategori as $kat): ?>
+                <div class="category-card rounded-2xl p-6 cursor-pointer flex flex-col items-center justify-between h-48" data-kategori-id="<?= $kat['id'] ?>">
+                    <div class="text-xl font-bold text-gray-800 text-center"><?= $kat['nama_kategori'] ?></div>
+                    <div class="text-gray-600 text-center font-medium flex-grow flex items-center justify-center">
+                        <?= $kat['deskripsi'] ?? 'Layanan ' . $kat['nama_kategori'] ?>
+                    </div>
+                    <div class="text-gray-700 text-center text-sm">
+                        <span class="font-semibold">Prefix: </span>
+                        <span class="font-bold text-indigo-600"><?= $kat['prefix'] ?></span>
+                    </div>
+                </div>
+                <?php endforeach; ?>
+            </div>
 
-            
             <!-- Desktop Action Button -->
-            <div class="row mt-4" id="desktopActionButton">
-            <div class="col-12">
-                <button class="btn btn-primary" id="btnAmbil" disabled>
+            <div class="px-6 pb-8">
+                <button id="btnAmbil" disabled class="w-full py-4 px-6 bg-gradient-success hover:shadow-lg text-white font-bold rounded-full transition-all duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed">
                     <span class="btn-text">Pilih kategori terlebih dahulu</span>
-                    <span class="loading">
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                        Memproses...
+                    <span class="loading hidden">
+                        <i class="fas fa-spinner fa-spin mr-2"></i> Memproses...
                     </span>
                 </button>
-                </div>
             </div>
         </div>
     </div>
-
-
 
     <!-- Modal untuk menampilkan nomor antrian -->
-    <div class="modal fade" id="nomorModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header bg-gradient-primary text-white border-0">
-                    <h4 class="modal-title mb-0">
-                        <i class="fas fa-ticket-alt me-2"></i>
-                        Nomor Antrian Anda
-                    </h4>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body text-center p-5">
-                    <div class="company-branding mb-4">
-                        <div class="company-logo mb-3">
-                            <i class="fas fa-building fa-3x text-primary"></i>
-                        </div>
-                        <h5 class="text-muted mb-0">QueueBank ProMax</h5>
-                        <small class="text-muted">Sistem Antrian Modern</small>
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 hidden" id="nomorModal">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden">
+            <div class="bg-gradient-primary text-white px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-ticket-alt text-xl"></i>
+                        <h3 class="text-xl font-semibold">Nomor Antrian Anda</h3>
                     </div>
-                    
-                    <div class="queue-number-display mb-4">
-                        <div class="number-label text-uppercase text-muted mb-2">Nomor Antrian</div>
-                        <div class="queue-number" id="nomorAntrian">-</div>
-                        <div class="category-info mt-3">
-                            <span class="badge bg-primary fs-6 px-3 py-2" id="kategoriAntrian">-</span>
-                        </div>
-                    </div>
-                    
-                    <div class="queue-status mb-4">
-                        <div class="row text-center">
-                            <div class="col-6">
-                                <div class="status-item">
-                                    <div class="status-icon text-info mb-2">
-                                        <i class="fas fa-users fa-2x"></i>
-                                    </div>
-                                    <div class="status-label text-muted">Antrian di Depan</div>
-                                    <div class="status-value fw-bold text-info" id="posisiAntrian">-</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="status-item">
-                                    <div class="status-icon text-success mb-2">
-                                        <i class="fas fa-clock fa-2x"></i>
-                                    </div>
-                                    <div class="status-label text-muted">Estimasi Waktu</div>
-                                    <div class="status-value fw-bold text-success" id="estimasiWaktu">-</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="instruction-box bg-light rounded p-3">
-                        <i class="fas fa-info-circle text-primary me-2"></i>
-                        <span id="waktuTunggu" class="text-muted">Silakan tunggu panggilan di display</span>
-                    </div>
-                </div>
-                <div class="modal-footer border-0 justify-content-center">
-                    <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i> Tutup
+                    <button onclick="document.getElementById('nomorModal').classList.add('hidden')" class="text-white hover:text-white/80">
+                        <i class="fas fa-times text-xl"></i>
                     </button>
-                    <button type="button" class="btn btn-primary" onclick="printAntrian()">
-                        <i class="fas fa-print me-1"></i> Cetak
+                </div>
+            </div>
+            <div class="p-8 text-center">
+                <div class="mb-8">
+                    <div class="mb-4">
+                        <i class="fas fa-building text-indigo-500 text-4xl"></i>
+                        <h4 class="text-gray-500 mt-2">QueueBank ProMax</h4>
+                        <p class="text-gray-400 text-sm">Sistem Antrian Modern</p>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="text-xs uppercase tracking-wider text-gray-500 mb-2">Nomor Antrian</div>
+                        <div class="queue-number text-7xl font-bold text-gray-800 animate-float" id="nomorAntrian">-</div>
+                        <div class="mt-4">
+                            <span class="inline-block bg-indigo-600 text-white text-sm font-medium px-4 py-2 rounded-full" id="kategoriAntrian">-</span>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="p-4">
+                            <div class="text-blue-500 mb-2">
+                                <i class="fas fa-users text-2xl"></i>
+                            </div>
+                            <div class="text-xs text-gray-500">Antrian di Depan</div>
+                            <div class="text-xl font-bold text-blue-500" id="posisiAntrian">-</div>
+                        </div>
+                        <div class="p-4">
+                            <div class="text-green-500 mb-2">
+                                <i class="fas fa-clock text-2xl"></i>
+                            </div>
+                            <div class="text-xs text-gray-500">Estimasi Waktu</div>
+                            <div class="text-xl font-bold text-green-500" id="estimasiWaktu">-</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-500 rounded p-3 text-left">
+                        <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                        <span id="waktuTunggu" class="text-gray-700">Silakan tunggu panggilan di display</span>
+                    </div>
+                </div>
+                <div class="flex justify-center space-x-3">
+                    <button onclick="document.getElementById('nomorModal').classList.add('hidden')" class="px-5 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                        <i class="fas fa-times mr-2"></i> Tutup
+                    </button>
+                    <button onclick="printAntrian()" class="px-5 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+                        <i class="fas fa-print mr-2"></i> Cetak
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- jQuery and Bootstrap JS -->
+    <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
     // Check current queue status on page load
@@ -763,13 +244,11 @@
             const selectedCard = document.querySelector('.category-card.selected');
             if (selectedCard) {
                 const kategoriId = selectedCard.dataset.kategoriId;
-                const kategoriNama = selectedCard.querySelector('.category-name').textContent;
+                const kategoriNama = selectedCard.querySelector('div:nth-child(1)').textContent;
                 ambilNomor(kategoriId, kategoriNama, {target: this});
             }
         });
     }
-    
-
     
     function setupCardSelection() {
         // Add click event to desktop category cards
@@ -778,10 +257,16 @@
                 // Remove selection from all cards
                 document.querySelectorAll('.category-card').forEach(c => {
                     c.classList.remove('selected');
+                    c.querySelector('div:nth-child(1)').classList.remove('text-white');
+                    c.querySelector('div:nth-child(2)').classList.remove('text-white');
+                    c.querySelector('div:nth-child(3)').classList.remove('text-white');
                 });
                 
                 // Add selection to clicked card
                 this.classList.add('selected');
+                this.querySelector('div:nth-child(1)').classList.add('text-white');
+                this.querySelector('div:nth-child(2)').classList.add('text-white');
+                this.querySelector('div:nth-child(3)').classList.add('text-white');
                 
                 // Enable action button
                 const btn = document.getElementById('btnAmbil');
@@ -791,14 +276,15 @@
                 // Auto-remove selection after 3 seconds
                 setTimeout(() => {
                     this.classList.remove('selected');
+                    this.querySelector('div:nth-child(1)').classList.remove('text-white');
+                    this.querySelector('div:nth-child(2)').classList.remove('text-white');
+                    this.querySelector('div:nth-child(3)').classList.remove('text-white');
                     btn.disabled = true;
                     btn.querySelector('.btn-text').textContent = 'Pilih kategori terlebih dahulu';
                 }, 3000);
             });
         });
     }
-
-
 
     function checkCurrentQueueStatus() {
         $.ajax({
@@ -832,11 +318,11 @@
             $('#currentEstimasiWaktu').text('Segera dipanggil');
         }
         
-        $('#currentQueueStatus').show();
+        document.getElementById('currentQueueStatus').classList.remove('hidden');
     }
 
     function hideCurrentQueueStatus() {
-        $('#currentQueueStatus').hide();
+        document.getElementById('currentQueueStatus').classList.add('hidden');
     }
 
     function refreshQueueStatus() {
@@ -856,7 +342,7 @@
         // Show loading state
         const button = event.target;
         const originalText = button.innerHTML;
-        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...';
         button.disabled = true;
         
         // Debug: log data being sent
@@ -878,7 +364,7 @@
             data: {kategori_id: parseInt(kategoriId)},
             success: function(response) {
                 console.log('Response received:', response);
-            if(response.success) {
+                if(response.success) {
                     // Check if this is an existing queue number
                     if (response.existing) {
                         alert('Anda sudah memiliki nomor antrian aktif: ' + response.nomor_antrian);
@@ -886,37 +372,37 @@
                         return;
                     }
 
-                $('#nomorAntrian').text(response.nomor_antrian);
-                $('#kategoriAntrian').text(kategoriNama);
-                
-                // Display queue position
-                if(response.posisi_antrian > 0) {
-                    $('#posisiAntrian').text(response.posisi_antrian);
-                } else {
-                    $('#posisiAntrian').text('0');
-                }
-                
-                // Calculate estimated wait time (assuming 5 minutes per person)
-                const estimatedMinutes = response.posisi_antrian * 5;
-                if(estimatedMinutes > 0) {
-                    $('#estimasiWaktu').text(estimatedMinutes + ' menit');
-                } else {
-                    $('#estimasiWaktu').text('Segera dipanggil');
-                }
-                
-                $('#waktuTunggu').text('Silakan tunggu panggilan di display. Jaga jarak dan patuhi protokol kesehatan.');
-                
-                $('#nomorModal').modal('show');
+                    $('#nomorAntrian').text(response.nomor_antrian);
+                    $('#kategoriAntrian').text(kategoriNama);
+                    
+                    // Display queue position
+                    if(response.posisi_antrian > 0) {
+                        $('#posisiAntrian').text(response.posisi_antrian);
+                    } else {
+                        $('#posisiAntrian').text('0');
+                    }
+                    
+                    // Calculate estimated wait time (assuming 5 minutes per person)
+                    const estimatedMinutes = response.posisi_antrian * 5;
+                    if(estimatedMinutes > 0) {
+                        $('#estimasiWaktu').text(estimatedMinutes + ' menit');
+                    } else {
+                        $('#estimasiWaktu').text('Segera dipanggil');
+                    }
+                    
+                    $('#waktuTunggu').text('Silakan tunggu panggilan di display. Jaga jarak dan patuhi protokol kesehatan.');
+                    
+                    document.getElementById('nomorModal').classList.remove('hidden');
                     
                     // Refresh current queue status
                     checkCurrentQueueStatus();
-            } else {
-                // Show error message
-                alert('Gagal mengambil nomor antrian: ' + (response.message || 'Terjadi kesalahan'));
-            }
-        },
-        error: function(xhr, status, error) {
-            // Handle AJAX errors
+                } else {
+                    // Show error message
+                    alert('Gagal mengambil nomor antrian: ' + (response.message || 'Terjadi kesalahan'));
+                }
+            },
+            error: function(xhr, status, error) {
+                // Handle AJAX errors
                 console.error('AJAX Error:', {xhr, status, error});
                 console.error('Response Text:', xhr.responseText);
                 
@@ -930,12 +416,12 @@
                 }
                 
                 alert('Error: ' + errorMessage);
-        },
-        complete: function() {
-            // Reset button state
-            button.innerHTML = originalText;
-            button.disabled = false;
-        }
+            },
+            complete: function() {
+                // Reset button state
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
         });
     }
 
@@ -951,7 +437,6 @@
                 <head>
                     <title>Nomor Antrian - QueueBank ProMax</title>
                     <style>
-                        /* Print styles optimized for queue ticket paper (A6 size: 105mm x 148mm) */
                         @media print {
                             @page {
                                 size: A6;
@@ -1101,16 +586,6 @@
                             font-size: 8px;
                             line-height: 1.3;
                         }
-                        
-                        /* Additional print optimizations */
-                        .print-container * {
-                            box-sizing: border-box;
-                        }
-                        
-                        /* Ensure text is readable on small paper */
-                        .queue-number {
-                            -webkit-text-stroke: 0.5px #2c3e50;
-                        }
                     </style>
                 </head>
                 <body>
@@ -1166,10 +641,7 @@
         
         // Wait for content to load then print
         printWindow.onload = function() {
-            // Set print options for better quality
             printWindow.focus();
-            
-            // Small delay to ensure content is fully rendered
             setTimeout(function() {
                 printWindow.print();
             }, 500);

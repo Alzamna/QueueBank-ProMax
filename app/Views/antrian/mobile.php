@@ -90,10 +90,27 @@
             left: 100%;
         }
         
+        .service-card.disabled {
+            opacity: 0.5;
+            filter: grayscale(50%);
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .service-card.disabled:hover {
+            transform: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .service-card.disabled::before {
+            display: none;
+        }
+        
         .bottom-bar {
             box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
             backdrop-filter: blur(10px);
             background-color: rgba(255, 255, 255, 0.95);
+            padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
         }
         
         @media (max-width: 640px) {
@@ -132,6 +149,33 @@
         <div class="bg-white/20 rounded-lg p-3 text-center backdrop-blur-sm border border-white/10 shadow-sm hover:shadow-md transition-all">
             <div class="text-xs font-medium uppercase tracking-wider text-white/80">Update</div>
             <div class="text-sm font-medium mt-1" id="mobileUpdateTerakhir">-</div>
+        </div>
+    </div>
+
+    <!-- Current Queue Status Bar -->
+    <div class="px-4 mb-4" id="currentQueueStatusBar" style="display: none;">
+        <div class="bg-success-500/20 backdrop-blur-sm border border-success-500/30 rounded-xl p-4 text-center">
+            <div class="flex items-center justify-center gap-3 mb-2">
+                <div class="bg-success-500 rounded-full w-6 h-6 flex items-center justify-center">
+                    <i class="fas fa-check text-white text-xs"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-success-600">Anda Sudah Mengambil Antrian</h3>
+            </div>
+            <div class="text-sm text-success-700 mb-3">
+                <span class="font-medium">Nomor:</span> 
+                <span class="text-xl font-bold" id="statusBarNomorAntrian">-</span>
+                <span class="mx-2">•</span>
+                <span class="font-medium">Layanan:</span> 
+                <span id="statusBarKategori">-</span>
+            </div>
+            <div class="flex justify-center gap-2">
+                <button onclick="showQueueNumberFromStatusBar()" class="px-4 py-2 bg-success-600 hover:bg-success-700 text-white rounded-lg text-sm font-medium transition-colors">
+                    <i class="fas fa-eye mr-1"></i> Lihat Detail
+                </button>
+                <button onclick="printAntrianFromStatusBar()" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors">
+                    <i class="fas fa-print mr-1"></i> Cetak
+                </button>
+            </div>
         </div>
     </div>
 
@@ -192,15 +236,23 @@
                     <span class="font-medium">Prefix:</span> <?= $kat['prefix'] ?>
                 </div>
             </div>
+            <!-- Disabled Overlay -->
+            <div class="disabled-overlay absolute inset-0 bg-black/20 rounded-xl flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+                <div class="bg-white/90 rounded-lg px-3 py-1 text-xs font-medium text-gray-700">
+                    <i class="fas fa-lock mr-1"></i> Sudah Ambil Antrian
+                </div>
+            </div>
         </div>
         <?php endforeach; ?>
     </div>
 
     <!-- Bottom Action Bar -->
-    <div class="bottom-bar fixed bottom-0 left-0 right-0 p-4">
-        <button id="mobileBtnAmbil" disabled class="w-full py-3 px-4 rounded-full font-semibold text-white bg-gradient-button hover:shadow-lg transition-all disabled:bg-gradient-button-disabled disabled:cursor-not-allowed disabled:opacity-80">
-            <span class="btn-text">Pilih layanan terlebih dahulu</span>
-        </button>
+    <div class="bottom-bar fixed bottom-0 left-0 right-0 p-4 z-40">
+        <div class="max-w-md mx-auto w-full">
+            <button id="mobileBtnAmbil" disabled class="w-full py-3 px-4 rounded-full font-semibold text-white bg-gradient-button hover:shadow-lg transition-all disabled:bg-gradient-button-disabled disabled:cursor-not-allowed disabled:opacity-80">
+                <span class="btn-text">Pilih layanan terlebih dahulu</span>
+            </button>
+        </div>
     </div>
 
     <script>
@@ -218,6 +270,11 @@
         function setupMobileServiceCards() {
             document.querySelectorAll('.service-card').forEach(card => {
                 card.addEventListener('click', function() {
+                    // Check if card is disabled
+                    if (this.classList.contains('disabled')) {
+                        return; // Don't allow selection of disabled cards
+                    }
+                    
                     document.querySelectorAll('.service-card').forEach(c => {
                         c.classList.remove('bg-gradient-selected', 'text-white');
                         c.querySelector('h3').classList.remove('text-white');
@@ -311,14 +368,20 @@
                     const hoursDiff = (now - queueTime) / (1000 * 60 * 60);
                     
                     if (hoursDiff < 24) {
-                        showQueueNumber(queueData);
+                        // Show status bar and disable other services
+                        showStatusBar(queueData);
+                        disableOtherServices(queueData.kategori_id);
                         updateQueueInfo();
                     } else {
                         // Remove expired queue
                         localStorage.removeItem(STORAGE_KEY);
+                        hideStatusBar();
+                        enableAllServices();
                     }
                 } catch (e) {
                     localStorage.removeItem(STORAGE_KEY);
+                    hideStatusBar();
+                    enableAllServices();
                 }
             }
         }
@@ -349,6 +412,57 @@
             
             // Calculate position and estimated time
             calculateQueuePosition(queueData.antrian_id, queueData.kategori_id);
+            
+            // Show status bar and disable other services
+            showStatusBar(queueData);
+            disableOtherServices(queueData.kategori_id);
+        }
+        
+        function showStatusBar(queueData) {
+            const statusBar = document.getElementById('currentQueueStatusBar');
+            const displayNumber = queueData.nomor_antrian || queueData.nomor_antrian_full;
+            
+            document.getElementById('statusBarNomorAntrian').textContent = displayNumber;
+            document.getElementById('statusBarKategori').textContent = queueData.kategori;
+            
+            statusBar.style.display = 'block';
+            statusBar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        function hideStatusBar() {
+            const statusBar = document.getElementById('currentQueueStatusBar');
+            statusBar.style.display = 'none';
+        }
+        
+        function disableOtherServices(selectedKategoriId) {
+            document.querySelectorAll('.service-card').forEach(card => {
+                const kategoriId = card.dataset.kategoriId;
+                const overlay = card.querySelector('.disabled-overlay');
+                
+                if (kategoriId !== selectedKategoriId) {
+                    card.classList.add('disabled');
+                    overlay.style.opacity = '1';
+                    overlay.style.pointerEvents = 'auto';
+                } else {
+                    card.classList.add('bg-gradient-selected', 'text-white');
+                    card.querySelector('h3').classList.add('text-white');
+                    card.querySelector('p').classList.add('text-white');
+                    card.querySelector('div').classList.add('text-white');
+                }
+            });
+        }
+        
+        function enableAllServices() {
+            document.querySelectorAll('.service-card').forEach(card => {
+                card.classList.remove('disabled', 'bg-gradient-selected', 'text-white');
+                card.querySelector('h3').classList.remove('text-white');
+                card.querySelector('p').classList.remove('text-white');
+                card.querySelector('div').classList.remove('text-white');
+                
+                const overlay = card.querySelector('.disabled-overlay');
+                overlay.style.opacity = '0';
+                overlay.style.pointerEvents = 'none';
+            });
         }
         
         function hideQueueStatus() {
@@ -483,6 +597,89 @@
                 });
             }, 30000);
         }
+        
+        function showQueueNumberFromStatusBar() {
+            const savedQueue = localStorage.getItem(STORAGE_KEY);
+            if (savedQueue) {
+                try {
+                    const queueData = JSON.parse(savedQueue);
+                    showQueueModal(queueData);
+                } catch (e) {
+                    console.error('Error showing queue from status bar:', e);
+                    alert('Terjadi kesalahan saat menampilkan detail antrian');
+                }
+            } else {
+                alert('Tidak ada data antrian yang tersimpan');
+            }
+        }
+        
+        function showQueueModal(queueData) {
+            // Show modal without changing status bar or disabling services
+            const modal = document.getElementById('currentQueueStatus');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.querySelector('#currentQueueStatus > div').classList.remove('scale-95');
+            modal.querySelector('#currentQueueStatus > div').classList.add('scale-100');
+            
+            // Use display number for user-friendly view
+            const displayNumber = queueData.nomor_antrian || queueData.nomor_antrian_full;
+            document.getElementById('currentNomorAntrian').textContent = displayNumber;
+            document.getElementById('currentKategoriAntrian').textContent = queueData.kategori;
+            
+            // Set current timestamp
+            const now = new Date();
+            const timestamp = now.toLocaleString('id-ID', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('currentTimestamp').textContent = timestamp;
+            
+            // Calculate position and estimated time
+            calculateQueuePosition(queueData.antrian_id, queueData.kategori_id);
+        }
+        
+        function printAntrianFromStatusBar() {
+            const savedQueue = localStorage.getItem(STORAGE_KEY);
+            if (savedQueue) {
+                try {
+                    const queueData = JSON.parse(savedQueue);
+                    // Update modal content first
+                    showQueueModal(queueData);
+                    // Wait a bit for modal to update, then print
+                    setTimeout(() => {
+                        printAntrian();
+                    }, 300);
+                } catch (e) {
+                    console.error('Error printing from status bar:', e);
+                    alert('Terjadi kesalahan saat mencetak antrian');
+                }
+            } else {
+                alert('Tidak ada data antrian yang tersimpan');
+            }
+        }
+        
+        // Function untuk reset manual (untuk testing)
+        function resetQueue() {
+            localStorage.removeItem(STORAGE_KEY);
+            hideStatusBar();
+            enableAllServices();
+            
+            const mobileBtn = document.getElementById('mobileBtnAmbil');
+            mobileBtn.disabled = true;
+            mobileBtn.querySelector('.btn-text').textContent = 'Pilih layanan terlebih dahulu';
+            
+            // Hide modal if open
+            const modal = document.getElementById('currentQueueStatus');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.querySelector('#currentQueueStatus > div').classList.remove('scale-100');
+            modal.querySelector('#currentQueueStatus > div').classList.add('scale-95');
+        }
+        
+        // Expose reset function globally for testing
+        window.resetQueue = resetQueue;
     </script>
 </body>
 </html>
