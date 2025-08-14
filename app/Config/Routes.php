@@ -14,10 +14,16 @@ $routes->get('/logout', 'AuthController::logout');
 $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->get('dashboard', 'AdminController::dashboard');
     $routes->get('users', 'AdminController::users');
-    $routes->get('lokets', 'AdminController::lokets');
     $routes->get('kategori', 'AdminController::kategoriAntrian');
     $routes->get('pengaturan', 'AdminController::pengaturan');
     $routes->get('laporan', 'AdminController::laporan');
+
+    $routes->get('lokets', 'Loket::index');
+    $routes->get('lokets/create', 'Loket::create');
+    $routes->post('lokets/store', 'Loket::store');
+    $routes->get('lokets/edit/(:num)', 'Loket::edit/$1');
+    $routes->post('lokets/update/(:num)', 'Loket::update/$1');
+    $routes->post('lokets/delete/(:num)', 'Loket::delete/$1');
 });
 
 // Petugas Routes
