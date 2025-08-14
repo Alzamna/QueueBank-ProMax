@@ -661,6 +661,7 @@
                             // Save queue number to persistent storage
                             const queueData = {
                                 nomor_antrian: data.nomor_antrian,
+                                nomor_antrian_full: data.nomor_antrian_full,
                                 kategori: data.kategori,
                                 antrian_id: data.antrian_id,
                                 waktu_ambil: new Date().toISOString(),
@@ -714,7 +715,9 @@
         }
         
         function showQueueNumber(queueData) {
-            document.getElementById('currentNomorAntrian').textContent = queueData.nomor_antrian;
+            // Use display number for user-friendly view
+            const displayNumber = queueData.nomor_antrian || queueData.nomor_antrian_full;
+            document.getElementById('currentNomorAntrian').textContent = displayNumber;
             document.getElementById('currentKategoriAntrian').textContent = queueData.kategori;
             
             // Set current timestamp
@@ -754,6 +757,9 @@
                     </div>
                     <div style="font-size: 12px; color: #999; margin: 20px 0;">
                         ${document.getElementById('currentTimestamp').textContent}
+                    </div>
+                    <div style="font-size: 10px; color: #ccc; margin: 10px 0;">
+                        ID: ${document.getElementById('currentNomorAntrian').textContent}
                     </div>
                 </div>
             `;

@@ -1,259 +1,218 @@
-# Sistem Antrian Dual Source - QueueBank ProMax
+# QueueBank ProMax - Dual Queue System
 
-Sistem antrian yang bekerja untuk dua sumber sekaligus: **Desktop (Mesin Antrian)** dan **Mobile (Web HP)** dengan satu jalur antrian terpusat.
+## Overview
+QueueBank ProMax adalah sistem antrian digital yang mendukung dua jenis antarmuka: Desktop dan Mobile. Sistem ini dirancang untuk memberikan pengalaman yang optimal baik untuk pengguna desktop maupun mobile.
 
-## 🎯 Fitur Utama
+## Fitur Utama
 
-### Desktop (Mesin Antrian)
-- ✅ Setiap klik tombol selalu menghasilkan nomor baru
-- ✅ Interface khusus untuk mesin antrian
-- ✅ Tidak menyimpan session device
-- ✅ Statistik real-time
-- ✅ Fitur cetak nomor antrian
+### 1. Dual Interface System
+- **Desktop Interface**: Antarmuka lengkap untuk komputer desktop
+- **Mobile Interface**: Antarmuka responsif untuk perangkat mobile
 
-### Mobile (Web HP)
-- ✅ Satu device hanya boleh punya satu nomor aktif
-- ✅ Nomor tetap ada meski halaman di-refresh
-- ✅ Deteksi otomatis device mobile
-- ✅ Cek status antrian real-time
-- ✅ Interface responsive untuk mobile
+### 2. Real-time Queue Management
+- Pengambilan nomor antrian real-time
+- Monitoring status antrian
+- Statistik antrian live
 
-### Sistem Terpusat
-- ✅ Semua nomor antrian dalam satu jalur
-- ✅ Database terpusat
-- ✅ Nomor berurutan otomatis
-- ✅ Statistik real-time
+### 3. Multi-category Queue System
+- Mendukung multiple kategori antrian
+- Prefix kustom untuk setiap kategori
+- Status aktif/nonaktif per kategori
 
-## 🏗️ Struktur Database
+### 4. Device-based Queue Tracking
+- Tracking berdasarkan device ID
+- Mencegah pengambilan ganda dalam satu hari
+- Reset otomatis setiap hari
 
-### Tabel `antrians` (Updated)
+## Reset Antrian Harian
+
+### Logika Reset
+Sistem secara otomatis mereset nomor antrian setiap hari dengan logika berikut:
+
+1. **Nomor Antrian**: Reset ke 001 setiap hari baru
+   - Format: `{PREFIX}001`, `{PREFIX}002`, dst
+   - Contoh: `T001`, `T002`, `C001`, `C002`
+
+2. **Pengecekan Antrian Aktif**: Hanya mengecek antrian hari ini
+   - User tidak bisa mengambil antrian ganda dalam satu hari
+   - Setiap hari baru, user bisa mengambil antrian baru
+
+3. **Statistik**: Hanya menampilkan data hari ini
+   - Total antrian hari ini
+   - Antrian yang dipanggil hari ini
+   - Antrian yang menunggu hari ini
+
+### Method yang Diperbaiki
+
+#### AntrianModel
+- `getNextNomorAntrian()`: Sudah mendukung reset harian
+- `getAntrianAktifMobile()`: Hanya mengecek antrian hari ini
+- `getPosisiAntrian()`: Posisi berdasarkan antrian hari ini
+- `getTotalAntrianAktif()`: Total antrian hari ini
+- `getAntrianDipanggilHariIni()`: Antrian dipanggil hari ini
+- `getTodaySummary()`: Summary lengkap hari ini
+- `cleanupOldAntrian()`: Maintenance data lama
+
+#### AntrianController
+- `ambilNomor()`: Pengecekan antrian aktif hari ini
+- `cekStatusMobile()`: Status antrian hari ini
+- `getStatistikAntrian()`: Statistik hari ini
+- `getTodaySummary()`: Summary hari ini
+- `cleanupOldData()`: Maintenance endpoint
+
+## API Endpoints
+
+### Queue Management
+- `POST /ambil-nomor` - Ambil nomor antrian
+- `GET /cek-status/{id}` - Cek status antrian
+- `GET /cek-status-mobile` - Cek status mobile
+- `GET /statistik-antrian` - Statistik antrian hari ini
+- `GET /today-summary` - Summary lengkap hari ini
+
+### Maintenance
+- `GET /cleanup-old-data?days=30` - Bersihkan data lama
+
+## Database Structure
+
+### Antrians Table
 ```sql
--- Field baru yang ditambahkan:
-device_type ENUM('desktop', 'mobile') DEFAULT 'desktop'
-device_id VARCHAR(255) NULL
-user_agent TEXT NULL
-ip_address VARCHAR(45) NULL
+- id (Primary Key)
+- nomor_antrian (VARCHAR, unique)
+- kategori_id (Foreign Key)
+- loket_id (Foreign Key, nullable)
+- petugas_id (Foreign Key, nullable)
+- status (ENUM: menunggu, dipanggil, selesai, lewati)
+- waktu_ambil (DATETIME)
+- waktu_panggil (DATETIME, nullable)
+- waktu_selesai (DATETIME, nullable)
+- device_type (ENUM: desktop, mobile)
+- device_id (VARCHAR, nullable)
+- user_agent (TEXT, nullable)
+- ip_address (VARCHAR, nullable)
+- created_at (DATETIME)
+- updated_at (DATETIME)
 ```
 
-### Migration
-```bash
-# Jalankan migration untuk menambah field baru
-php spark migrate
-```
+## Mobile Interface Features
 
-## 📁 Struktur File
+### Responsive Design
+- Optimized untuk mobile devices
+- Landscape dan portrait mode support
+- Touch-friendly interface
 
-```
-app/
-├── Controllers/
-│   ├── AntrianController.php      # Controller utama (mobile + desktop)
-│   └── DesktopController.php      # Controller khusus desktop
-├── Models/
-│   └── AntrianModel.php           # Model dengan method baru
-├── Views/
-│   ├── antrian/
-│   │   └── index.php              # View mobile (updated)
-│   └── desktop/
-│       └── index.php              # View desktop baru
-├── Helpers/
-│   └── DeviceHelper.php           # Helper deteksi device
-└── Config/
-    ├── Routes.php                  # Routes baru
-    └── Autoload.php               # Helper autoload
-```
+### Persistent Storage
+- Menyimpan nomor antrian di localStorage
+- Auto-recovery jika halaman di-refresh
+- Expired setelah 24 jam
 
-## 🚀 Cara Penggunaan
+### Real-time Updates
+- Update statistik setiap 30 detik
+- Update posisi antrian setiap 30 detik
+- Timestamp update terakhir
 
-### 1. Desktop (Mesin Antrian)
-```
-URL: /desktop
-- Pilih kategori layanan
-- Klik "Ambil Nomor Antrian"
-- Setiap klik = nomor baru
-- Fitur cetak tersedia
-```
+## Desktop Interface Features
 
-### 2. Mobile (Web HP)
-```
-URL: / (atau /antrian)
-- Deteksi otomatis device mobile
-- Pilih kategori layanan
-- Jika sudah punya nomor aktif = tampilkan nomor lama
-- Jika belum = buat nomor baru
-- Refresh halaman untuk cek status
-```
+### Full-featured Interface
+- Interface lengkap untuk desktop
+- Multiple kategori support
+- Advanced statistics
 
-## 🔧 Konfigurasi
+### Print Support
+- Print nomor antrian
+- Custom print layout
+- Print preview
 
-### 1. Jalankan Migration
-```bash
-php spark migrate
-```
+## Security Features
 
-### 2. Pastikan Helper Ter-load
-File `app/Config/Autoload.php` sudah otomatis menambahkan:
-```php
-public $helpers = ['DeviceHelper'];
-```
-
-### 3. Routes Otomatis Terdaftar
-```php
-// Desktop Routes
-$routes->get('desktop', 'DesktopController::index');
-$routes->post('desktop/ambilNomorDesktop', 'DesktopController::ambilNomorDesktop');
-$routes->get('desktop/getStatistikHarian', 'DesktopController::getStatistikHarian');
-
-// Mobile Routes
-$routes->get('cek-status-mobile', 'AntrianController::cekStatusMobile');
-$routes->get('statistik-antrian', 'AntrianController::getStatistikAntrian');
-```
-
-## 📱 Deteksi Device
-
-### Helper Functions
-```php
-// Deteksi tipe device
-$device_type = detect_device_type(); // 'mobile' atau 'desktop'
-
-// Generate device ID untuk mobile
-$device_id = generate_device_id(); // null untuk desktop
-
-// Get client IP
-$ip_address = get_client_ip();
-```
-
-### Logic Deteksi
-- **Mobile**: Android, iPhone, iPad, Windows Phone, BlackBerry, Opera Mini, IEMobile, Mobile Safari
-- **Desktop**: Semua device lain (PC, laptop, tablet landscape)
-
-## 🔄 Flow Sistem
-
-### Desktop Flow
-```
-1. User buka /desktop
-2. Pilih kategori
-3. Klik "Ambil Nomor"
-4. Generate nomor baru (selalu)
-5. Simpan ke database (device_type: desktop)
-6. Tampilkan modal hasil
-7. Fitur cetak tersedia
-```
-
-### Mobile Flow
-```
-1. User buka / (mobile)
-2. Deteksi device = mobile
-3. Generate device_id (session-based)
-4. Cek apakah sudah punya nomor aktif
-5. Jika YA = tampilkan nomor lama
-6. Jika TIDAK = buat nomor baru
-7. Simpan ke database (device_type: mobile, device_id: xxx)
-8. Tampilkan status real-time
-```
-
-## 📊 API Endpoints
-
-### Desktop
-- `GET /desktop` - Interface mesin antrian
-- `POST /desktop/ambilNomorDesktop` - Ambil nomor baru
-- `GET /desktop/getStatistikHarian` - Statistik real-time
-
-### Mobile
-- `GET /` - Interface mobile
-- `POST /ambil-nomor` - Ambil/cek nomor antrian
-- `GET /cek-status-mobile` - Cek status antrian mobile
-- `GET /cek-status/{nomor}` - Cek status nomor tertentu
-- `GET /statistik-antrian` - Statistik antrian
-
-## 🎨 Interface
-
-### Desktop Interface
-- Design khusus mesin antrian
-- Tombol besar dan jelas
-- Statistik real-time
-- Modal hasil dengan fitur cetak
-- Responsive untuk touch screen
-
-### Mobile Interface
-- Design mobile-first
-- Tampilan nomor antrian aktif
-- Refresh status real-time
-- Interface yang user-friendly
-- Fitur cetak untuk mobile
-
-## 🔒 Keamanan
-
-- Device ID unik untuk mobile
-- Session-based tracking
+### Device Tracking
+- Unique device ID generation
 - IP address logging
-- User agent logging
-- Validasi input kategori
+- User agent tracking
 
-## 📈 Monitoring
+### Session Management
+- Session-based device ID
+- Automatic cleanup
+- Secure data handling
 
-### Logs
-- Semua aktivitas di-log
-- Device type tracking
-- Error handling
-- Performance monitoring
+## Maintenance
 
-### Statistics
-- Total antrian per kategori
-- Antrian sedang dipanggil
-- Real-time updates
-- Historical data
+### Data Cleanup
+- Otomatis hapus data lama (30 hari default)
+- Configurable retention period
+- Safe deletion (hanya data selesai/lewati)
 
-## 🚨 Troubleshooting
+### Performance Optimization
+- Indexed queries untuk performa
+- Efficient date-based filtering
+- Optimized joins
+
+## Installation & Setup
+
+1. Clone repository
+2. Install dependencies: `composer install`
+3. Configure database di `app/Config/Database.php`
+4. Run migrations: `php spark migrate`
+5. Run seeders: `php spark db:seed`
+6. Configure web server
+
+### Migration untuk Reset Antrian Harian
+
+Setelah setup awal, jalankan migration tambahan untuk mendukung reset antrian harian:
+
+```bash
+# Jalankan migration untuk update constraint nomor antrian
+php spark migrate --path app/Database/Migrations/2024_01_01_000007_update_nomor_antrian_constraint.php
+```
+
+Migration ini akan:
+- Menghapus unique constraint global pada `nomor_antrian`
+- Menambahkan unique constraint pada kombinasi `nomor_antrian` dan `DATE(waktu_ambil)`
+- Memungkinkan nomor antrian yang sama di hari berbeda
+
+## Usage
+
+### Mobile Users
+1. Akses `/antrian/mobile`
+2. Pilih kategori layanan
+3. Klik "Ambil Nomor Antrian"
+4. Tunggu panggilan
+
+### Desktop Users
+1. Akses `/antrian/desktop`
+2. Pilih kategori layanan
+3. Klik "Ambil Nomor"
+4. Print atau simpan nomor
+
+### Petugas
+1. Login ke `/petugas/dashboard`
+2. Panggil antrian berikutnya
+3. Update status antrian
+
+### Admin
+1. Login ke `/admin/dashboard`
+2. Kelola kategori, loket, dan pengguna
+3. Monitor statistik dan laporan
+
+## Troubleshooting
 
 ### Common Issues
-
-1. **Helper tidak ter-load**
-   - Pastikan `DeviceHelper` ada di `app/Helpers/`
-   - Cek `app/Config/Autoload.php`
-
-2. **Migration error**
-   - Pastikan database connection
-   - Cek struktur tabel existing
-
-3. **Device detection tidak akurat**
-   - Test dengan berbagai user agent
-   - Cek helper function
-
-4. **Session mobile tidak persist**
-   - Cek session configuration
-   - Pastikan cookies enabled
+1. **Nomor antrian tidak reset**: Pastikan server timezone benar
+2. **Mobile tidak bisa ambil antrian**: Cek device ID generation
+3. **Statistik tidak update**: Cek real-time update interval
 
 ### Debug Mode
-```php
-// Enable debug di .env
-CI_ENVIRONMENT = development
+- Enable debug logging di `app/Config/Logger.php`
+- Check log files di `writable/logs/`
+- Use `/antrian/test` endpoint untuk testing
 
-// Cek logs di writable/logs/
-```
+## Contributing
 
-## 🔄 Update & Maintenance
+1. Fork repository
+2. Create feature branch
+3. Make changes
+4. Test thoroughly
+5. Submit pull request
 
-### Regular Tasks
-- Monitor log files
-- Check database performance
-- Update device detection patterns
-- Backup session data
+## License
 
-### Version Updates
-- Backup database
-- Test migration
-- Update helper functions
-- Verify device detection
-
-## 📞 Support
-
-Untuk bantuan teknis atau pertanyaan:
-- Cek log files
-- Review database queries
-- Test device detection
-- Verify session handling
-
----
-
-**QueueBank ProMax** - Sistem Antrian Modern & Profesional
-*Dual Source Queue System v1.0*
+This project is licensed under the MIT License.

@@ -133,7 +133,7 @@ class AntrianController extends BaseController
 
             log_message('debug', 'User agent: ' . $user_agent . ', IP: ' . $ip_address . ', Device ID: ' . $device_id);
 
-            // Check if user already has an active queue number
+            // Check if user already has an active queue number for TODAY only
             $existing_antrian = $this->antrianModel->getAntrianAktifMobile($device_id);
             
             if ($existing_antrian) {
@@ -143,11 +143,15 @@ class AntrianController extends BaseController
                     $existing_antrian['kategori_id']
                 );
                 
-                log_message('info', 'User already has active queue: ' . $existing_antrian['nomor_antrian']);
+                // Get user-friendly display number
+                $display_nomor = $this->antrianModel->getDisplayNomorAntrian($existing_antrian['nomor_antrian']);
+                
+                log_message('info', 'User already has active queue for today: ' . $existing_antrian['nomor_antrian']);
                 return $this->response->setJSON([
                     'success' => true,
-                    'message' => 'Anda sudah memiliki nomor antrian aktif',
-                    'nomor_antrian' => $existing_antrian['nomor_antrian'],
+                    'message' => 'Anda sudah memiliki nomor antrian aktif untuk hari ini',
+                    'nomor_antrian' => $display_nomor,
+                    'nomor_antrian_full' => $existing_antrian['nomor_antrian'],
                     'antrian_id' => $existing_antrian['id'],
                     'kategori' => $existing_antrian['nama_kategori'],
                     'posisi_antrian' => $posisi_antrian,
@@ -155,7 +159,7 @@ class AntrianController extends BaseController
                 ]);
             }
 
-            // Generate new queue number
+            // Generate new queue number for today (will reset to 001 if it's a new day)
             $nomor_antrian = $this->antrianModel->getNextNomorAntrian($kategori_id);
             if (!$nomor_antrian) {
                 log_message('error', 'Failed to generate nomor antrian for kategori: ' . $kategori_id);
@@ -170,6 +174,7 @@ class AntrianController extends BaseController
                 'kategori_id' => $kategori_id,
                 'status' => 'menunggu',
                 'waktu_ambil' => date('Y-m-d H:i:s'),
+                'device_type' => 'mobile',
                 'device_id' => $device_id,
                 'user_agent' => $user_agent,
                 'ip_address' => $ip_address
@@ -181,11 +186,15 @@ class AntrianController extends BaseController
                 // Calculate queue position
                 $posisi_antrian = $this->antrianModel->getPosisiAntrian($antrian_id, $kategori_id);
                 
+                // Get user-friendly display number
+                $display_nomor = $this->antrianModel->getDisplayNomorAntrian($nomor_antrian);
+                
                 log_message('info', 'Successfully created antrian: ' . $antrian_id . ' with nomor: ' . $nomor_antrian);
                 return $this->response->setJSON([
                     'success' => true,
                     'message' => 'Nomor antrian berhasil diambil',
-                    'nomor_antrian' => $nomor_antrian,
+                    'nomor_antrian' => $display_nomor,
+                    'nomor_antrian_full' => $nomor_antrian,
                     'antrian_id' => $antrian_id,
                     'kategori' => $kategori['nama_kategori'],
                     'posisi_antrian' => $posisi_antrian,
@@ -222,9 +231,16 @@ class AntrianController extends BaseController
                     $antrian['kategori_id']
                 );
 
+                // Get user-friendly display number
+                $display_nomor = $this->antrianModel->getDisplayNomorAntrian($antrian['nomor_antrian']);
+
                 return $this->response->setJSON([
                     'success' => true,
                     'antrian' => $antrian,
+                    'antrian_display' => [
+                        'nomor_antrian' => $display_nomor,
+                        'nomor_antrian_full' => $antrian['nomor_antrian']
+                    ],
                     'posisi_antrian' => $posisi_antrian
                 ]);
             }
@@ -252,6 +268,7 @@ class AntrianController extends BaseController
             $session->set('device_id', $device_id);
         }
 
+        // Get active queue for today only
         $antrian = $this->antrianModel->getAntrianAktifMobile($device_id);
         
         if ($antrian) {
@@ -262,9 +279,16 @@ class AntrianController extends BaseController
             
             $total_antrian = $this->antrianModel->getTotalAntrianAktif($antrian['kategori_id']);
             
+            // Get user-friendly display number
+            $display_nomor = $this->antrianModel->getDisplayNomorAntrian($antrian['nomor_antrian']);
+            
             return $this->response->setJSON([
                 'success' => true,
                 'antrian' => $antrian,
+                'antrian_display' => [
+                    'nomor_antrian' => $display_nomor,
+                    'nomor_antrian_full' => $antrian['nomor_antrian']
+                ],
                 'posisi_antrian' => $posisi_antrian,
                 'total_antrian' => $total_antrian
             ]);
@@ -272,7 +296,7 @@ class AntrianController extends BaseController
 
         return $this->response->setJSON([
             'success' => false,
-            'message' => 'Tidak ada nomor antrian aktif'
+            'message' => 'Tidak ada nomor antrian aktif untuk hari ini'
         ]);
     }
 
@@ -287,7 +311,7 @@ class AntrianController extends BaseController
 
         foreach ($kategori_list as $kategori) {
             $total_antrian = $this->antrianModel->getTotalAntrianAktif($kategori['id']);
-            $antrian_dipanggil = $this->antrianModel->getAntrianDipanggil();
+            $antrian_dipanggil = $this->antrianModel->getAntrianDipanggilHariIni($kategori['id']);
             
             $statistik[] = [
                 'kategori' => $kategori['nama_kategori'],
@@ -301,6 +325,39 @@ class AntrianController extends BaseController
             'success' => true,
             'statistik' => $statistik,
             'timestamp' => date('Y-m-d H:i:s')
+        ]);
+    }
+
+    /**
+     * Get today's queue summary
+     * @return ResponseInterface
+     */
+    public function getTodaySummary()
+    {
+        $summary = $this->antrianModel->getTodaySummary();
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'summary' => $summary,
+            'date' => date('Y-m-d'),
+            'timestamp' => date('Y-m-d H:i:s')
+        ]);
+    }
+
+    /**
+     * Clean up old queue data (for maintenance)
+     * @return ResponseInterface
+     */
+    public function cleanupOldData()
+    {
+        $days_old = $this->request->getGet('days') ?? 30;
+        $deleted_count = $this->antrianModel->cleanupOldAntrian($days_old);
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => "Berhasil menghapus {$deleted_count} data antrian lama",
+            'deleted_count' => $deleted_count,
+            'days_old' => $days_old
         ]);
     }
 
