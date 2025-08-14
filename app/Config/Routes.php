@@ -13,6 +13,7 @@ $routes->get('/logout', 'AuthController::logout');
 // Admin Routes
 $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->get('dashboard', 'AdminController::dashboard');
+    $routes->get('pengguna/pengguna', 'Admin\PenggunaController::index');
     $routes->get('users', 'AdminController::users');
     $routes->get('kategori', 'AdminController::kategoriAntrian');
     $routes->get('pengaturan', 'AdminController::pengaturan');
@@ -40,6 +41,14 @@ $routes->group('petugas', ['filter' => 'auth'], function($routes) {
     $routes->post('selesai-antrian', 'PetugasController::selesaiAntrian');
     $routes->post('lewati-antrian', 'PetugasController::lewatiAntrian');
 });
+
+// Pengguna Routes
+$routes->group('admin', ['filter' => 'auth'], function($routes) {
+    $routes->get('pengguna', 'Admin\PenggunaController::index');
+    $routes->post('pengguna/add', 'Admin\PenggunaController::add');
+    $routes->get('pengguna/delete/(:num)', 'Admin\PenggunaController::delete/$1');
+});
+
 
 // Display Routes
 $routes->get('display', 'DisplayController::index');

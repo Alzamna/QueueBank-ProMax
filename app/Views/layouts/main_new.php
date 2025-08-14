@@ -42,7 +42,7 @@
                                 Pengaturan
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="<?= base_url('admin/users') ?>">Users</a></li>
+                                <li><a class="dropdown-item" href="<?= base_url('admin/pengguna/pengguna') ?>">Kelola Pengguna</a></li>
                                 <li><a class="dropdown-item" href="<?= base_url('admin/lokets') ?>">Loket</a></li>
                                 <li><a class="dropdown-item" href="<?= base_url('admin/kategori') ?>">Kategori</a></li>
                             </ul>
@@ -72,9 +72,9 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-white-50" href="<?= base_url('admin/users') ?>">
+                            <a class="nav-link text-white-50" href="<?= base_url('admin/pengguna/pengguna') ?>">
                                 <i class="fas fa-users me-2"></i>
-                                Users
+                                Kelola Pengguna
                             </a>
                         </li>
                         <li class="nav-item">
