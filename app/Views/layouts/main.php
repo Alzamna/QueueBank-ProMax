@@ -157,7 +157,7 @@
                                     <i class="fas fa-tachometer-alt sidebar-icon w-5 mr-3"></i>
                                     <span class="font-medium">Dashboard</span>
                                 </a>
-                                <a href="<?= site_url('admin/users') ?>" class="sidebar-link <?= strpos(current_url(), 'admin/users') !== false ? 'active' : '' ?>">
+                                <a href="<?= site_url('admin/pengguna/pengguna') ?>" class="sidebar-link <?= strpos(current_url(), 'admin/pengguna') !== false ? 'active' : '' ?>">
                                     <i class="fas fa-users sidebar-icon w-5 mr-3"></i>
                                     <span class="font-medium">Kelola Pengguna</span>
                                 </a>

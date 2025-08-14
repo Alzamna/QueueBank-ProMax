@@ -17,6 +17,7 @@ class AdminController extends BaseController
     protected $kategoriAntrianModel;
     protected $antrianModel;
     protected $pengaturanDisplayModel;
+    protected $penggunaModel;
 
     public function __construct()
     {
@@ -25,6 +26,7 @@ class AdminController extends BaseController
         $this->kategoriAntrianModel = new KategoriAntrianModel();
         $this->antrianModel = new AntrianModel();
         $this->pengaturanDisplayModel = new PengaturanDisplayModel();
+        $this->penggunaModel = new PenggunaModel();
     }
 
     public function dashboard()
@@ -36,19 +38,21 @@ class AdminController extends BaseController
             'totalKategori' => $this->kategoriAntrianModel->countAll(),
             'totalAntrianHariIni' => $this->antrianModel->where('DATE(antrians.waktu_ambil)', date('Y-m-d'))->countAllResults(),
             'statistik' => $this->antrianModel->getStatistikHarian(),
+            'pengguna' => $this->userModel->countAll(),
+
         ];
 
         return view('admin/dashboard', $data);
     }
 
-    public function users()
+    public function pengguna()
     {
         $data = [
             'title' => 'Kelola Pengguna',
             'users' => $this->userModel->findAll(),
         ];
 
-        return view('admin/users/index', $data);
+        return view('admin/pengguna/pengguna', $data);
     }
 
     public function lokets()
