@@ -12,7 +12,7 @@ class AntrianModel extends Model
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
     protected $protectFields = true;
-    protected $allowedFields = ['nomor_antrian', 'kategori_id', 'loket_id', 'petugas_id', 'status', 'waktu_ambil', 'waktu_panggil', 'waktu_selesai'];
+    protected $allowedFields = ['nomor_antrian', 'kategori_id', 'loket_id', 'petugas_id', 'status', 'waktu_ambil', 'device_type', 'device_id', 'user_agent', 'ip_address', 'waktu_panggil', 'waktu_selesai'];
 
     protected $useTimestamps = true;
     protected $dateFormat = 'datetime';
@@ -136,5 +136,56 @@ class AntrianModel extends Model
             ->orderBy('antrians.kategori_id', 'ASC');
 
         return $builder->get()->getResultArray();
+    }
+
+    /**
+     * Check if mobile device already has an active queue number
+     * @param string $device_id
+     * @return array|null
+     */
+    public function getAntrianAktifMobile($device_id)
+    {
+        if (!$device_id) {
+            return null;
+        }
+
+        return $this->db->table($this->table . ' as antrians')
+            ->select('antrians.*, kategori_antrians.nama_kategori, kategori_antrians.prefix')
+            ->join('kategori_antrians', 'kategori_antrians.id = antrians.kategori_id')
+            ->where('antrians.device_id', $device_id)
+            ->where('antrians.status', 'menunggu')
+            ->where('DATE(antrians.waktu_ambil)', date('Y-m-d'))
+            ->orderBy('antrians.id', 'DESC')
+            ->get()
+            ->getRowArray();
+    }
+
+    /**
+     * Get queue position for a specific number
+     * @param int $antrian_id
+     * @param int $kategori_id
+     * @return int
+     */
+    public function getPosisiAntrian($antrian_id, $kategori_id)
+    {
+        return $this->db->table($this->table)
+            ->where('kategori_id', $kategori_id)
+            ->where('status', 'menunggu')
+            ->where('id <', $antrian_id)
+            ->countAllResults();
+    }
+
+    /**
+     * Get total active queue for a category
+     * @param int $kategori_id
+     * @return int
+     */
+    public function getTotalAntrianAktif($kategori_id)
+    {
+        return $this->db->table($this->table)
+            ->where('kategori_id', $kategori_id)
+            ->where('status', 'menunggu')
+            ->where('DATE(waktu_ambil)', date('Y-m-d'))
+            ->countAllResults();
     }
 }

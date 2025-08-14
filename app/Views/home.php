@@ -129,9 +129,10 @@
         }
         
         .service-description {
-            color: #64748b;
+            color: #374151;
             line-height: 1.6;
             margin-bottom: 1.5rem;
+            font-weight: 500;
         }
         
         .service-features {
@@ -141,9 +142,10 @@
         
         .service-features li {
             padding: 0.5rem 0;
-            color: #64748b;
+            color: #4b5563;
             display: flex;
             align-items: center;
+            font-weight: 500;
         }
         
         .service-features li i {
@@ -172,8 +174,8 @@
         }
         
         .stat-label {
-            color: #64748b;
-            font-weight: 500;
+            color: #374151;
+            font-weight: 600;
         }
         
         .footer {
@@ -258,8 +260,8 @@
                                 </span>
                             </div>
                         </a>
-    </div>
-
+                    </div>
+                    
                     <div class="col-lg-6 mb-4">
                         <a href="<?= base_url('desktop') ?>" class="service-card">
                             <div class="service-icon">
@@ -284,8 +286,8 @@
                             </div>
                         </a>
                     </div>
-    </div>
-
+                </div>
+                
                 <!-- Statistics Section -->
                 <div class="stats-section">
                     <h4 class="text-center mb-4">
@@ -318,8 +320,8 @@
                             </div>
                         </div>
                     </div>
-</div>
-
+                </div>
+                
                 <!-- Additional Info -->
                 <div class="row mt-4">
                     <div class="col-md-8 mx-auto text-center">
@@ -331,8 +333,8 @@
                     </div>
                 </div>
             </div>
-    </div>
-
+        </div>
+        
         <!-- Footer -->
         <div class="footer">
             <div class="row">
@@ -396,7 +398,7 @@
             document.getElementById('antrianMenunggu').textContent = totalMenunggu;
             document.getElementById('antrianDipanggil').textContent = totalDipanggil;
             document.getElementById('antrianSelesai').textContent = totalSelesai;
-    }
-</script>
+        }
+    </script>
 </body>
 </html>

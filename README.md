@@ -1,68 +1,207 @@
-# CodeIgniter 4 Application Starter
+# QueueBank ProMax - Sistem Antrian Digital untuk Bank
 
-## What is CodeIgniter?
+## 🏦 Deskripsi Sistem
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible and secure.
-More information can be found at the [official site](https://codeigniter.com).
+QueueBank ProMax adalah sistem antrian digital modern yang dirancang khusus untuk institusi perbankan. Sistem ini mendukung dual-source antrian: mesin antrian desktop di lokasi bank dan aplikasi mobile untuk pengguna yang ingin mengambil antrian dari smartphone mereka.
 
-This repository holds a composer-installable app starter.
-It has been built from the
-[development repository](https://github.com/codeigniter4/CodeIgniter4).
+## ✨ Fitur Utama
 
-More information about the plans for version 4 can be found in [CodeIgniter 4](https://forum.codeigniter.com/forumdisplay.php?fid=28) on the forums.
+### 🔄 Dual-Source Queue System
+- **Desktop Machine**: Mesin antrian fisik dengan interface touch-friendly
+- **Mobile App**: Aplikasi web responsif untuk smartphone pengguna
 
-You can read the [user guide](https://codeigniter.com/user_guide/)
-corresponding to the latest version of the framework.
+### 📱 Mobile Queue Features
+- Ambil nomor antrian dari mana saja
+- Nomor antrian tersimpan otomatis (persistent)
+- Tidak hilang saat browser ditutup atau halaman di-refresh
+- Cek status antrian real-time
+- Tidak memerlukan login/registrasi
 
-## Installation & updates
+### 🖥️ Desktop Machine Features
+- Interface khusus untuk mesin antrian
+- Setiap klik menghasilkan nomor baru
+- Statistik real-time
+- Kategori layanan lengkap
 
-`composer create-project codeigniter4/appstarter` then `composer update` whenever
-there is a new release of the framework.
+### 🎯 Single Queue Line
+- Semua nomor antrian dalam satu jalur berurutan
+- Database terpusat untuk konsistensi data
+- Deteksi otomatis device type (mobile vs desktop)
 
-When updating, check the release notes to see if there are any changes you might need to apply
-to your `app` folder. The affected files can be copied or merged from
-`vendor/codeigniter4/framework/app`.
+## 🏗️ Arsitektur Sistem
 
-## Setup
+### Framework & Technology
+- **Backend**: CodeIgniter 4 (PHP)
+- **Frontend**: Bootstrap 5, Font Awesome, JavaScript
+- **Database**: MySQL/MariaDB
+- **Styling**: Custom CSS dengan gradient modern
 
-Copy `env` to `.env` and tailor for your app, specifically the baseURL
-and any database settings.
+### Struktur Database
+```sql
+-- Tabel utama antrian dengan device tracking
+antrians:
+- id, nomor_antrian, kategori_id, status
+- device_type (mobile/desktop)
+- device_id (untuk mobile persistence)
+- user_agent, ip_address
+- waktu_ambil, created_at, updated_at
 
-## Important Change with index.php
+-- Kategori layanan
+kategori_antrians:
+- id, nama_kategori, prefix, deskripsi, status
 
-`index.php` is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+-- Users dan loket untuk admin
+users, lokets, pengaturan_displays
+```
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+## 📁 Struktur File
 
-**Please** read the user guide for a better explanation of how CI4 works!
+```
+app/
+├── Controllers/
+│   ├── HomeController.php          # Homepage utama
+│   ├── AntrianController.php       # Controller antrian mobile
+│   ├── DesktopController.php       # Controller mesin antrian
+│   ├── AdminController.php         # Admin dashboard
+│   └── AuthController.php          # Authentication
+├── Models/
+│   ├── AntrianModel.php            # Model antrian dengan device logic
+│   ├── KategoriAntrianModel.php    # Model kategori
+│   └── UserModel.php               # Model user
+├── Views/
+│   ├── home.php                    # Homepage elegan
+│   ├── antrian/index.php           # Interface mobile
+│   ├── desktop/index.php           # Interface mesin antrian
+│   └── layouts/main.css            # CSS utama
+└── Database/Migrations/
+    └── AddDeviceInfoToAntrians.php # Migration device fields
+```
 
-## Repository Management
+## 🚀 Cara Penggunaan
 
-We use GitHub issues, in our main repository, to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+### 1. Homepage (`/`)
+- Landing page elegan dengan gradient modern
+- Pilihan akses mobile atau desktop
+- Statistik real-time antrian
 
-This repository is a "distribution" one, built by our release preparation script.
-Problems with it can be raised on our forum, or as issues in the main repository.
+### 2. Mobile Queue (`/antrian`)
+- Pilih kategori layanan
+- Ambil nomor antrian
+- Cek status antrian
+- Nomor tersimpan otomatis
 
-## Server Requirements
+### 3. Desktop Machine (`/desktop`)
+- Interface touch-friendly
+- Pilih kategori
+- Generate nomor baru
+- Statistik real-time
 
-PHP version 8.1 or higher is required, with the following extensions installed:
+### 4. Admin Panel (`/admin`)
+- Dashboard dengan statistik
+- Manajemen users, loket, kategori
+- Laporan dan pengaturan
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+## 🔧 Instalasi & Setup
 
-> [!WARNING]
-> - The end of life date for PHP 7.4 was November 28, 2022.
-> - The end of life date for PHP 8.0 was November 26, 2023.
-> - If you are still using PHP 7.4 or 8.0, you should upgrade immediately.
-> - The end of life date for PHP 8.1 will be December 31, 2025.
+### Prerequisites
+- PHP 7.4+ atau 8.0+
+- MySQL 5.7+ atau MariaDB 10.2+
+- Composer
+- Web server (Apache/Nginx)
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+### Installation Steps
+1. Clone repository
+```bash
+git clone [repository-url]
+cd QueueBank-ProMax
+```
 
-- json (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php) if you plan to use MySQL
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
+2. Install dependencies
+```bash
+composer install
+```
+
+3. Setup database
+```bash
+# Copy .env.example to .env
+# Update database configuration
+php spark migrate
+php spark db:seed DatabaseSeeder
+```
+
+4. Run development server
+```bash
+php spark serve
+```
+
+## 🎨 Design System
+
+### Color Palette
+- **Primary**: #1e40af (Blue)
+- **Secondary**: #3b82f6 (Light Blue)
+- **Accent**: #06b6d4 (Cyan)
+- **Success**: #10b981 (Green)
+- **Warning**: #f59e0b (Orange)
+- **Danger**: #ef4444 (Red)
+
+### Typography
+- **Font Family**: Inter (Google Fonts)
+- **Weights**: 300, 400, 500, 600, 700
+
+### Components
+- **Cards**: Rounded corners (20px), subtle shadows
+- **Buttons**: Gradient backgrounds, hover effects
+- **Forms**: Modern styling dengan focus states
+- **Alerts**: Gradient backgrounds, rounded corners
+
+## 📱 Responsive Design
+
+- **Mobile First**: Optimized untuk smartphone
+- **Tablet**: Layout adaptif untuk tablet
+- **Desktop**: Full-featured interface
+- **Touch Friendly**: Optimized untuk touch devices
+
+## 🔒 Security Features
+
+- Session management untuk mobile persistence
+- Device ID generation yang aman
+- Input validation dan sanitization
+- CSRF protection
+- SQL injection prevention
+
+## 📊 Monitoring & Analytics
+
+- Real-time queue statistics
+- Device type tracking
+- User behavior analytics
+- Performance monitoring
+
+## 🚀 Performance Optimization
+
+- CSS dan JavaScript minification
+- Image optimization
+- Database query optimization
+- Caching strategies
+
+## 🤝 Contributing
+
+1. Fork repository
+2. Create feature branch
+3. Commit changes
+4. Push to branch
+5. Create Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📞 Support
+
+Untuk dukungan teknis atau pertanyaan:
+- Email: support@queuebank.com
+- Documentation: [docs.queuebank.com](https://docs.queuebank.com)
+- Issues: [GitHub Issues](https://github.com/queuebank/issues)
+
+---
+
+**QueueBank ProMax** - Modern Digital Queue System for Banking Industry 🏦✨

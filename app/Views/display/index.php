@@ -6,6 +6,7 @@
     <title>Display Publik - QueueBank ProMax</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="<?= base_url('app/Views/layouts/mobile-display.css') ?>" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -505,6 +506,163 @@
             font-size: 0.875rem;
         }
 
+        /* Mobile Specific Styles */
+        .mobile-header {
+            display: none;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #7c3aed 100%);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mobile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .mobile-header-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .mobile-header-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .mobile-header-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .mobile-header h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .mobile-header p {
+            font-size: 0.875rem;
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .mobile-header .mode-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            margin-top: 0.75rem;
+            font-size: 0.75rem;
+            color: #e2e8f0;
+        }
+
+        .mobile-info-cards {
+            display: none;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .mobile-info-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mobile-info-card .value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1e40af;
+            margin-bottom: 0.25rem;
+        }
+
+        .mobile-info-card .label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .mobile-service-cards {
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .mobile-service-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        .mobile-service-card h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .mobile-service-card p {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+
+        .mobile-service-card .prefix {
+            display: inline-block;
+            background: linear-gradient(135deg, #dbeafe, #e0e7ff);
+            color: #1e40af;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .mobile-bottom-bar {
+            display: none;
+            background: #6b7280;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            border-radius: 16px 16px 0 0;
+            margin: 0 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
         /* Responsive Design */
         @media (max-width: 1024px) {
             .main-content {
@@ -546,6 +704,291 @@
             }
         }
 
+        /* Mobile First Responsive Design */
+        @media (max-width: 480px) {
+            /* Hide desktop elements on mobile */
+            .header,
+            .main-content,
+            .running-text {
+                display: none;
+            }
+
+            /* Show mobile elements */
+            .mobile-header {
+                display: block;
+            }
+
+            .mobile-info-cards {
+                display: grid;
+            }
+
+            .mobile-service-cards {
+                display: flex;
+            }
+
+            .mobile-bottom-bar {
+                display: block;
+            }
+
+            /* Mobile specific layout */
+            body {
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+                padding-bottom: 0;
+            }
+
+            .mobile-container {
+                padding: 0;
+            }
+
+            /* Mobile info cards styling */
+            .mobile-info-card .value {
+                font-size: 1.25rem;
+            }
+
+            .mobile-info-card .label {
+                font-size: 0.7rem;
+            }
+
+            /* Mobile service cards styling */
+            .mobile-service-card {
+                padding: 1.25rem;
+            }
+
+            .mobile-service-card h3 {
+                font-size: 1rem;
+            }
+
+            .mobile-service-card p {
+                font-size: 0.8rem;
+            }
+
+            .mobile-service-card .prefix {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+        }
+
+        /* Mobile First Responsive Design */
+        @media (max-width: 480px) {
+            /* Hide desktop elements on mobile */
+            .header,
+            .main-content,
+            .running-text {
+                display: none;
+            }
+
+            /* Show mobile elements */
+            .mobile-header {
+                display: block;
+            }
+
+            .mobile-info-cards {
+                display: grid;
+            }
+
+            .mobile-service-cards {
+                display: flex;
+            }
+
+            .mobile-bottom-bar {
+                display: block;
+            }
+
+            /* Mobile specific layout */
+            body {
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+                padding-bottom: 0;
+            }
+
+            .mobile-container {
+                padding: 0;
+            }
+
+            /* Mobile info cards styling */
+            .mobile-info-card .value {
+                font-size: 1.25rem;
+            }
+
+            .mobile-info-card .label {
+                font-size: 0.7rem;
+            }
+
+            /* Mobile service cards styling */
+            .mobile-service-card {
+                padding: 1.25rem;
+            }
+
+            .mobile-service-card h3 {
+                font-size: 1rem;
+            }
+
+            .mobile-service-card p {
+                font-size: 0.8rem;
+            }
+
+            .mobile-service-card .prefix {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+        }
+
+        /* Mobile Specific Styles */
+        .mobile-header {
+            display: none;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #7c3aed 100%);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mobile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .mobile-header-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        .mobile-header-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .mobile-header-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .mobile-header h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .mobile-header p {
+            font-size: 0.875rem;
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .mobile-header .mode-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            margin-top: 0.75rem;
+            font-size: 0.75rem;
+            color: #e2e8f0;
+        }
+
+        .mobile-info-cards {
+            display: none;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .mobile-info-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .mobile-info-card .value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #1e40af;
+            margin-bottom: 0.25rem;
+        }
+
+        .mobile-info-card .label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .mobile-service-cards {
+            display: none;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .mobile-service-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        .mobile-service-card h3 {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+
+        .mobile-service-card p {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+
+        .mobile-service-card .prefix {
+            display: inline-block;
+            background: linear-gradient(135deg, #dbeafe, #e0e7ff);
+            color: #1e40af;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .mobile-bottom-bar {
+            display: none;
+            background: #6b7280;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            border-radius: 16px 16px 0 0;
+            margin: 0 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
         /* Animation Classes */
         .fade-in {
             animation: fadeIn 0.6s ease-out;
@@ -577,7 +1020,7 @@
     </style>
 </head>
 <body>
-    <!-- Header -->
+    <!-- Desktop Header -->
     <header class="header">
         <div class="header-decoration decoration-1"></div>
         <div class="header-decoration decoration-2"></div>
@@ -596,7 +1039,70 @@
         </div>
     </header>
 
-    <!-- Main Content -->
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <div class="mobile-header-content">
+            <div class="mobile-header-title">
+                <div class="mobile-header-icon">
+                    <i class="fas fa-ticket-alt" style="font-size: 1rem; color: white;"></i>
+                </div>
+                <div>
+                    <h1>MESIN ANTRIAN</h1>
+                    <p>Silakan pilih kategori layanan dan ambil nomor antrian</p>
+                    <div class="mode-indicator">
+                        <i class="fas fa-mobile-alt"></i>
+                        <span>Mobile Mode</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Info Cards -->
+    <div class="mobile-info-cards">
+        <div class="mobile-info-card">
+            <div class="value" id="mobileTotalAntrian">41</div>
+            <div class="label">Total Antrian</div>
+        </div>
+        <div class="mobile-info-card">
+            <div class="value" id="mobileSedangDipanggil">0</div>
+            <div class="label">Sedang Dipanggil</div>
+        </div>
+        <div class="mobile-info-card">
+            <div class="value" id="mobileSedangMenunggu">-</div>
+            <div class="label">Sedang Menunggu</div>
+        </div>
+        <div class="mobile-info-card">
+            <div class="value" id="mobileUpdateTerakhir">22.40.48</div>
+            <div class="label">Update Terakhir</div>
+        </div>
+    </div>
+
+    <!-- Mobile Service Cards -->
+    <div class="mobile-service-cards">
+        <div class="mobile-service-card">
+            <h3>Teller</h3>
+            <p>Layanan teller untuk transaksi perbankan</p>
+            <div class="prefix">Prefix: A</div>
+        </div>
+        <div class="mobile-service-card">
+            <h3>Customer Service</h3>
+            <p>Layanan customer service untuk informasi dan konsultasi</p>
+            <div class="prefix">Prefix: B</div>
+        </div>
+        <div class="mobile-service-card">
+            <h3>Prioritas</h3>
+            <p>Layanan prioritas untuk nasabah prioritas</p>
+            <div class="prefix">Prefix: C</div>
+        </div>
+    </div>
+
+    <!-- Mobile Bottom Bar -->
+    <div class="mobile-bottom-bar">
+        Pilih kategori terlebih dahulu
+    </div>
+
+    <!-- Desktop Main Content -->
     <main class="container">
         <div class="main-content">
             <!-- Left Column -->
@@ -696,7 +1202,7 @@
         </div>
     </main>
 
-    <!-- Running Text -->
+    <!-- Desktop Running Text -->
     <div class="running-text">
         <div class="running-text-content" id="runningTextContent">
             <div class="running-text-item">
@@ -841,6 +1347,20 @@
             document.getElementById('totalAntrian').textContent = total;
             document.getElementById('completedAntrian').textContent = completed;
             document.getElementById('waitingAntrian').textContent = waiting;
+
+            // Update mobile info cards
+            document.getElementById('mobileTotalAntrian').textContent = total;
+            document.getElementById('mobileSedangDipanggil').textContent = queueData.filter(item => item.status === 'dipanggil').length;
+            document.getElementById('mobileSedangMenunggu').textContent = waiting > 0 ? waiting : '-';
+            
+            // Update mobile last update time
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('mobileUpdateTerakhir').textContent = timeString;
         }
 
         // Update clock function

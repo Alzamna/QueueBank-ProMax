@@ -1,0 +1,171 @@
+/* Mobile Display Styles for QueueBank ProMax */
+
+/* Mobile First Responsive Design */
+@media (max-width: 480px) {
+    /* Hide desktop elements on mobile */
+    .header,
+    .main-content,
+    .running-text {
+        display: none !important;
+    }
+
+    /* Show mobile elements */
+    .mobile-header {
+        display: block !important;
+    }
+
+    .mobile-info-cards {
+        display: grid !important;
+    }
+
+    .mobile-service-cards {
+        display: flex !important;
+    }
+
+    .mobile-bottom-bar {
+        display: block !important;
+    }
+
+    /* Mobile specific layout */
+    body {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+        padding-bottom: 0;
+        margin: 0;
+        overflow-x: hidden;
+    }
+
+    .mobile-container {
+        padding: 0;
+    }
+
+    /* Mobile info cards styling */
+    .mobile-info-card .value {
+        font-size: 1.25rem;
+    }
+
+    .mobile-info-card .label {
+        font-size: 0.7rem;
+    }
+
+    /* Mobile service cards styling */
+    .mobile-service-card {
+        padding: 1.25rem;
+    }
+
+    .mobile-service-card h3 {
+        font-size: 1rem;
+    }
+
+    .mobile-service-card p {
+        font-size: 0.8rem;
+    }
+
+    .mobile-service-card .prefix {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
+
+    /* Ensure mobile elements are properly spaced */
+    .mobile-info-cards,
+    .mobile-service-cards {
+        margin: 0 1rem 1rem 1rem;
+    }
+
+    .mobile-bottom-bar {
+        margin: 0 1rem;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+    }
+}
+
+/* Additional mobile optimizations */
+@media (max-width: 360px) {
+    .mobile-header h1 {
+        font-size: 1.25rem;
+    }
+
+    .mobile-header p {
+        font-size: 0.8rem;
+    }
+
+    .mobile-info-card .value {
+        font-size: 1.1rem;
+    }
+
+    .mobile-info-card .label {
+        font-size: 0.65rem;
+    }
+
+    .mobile-service-card {
+        padding: 1rem;
+    }
+
+    .mobile-service-card h3 {
+        font-size: 0.9rem;
+    }
+
+    .mobile-service-card p {
+        font-size: 0.75rem;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (max-width: 480px) and (orientation: landscape) {
+    .mobile-header {
+        padding: 1rem;
+    }
+
+    .mobile-header h1 {
+        font-size: 1.25rem;
+    }
+
+    .mobile-info-cards {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.5rem;
+        padding: 0.5rem;
+    }
+
+    .mobile-service-cards {
+        flex-direction: row;
+        gap: 0.5rem;
+        padding: 0.5rem;
+    }
+
+    .mobile-service-card {
+        padding: 1rem;
+        flex: 1;
+    }
+
+    .mobile-bottom-bar {
+        padding: 0.5rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .mobile-header,
+    .mobile-info-card,
+    .mobile-service-card,
+    .mobile-bottom-bar {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .mobile-service-card,
+    .mobile-info-card {
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .mobile-service-card:active,
+    .mobile-info-card:active {
+        transform: scale(0.98);
+    }
+}

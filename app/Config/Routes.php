@@ -5,7 +5,7 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'AntrianController::index');
+$routes->get('/', 'HomeController::index');
 $routes->get('/login', 'AuthController::login');
 $routes->post('/login', 'AuthController::login');
 $routes->get('/logout', 'AuthController::logout');
@@ -34,5 +34,16 @@ $routes->get('display/antrian', 'DisplayController::getAntrian');
 $routes->get('display/pengaturan', 'DisplayController::getPengaturan');
 
 // Antrian Routes
+$routes->get('antrian', 'AntrianController::index');
+$routes->get('antrian/desktop', 'AntrianController::desktop');
+$routes->get('antrian/mobile', 'AntrianController::mobile');
+$routes->get('antrian/test', 'AntrianController::test');
 $routes->post('ambil-nomor', 'AntrianController::ambilNomor');
 $routes->get('cek-status/(:any)', 'AntrianController::cekStatus/$1');
+$routes->get('cek-status-mobile', 'AntrianController::cekStatusMobile');
+$routes->get('statistik-antrian', 'AntrianController::getStatistikAntrian');
+
+// Desktop Routes (Mesin Antrian)
+$routes->get('desktop', 'DesktopController::index');
+$routes->post('desktop/ambilNomorDesktop', 'DesktopController::ambilNomorDesktop');
+$routes->get('desktop/getStatistikHarian', 'DesktopController::getStatistikHarian');
