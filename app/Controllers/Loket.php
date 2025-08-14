@@ -56,18 +56,37 @@ class Loket extends Controller
 
     public function update($id)
     {
-        $data = [
-            'nama_loket' => $this->request->getPost('nama_loket'),
-            'kode_loket' => $this->request->getPost('kode_loket'),
-            'warna' => $this->request->getPost('warna'),
-            'status' => $this->request->getPost('status'),
-        ];
+    $loket = $this->loketModel->find($id);
+    if (! $loket) {
+        throw new \CodeIgniter\Exceptions\PageNotFoundException("Loket dengan ID $id tidak ditemukan");
+    }
 
-        if (!$this->loketModel->update($id, $data)) {
-            return redirect()->back()->withInput()->with('errors', $this->loketModel->errors());
-        }
+    // Atur rules dinamis
+    $rules = [
+        'nama_loket' => 'required|max_length[50]',
+        'warna'      => 'required|max_length[7]',
+        'status'     => 'required|in_list[aktif,nonaktif]',
+    ];
 
-        return redirect()->to('/admin/lokets')->with('success', 'Loket berhasil diperbarui');
+    // Kalau kode_loket berubah, cek unik
+    if ($this->request->getPost('kode_loket') !== $loket['kode_loket']) {
+        $rules['kode_loket'] = 'required|max_length[10]|is_unique[lokets.kode_loket]';
+    } else {
+        $rules['kode_loket'] = 'required|max_length[10]';
+    }
+
+    if (! $this->validate($rules)) {
+        return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+    }
+
+    $this->loketModel->update($id, [
+        'nama_loket' => $this->request->getPost('nama_loket'),
+        'kode_loket' => $this->request->getPost('kode_loket'),
+        'warna'      => $this->request->getPost('warna'),
+        'status'     => $this->request->getPost('status'),
+    ]);
+
+    return redirect()->to('/admin/lokets')->with('success', 'Loket berhasil diperbarui');
     }
 
     public function delete($id)
@@ -76,4 +95,3 @@ class Loket extends Controller
         return redirect()->to('/admin/lokets')->with('success', 'Loket berhasil dihapus');
     }
 }
-    

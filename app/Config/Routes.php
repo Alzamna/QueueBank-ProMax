@@ -24,6 +24,13 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->get('lokets/edit/(:num)', 'Loket::edit/$1');
     $routes->post('lokets/update/(:num)', 'Loket::update/$1');
     $routes->post('lokets/delete/(:num)', 'Loket::delete/$1');
+
+    $routes->get('kategori', 'KategoriAntrianController::index');
+    $routes->get('kategori/create', 'KategoriAntrianController::create');
+    $routes->post('kategori/store', 'KategoriAntrianController::store');
+    $routes->get('kategori/edit/(:num)', 'KategoriAntrianController::edit/$1');
+    $routes->post('kategori/update/(:num)', 'KategoriAntrianController::update/$1');
+    $routes->get('kategori/delete/(:num)', 'KategoriAntrianController::delete/$1');
 });
 
 // Petugas Routes

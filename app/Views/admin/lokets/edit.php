@@ -20,8 +20,8 @@
         <div class="mb-3">
             <label>Status</label>
             <select name="status" class="form-control" required>
-                <option value="aktif" <?= $loket['status'] === 'aktif' ? 'selected' : '' ?>>Aktif</option>
-                <option value="nonaktif" <?= $loket['status'] === 'nonaktif' ? 'selected' : '' ?>>Nonaktif</option>
+                <option value="aktif" <?= $loket['status'] == 'aktif' ? 'selected' : '' ?>>Aktif</option>
+                <option value="nonaktif" <?= $loket['status'] == 'nonaktif' ? 'selected' : '' ?>>Nonaktif</option>
             </select>
         </div>
         <button type="submit" class="btn btn-success">Update</button>
