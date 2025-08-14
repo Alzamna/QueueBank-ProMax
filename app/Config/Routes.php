@@ -48,6 +48,8 @@ $routes->post('ambil-nomor', 'AntrianController::ambilNomor');
 $routes->get('cek-status/(:any)', 'AntrianController::cekStatus/$1');
 $routes->get('cek-status-mobile', 'AntrianController::cekStatusMobile');
 $routes->get('statistik-antrian', 'AntrianController::getStatistikAntrian');
+$routes->get('today-summary', 'AntrianController::getTodaySummary');
+$routes->get('cleanup-old-data', 'AntrianController::cleanupOldData');
 
 // Desktop Routes (Mesin Antrian)
 $routes->get('desktop', 'DesktopController::index');

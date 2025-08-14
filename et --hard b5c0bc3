@@ -1,0 +1,13 @@
+[33mff46d63[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{0}: checkout: moving from login-layout to main
+[33mb33a712[m[33m ([m[1;31morigin/login-layout[m[33m, [m[1;32mlogin-layout[m[33m)[m HEAD@{1}: checkout: moving from main to login-layout
+[33mff46d63[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{2}: checkout: moving from 9a6e25693eee832e51039e3d65bcc13cc96ab89f to main
+[33m9a6e256[m HEAD@{3}: commit (merge): Merge branch 'main' of https://github.com/Alzamna/QueueBank-ProMax into HEAD
+[33mb4623f0[m HEAD@{4}: commit: index-baru
+[33m8409831[m HEAD@{5}: commit (merge): Merge branch 'main' of https://github.com/Alzamna/QueueBank-ProMax into HEAD
+[33mb5c0bc3[m HEAD@{6}: commit: fix-antrian-model
+[33mb33a712[m[33m ([m[1;31morigin/login-layout[m[33m, [m[1;32mlogin-layout[m[33m)[m HEAD@{7}: checkout: moving from login-layout to b33a712fccfdc58949f3aa0ebb3887ac69c67882
+[33mb33a712[m[33m ([m[1;31morigin/login-layout[m[33m, [m[1;32mlogin-layout[m[33m)[m HEAD@{8}: reset: moving to b33a712
+[33m5788fbd[m HEAD@{9}: commit (merge): Merge branch 'main' of https://github.com/Alzamna/QueueBank-ProMax into login-layout
+[33mb33a712[m[33m ([m[1;31morigin/login-layout[m[33m, [m[1;32mlogin-layout[m[33m)[m HEAD@{10}: commit: perbaikan-login-dan-layout
+[33mff46d63[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{11}: checkout: moving from main to login-layout
+[33mff46d63[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m HEAD@{12}: clone: from https://github.com/Alzamna/QueueBank-ProMax.git
