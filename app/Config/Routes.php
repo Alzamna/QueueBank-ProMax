@@ -14,10 +14,17 @@ $routes->get('/logout', 'AuthController::logout');
 $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->get('dashboard', 'AdminController::dashboard');
     $routes->get('pengguna/pengguna', 'Admin\PenggunaController::index');
-    $routes->get('lokets', 'AdminController::lokets');
+    $routes->get('users', 'AdminController::users');
     $routes->get('kategori', 'AdminController::kategoriAntrian');
     $routes->get('pengaturan', 'AdminController::pengaturan');
     $routes->get('laporan', 'AdminController::laporan');
+
+    $routes->get('lokets', 'Loket::index');
+    $routes->get('lokets/create', 'Loket::create');
+    $routes->post('lokets/store', 'Loket::store');
+    $routes->get('lokets/edit/(:num)', 'Loket::edit/$1');
+    $routes->post('lokets/update/(:num)', 'Loket::update/$1');
+    $routes->post('lokets/delete/(:num)', 'Loket::delete/$1');
 });
 
 // Petugas Routes
@@ -50,6 +57,8 @@ $routes->post('ambil-nomor', 'AntrianController::ambilNomor');
 $routes->get('cek-status/(:any)', 'AntrianController::cekStatus/$1');
 $routes->get('cek-status-mobile', 'AntrianController::cekStatusMobile');
 $routes->get('statistik-antrian', 'AntrianController::getStatistikAntrian');
+$routes->get('today-summary', 'AntrianController::getTodaySummary');
+$routes->get('cleanup-old-data', 'AntrianController::cleanupOldData');
 
 // Desktop Routes (Mesin Antrian)
 $routes->get('desktop', 'DesktopController::index');

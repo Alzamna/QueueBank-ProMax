@@ -4,250 +4,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mesin Antrian Mobile</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                        secondary: {
+                            500: '#64748b',
+                            600: '#475569',
+                        },
+                        success: {
+                            500: '#10b981',
+                            600: '#059669',
+                        },
+                        dark: {
+                            500: '#1e293b',
+                            600: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' },
+                        }
+                    }
+                }
+            }
         }
-        
-        body {
+    </script>
+    <style type="text/css">
+        .bg-gradient-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            color: white;
-            min-height: 100vh;
-            padding-bottom: 80px;
         }
-        
-        .mobile-header {
-            text-align: center;
-            padding: 0.8rem;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            margin-bottom: 0.5rem;
-            border-bottom: 3px solid rgba(255,255,255,0.3);
-        }
-        
-        .mobile-header h1 {
-            font-size: 1.2rem;
-            margin-bottom: 0.3rem;
-            font-weight: bold;
-            color: white;
-        }
-        
-        .mobile-header p {
-            font-size: 0.8rem;
-            opacity: 0.9;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-        }
-        
-        .mobile-info-cards {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 0.4rem;
-            padding: 0.4rem;
-            margin-bottom: 0.8rem;
-        }
-        
-        .mobile-info-card {
+        .bg-gradient-card {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            color: #1f2937;
-            padding: 0.4rem;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            transition: all 0.3s ease;
+        }
+        .bg-gradient-selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .bg-gradient-button {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        .bg-gradient-button-disabled {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
         }
         
-        .mobile-info-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-            border-color: rgba(255,255,255,0.5);
+        .service-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        .mobile-info-card .card-title {
-            font-size: 0.55rem;
-            margin-bottom: 0.2rem;
-            color: #374151;
-            text-transform: uppercase;
-            font-weight: 600;
+        .service-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
         
-        .mobile-info-card .card-value {
-            font-size: 0.9rem;
-            font-weight: bold;
-            color: #1f2937;
-        }
-        
-        /* Current Queue Status - Identical to Desktop Pop-up */
-        .current-queue-status {
-            background: white;
-            margin: 0 0.4rem 0.8rem 0.4rem;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-            border: none;
-            display: none;
-            overflow: hidden;
-        }
-        
-        .current-queue-status.show {
-            display: block;
-        }
-        
-        /* Header Section - Green with Checkmark */
-        .queue-header {
-            background: #28a745;
-            color: white;
-            padding: 1rem 1.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .header-content {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        .success-icon {
-            background: rgba(255,255,255,0.2);
-            border-radius: 50%;
-            width: 2rem;
-            height: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .success-icon i {
-            font-size: 1rem;
-            color: white;
-        }
-        
-        .header-text {
-            font-size: 1.1rem;
-            font-weight: 600;
-        }
-        
-        .close-icon {
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: background-color 0.2s;
-        }
-        
-        .close-icon:hover {
-            background: rgba(255,255,255,0.1);
-        }
-        
-        .close-icon i {
-            font-size: 1.1rem;
-            color: white;
-        }
-        
-        /* Main Content Area */
-        .queue-content {
-            padding: 1.5rem;
-            text-align: center;
-        }
-        
-        .queue-number-display {
-            margin-bottom: 1.5rem;
-        }
-        
-        .queue-number {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            font-size: 3.5rem;
-            font-weight: 700;
-            color: #28a745;
-            margin: 0;
-            line-height: 1;
-            letter-spacing: 1px;
-        }
-        
-        .queue-category {
-            background: #28a745;
-            color: white;
-            padding: 0.5rem 1.5rem;
-            border-radius: 20px;
-            font-size: 1rem;
-            font-weight: 500;
-            display: inline-block;
-            margin-top: 0.5rem;
-        }
-        
-        .queue-position {
-            font-size: 1rem;
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-        
-        .queue-timestamp {
-            font-size: 0.9rem;
-            color: #666;
-        }
-        
-        /* Footer Buttons */
-        .queue-footer {
-            padding: 1rem 1.5rem;
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            border-top: 1px solid #e9ecef;
-        }
-        
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            font-weight: 500;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s;
-            min-width: 100px;
-        }
-        
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-        
-        .btn-primary {
-            background: #007bff;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #0056b3;
-        }
-        
-        .mobile-service-cards {
-            padding: 0 0.4rem;
-            margin-bottom: 0.8rem;
-        }
-        
-        .mobile-service-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            color: #1f2937;
-            padding: 0.6rem;
-            margin-bottom: 0.4rem;
-            border-radius: 15px;
-            text-align: center;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .mobile-service-card::before {
+        .service-card::before {
             content: '';
             position: absolute;
             top: 0;
@@ -255,365 +83,178 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            transition: left 0.5s ease;
+            transition: left 0.7s ease;
         }
         
-        .mobile-service-card:hover::before {
+        .service-card:hover::before {
             left: 100%;
         }
         
-        .mobile-service-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            border-color: rgba(255,255,255,0.6);
-            background: linear-gradient(135deg, #ffffff 0%, #e3f2fd 100%);
-        }
-        
-        .mobile-service-card.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-            border-color: rgba(255,255,255,0.8);
-        }
-        
-        .mobile-service-card .service-name {
-            font-weight: bold;
-            font-size: 0.9rem;
-            margin-bottom: 0.2rem;
-            color: #1f2937;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .mobile-service-card .service-description {
-            font-size: 0.75rem;
-            margin-bottom: 0.2rem;
-            opacity: 0.8;
-            color: #374151;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .mobile-service-card .service-prefix {
-            font-size: 0.65rem;
-            opacity: 0.7;
-            color: #6b7280;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .mobile-service-card.selected .service-name,
-        .mobile-service-card.selected .service-description,
-        .mobile-service-card.selected .service-prefix {
-            color: white;
-        }
-        
-        .mobile-bottom-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            padding: 0.6rem;
-            text-align: center;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
-            border-top: 1px solid rgba(0,0,0,0.1);
-        }
-        
-        .mobile-bottom-bar button {
-            width: 100%;
-            padding: 0.7rem;
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-            transition: all 0.3s ease;
-        }
-        
-        .mobile-bottom-bar button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-        }
-        
-        .mobile-bottom-bar button:disabled {
-            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        .service-card.disabled {
+            opacity: 0.5;
+            filter: grayscale(50%);
             cursor: not-allowed;
+            pointer-events: none;
         }
         
-        /* Landscape optimization */
-        @media (orientation: landscape) {
-            .mobile-header {
-                padding: 0.5rem;
-                margin-bottom: 0.3rem;
-            }
-            
-            .mobile-header h1 {
-                font-size: 1rem;
-                margin-bottom: 0.2rem;
-            }
-            
-            .mobile-header p {
-                font-size: 0.7rem;
-                margin-bottom: 0.3rem;
-            }
-            
-            .mobile-info-cards {
-                gap: 0.3rem;
-                padding: 0.3rem;
-                margin-bottom: 0.5rem;
-            }
-            
-            .mobile-info-card {
-                padding: 0.3rem;
-            }
-            
-            .mobile-info-card .card-title {
-                font-size: 0.5rem;
-                margin-bottom: 0.15rem;
-            }
-            
-            .mobile-info-card .card-value {
-                font-size: 0.8rem;
-            }
-            
-            .current-queue-status {
-                margin: 0 0.3rem 0.5rem 0.3rem;
-            }
-            
-            .queue-header {
-                padding: 0.8rem 1.2rem;
-            }
-            
-            .header-text {
-                font-size: 1rem;
-            }
-            
-            .success-icon {
-                width: 1.8rem;
-                height: 1.8rem;
-            }
-            
-            .queue-content {
-                padding: 1.2rem;
-            }
-            
-            .queue-number {
-                font-size: 3rem;
-            }
-            
-            .queue-category {
-                padding: 0.4rem 1.2rem;
-                font-size: 0.9rem;
-            }
-            
-            .queue-position {
-                font-size: 0.9rem;
-            }
-            
-            .queue-timestamp {
-                font-size: 0.8rem;
-            }
-            
-            .queue-footer {
-                padding: 0.8rem 1.2rem;
-                gap: 0.8rem;
-            }
-            
-            .btn {
-                padding: 0.6rem 1.2rem;
-                min-width: 90px;
-            }
-            
-            .mobile-service-cards {
-                padding: 0 0.3rem;
-                margin-bottom: 0.5rem;
-            }
-            
-            .mobile-service-card {
-                padding: 0.5rem;
-                margin-bottom: 0.3rem;
-            }
-            
-            .mobile-service-card .service-name {
-                font-size: 0.8rem;
-            }
-            
-            .mobile-service-card .service-description {
-                font-size: 0.7rem;
-            }
-            
-            .mobile-service-card .service-prefix {
-                font-size: 0.6rem;
-            }
-            
-            .mobile-bottom-bar {
-                padding: 0.5rem;
-            }
-            
-            .mobile-bottom-bar button {
-                padding: 0.6rem;
-                font-size: 0.8rem;
-            }
+        .service-card.disabled:hover {
+            transform: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         
-        /* Extra small screens */
-        @media (max-width: 360px) {
-            .mobile-header h1 {
-                font-size: 1.1rem;
-            }
-            
-            .mobile-info-card .card-title {
-                font-size: 0.5rem;
-            }
-            
-            .mobile-info-card .card-value {
-                font-size: 0.8rem;
-            }
-            
-            .current-queue-status {
-                margin: 0 0.3rem 0.5rem 0.3rem;
-            }
-            
-            .queue-header {
-                padding: 1rem 1.5rem;
-            }
-            
-            .header-text {
-                font-size: 1.1rem;
-            }
-            
-            .success-icon {
-                width: 2rem;
-                height: 2rem;
-            }
-            
-            .queue-content {
-                padding: 1.5rem;
-            }
-            
-            .queue-number {
-                font-size: 3.5rem;
-            }
-            
-            .queue-category {
-                padding: 0.5rem 1.5rem;
-                font-size: 1rem;
-            }
-            
-            .queue-position {
-                font-size: 1rem;
-            }
-            
-            .queue-timestamp {
-                font-size: 0.9rem;
-            }
-            
-            .queue-footer {
-                padding: 1rem 1.5rem;
-                gap: 1rem;
-            }
-            
-            .btn {
-                padding: 0.75rem 1.5rem;
-                min-width: 100px;
-            }
-            
-            .mobile-service-card .service-name {
-                font-size: 0.85rem;
+        .service-card.disabled::before {
+            display: none;
+        }
+        
+        .bottom-bar {
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.95);
+            padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+        }
+        
+        @media (max-width: 640px) {
+            .info-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
 </head>
-<body>
-    <div class="mobile-header">
-        <h1>📱 MESIN ANTRIAN</h1>
-        <p>Pilih layanan & ambil nomor</p>
+<body class="min-h-screen bg-gradient-primary font-sans text-gray-100 antialiased pb-20">
+    <!-- Header Section -->
+    <header class="sticky top-0 z-10 bg-white/10 backdrop-blur-md border-b border-white/20 px-4 py-3">
+        <div class="flex flex-col items-center justify-center">
+            <h1 class="text-xl font-bold flex items-center gap-2">
+                <i class="fas fa-mobile-alt animate-pulse-slow"></i>
+                MESIN ANTRIAN MOBILE
+            </h1>
+            <p class="text-sm opacity-90 mt-1">Pilih layanan & ambil nomor antrian</p>
+        </div>
+    </header>
+
+    <!-- Info Cards -->
+    <div class="grid info-grid grid-cols-4 gap-2 px-4 my-4">
+        <div class="bg-white/20 rounded-lg p-3 text-center backdrop-blur-sm border border-white/10 shadow-sm hover:shadow-md transition-all">
+            <div class="text-xs font-medium uppercase tracking-wider text-white/80">Total</div>
+            <div class="text-xl font-bold mt-1" id="mobileTotalAntrian">0</div>
+        </div>
+        <div class="bg-white/20 rounded-lg p-3 text-center backdrop-blur-sm border border-white/10 shadow-sm hover:shadow-md transition-all">
+            <div class="text-xs font-medium uppercase tracking-wider text-white/80">Dipanggil</div>
+            <div class="text-xl font-bold mt-1" id="mobileSedangDipanggil">0</div>
+        </div>
+        <div class="bg-white/20 rounded-lg p-3 text-center backdrop-blur-sm border border-white/10 shadow-sm hover:shadow-md transition-all">
+            <div class="text-xs font-medium uppercase tracking-wider text-white/80">Menunggu</div>
+            <div class="text-xl font-bold mt-1" id="mobileSedangMenunggu">0</div>
+        </div>
+        <div class="bg-white/20 rounded-lg p-3 text-center backdrop-blur-sm border border-white/10 shadow-sm hover:shadow-md transition-all">
+            <div class="text-xs font-medium uppercase tracking-wider text-white/80">Update</div>
+            <div class="text-sm font-medium mt-1" id="mobileUpdateTerakhir">-</div>
+        </div>
     </div>
-    
-    <div class="mobile-info-cards">
-        <div class="mobile-info-card">
-            <div class="card-title">Total</div>
-            <div class="card-value" id="mobileTotalAntrian">0</div>
-        </div>
-        <div class="mobile-info-card">
-            <div class="card-title">Dipanggil</div>
-            <div class="card-value" id="mobileSedangDipanggil">0</div>
-        </div>
-        <div class="mobile-info-card">
-            <div class="card-title">Menunggu</div>
-            <div class="card-value" id="mobileSedangMenunggu">0</div>
-        </div>
-        <div class="mobile-info-card">
-            <div class="card-title">Update</div>
-            <div class="card-value" id="mobileUpdateTerakhir">-</div>
-        </div>
-    </div>
-    
-    <!-- Current Queue Status - Identical to Desktop -->
-    <div class="current-queue-status" id="currentQueueStatus">
-        <!-- Header Section - Green with Checkmark -->
-        <div class="queue-header">
-            <div class="header-content">
-                <div class="success-icon">
-                    <i class="fas fa-check"></i>
+
+    <!-- Current Queue Status Bar -->
+    <div class="px-4 mb-4" id="currentQueueStatusBar" style="display: none;">
+        <div class="bg-success-500/20 backdrop-blur-sm border border-success-500/30 rounded-xl p-4 text-center">
+            <div class="flex items-center justify-center gap-3 mb-2">
+                <div class="bg-success-500 rounded-full w-6 h-6 flex items-center justify-center">
+                    <i class="fas fa-check text-white text-xs"></i>
                 </div>
-                <div class="header-text">Nomor Antrian Berhasil</div>
+                <h3 class="text-lg font-semibold text-success-600">Anda Sudah Mengambil Antrian</h3>
             </div>
-            <div class="close-icon" onclick="hideQueueStatus()">
-                <i class="fas fa-times"></i>
+            <div class="text-sm text-success-700 mb-3">
+                <span class="font-medium">Nomor:</span> 
+                <span class="text-xl font-bold" id="statusBarNomorAntrian">-</span>
+                <span class="mx-2">•</span>
+                <span class="font-medium">Layanan:</span> 
+                <span id="statusBarKategori">-</span>
             </div>
-        </div>
-        
-        <!-- Main Content Area -->
-        <div class="queue-content">
-            <div class="queue-number-display">
-                <div class="queue-number" id="currentNomorAntrian">-</div>
-                <div class="queue-category" id="currentKategoriAntrian">-</div>
+            <div class="flex justify-center gap-2">
+                <button onclick="showQueueNumberFromStatusBar()" class="px-4 py-2 bg-success-600 hover:bg-success-700 text-white rounded-lg text-sm font-medium transition-colors">
+                    <i class="fas fa-eye mr-1"></i> Lihat Detail
+                </button>
+                <button onclick="printAntrianFromStatusBar()" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors">
+                    <i class="fas fa-print mr-1"></i> Cetak
+                </button>
             </div>
-            
-            <div class="queue-position">
-                <span>Posisi antrian: </span>
-                <span id="currentPosisiAntrian">-</span>
-            </div>
-            
-            <div class="queue-timestamp">
-                <span>Waktu: </span>
-                <span id="currentTimestamp">-</span>
-            </div>
-        </div>
-        
-        <!-- Footer Buttons -->
-        <div class="queue-footer">
-            <button class="btn btn-secondary" onclick="hideQueueStatus()">
-                <i class="fas fa-times me-1"></i> Tutup
-            </button>
-            <button class="btn btn-primary" onclick="printAntrian()">
-                <i class="fas fa-print me-1"></i> Cetak
-            </button>
         </div>
     </div>
-    
-    <div class="mobile-service-cards">
+
+    <!-- Current Queue Status Modal -->
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300 opacity-0 pointer-events-none" id="currentQueueStatus">
+        <div class="bg-white rounded-xl overflow-hidden w-full max-w-md mx-4 shadow-2xl transform transition-all duration-300 scale-95">
+            <!-- Header -->
+            <div class="bg-success-600 p-5 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-white/20 rounded-full w-8 h-8 flex items-center justify-center">
+                        <i class="fas fa-check text-white text-sm"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-white">Nomor Antrian Berhasil</h3>
+                </div>
+                <button onclick="hideQueueStatus()" class="text-white hover:bg-white/10 rounded-full p-1 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Content -->
+            <div class="p-6 text-center">
+                <div class="mb-6">
+                    <div class="text-5xl font-bold text-success-600 mb-2 animate-float" id="currentNomorAntrian">-</div>
+                    <span class="inline-block bg-success-600 text-white text-sm font-medium px-4 py-1 rounded-full" id="currentKategoriAntrian">-</span>
+                </div>
+                
+                <div class="text-gray-700 mb-1">
+                    <span>Posisi antrian: </span>
+                    <span class="font-medium" id="currentPosisiAntrian">-</span>
+                </div>
+                
+                <div class="text-gray-500 text-sm">
+                    <span>Waktu: </span>
+                    <span id="currentTimestamp">-</span>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="border-t border-gray-200 p-4 flex justify-center space-x-3">
+                <button onclick="hideQueueStatus()" class="px-5 py-2 bg-secondary-500 hover:bg-secondary-600 text-white rounded-lg font-medium transition-colors">
+                    <i class="fas fa-times mr-2"></i> Tutup
+                </button>
+                <button onclick="printAntrian()" class="px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-medium transition-colors">
+                    <i class="fas fa-print mr-2"></i> Cetak
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Service Cards -->
+    <div class="px-4 space-y-3 mt-4">
         <?php foreach ($kategori as $kat): ?>
-        <div class="mobile-service-card" data-kategori-id="<?= $kat['id'] ?>">
-            <div class="service-name"><?= $kat['nama_kategori'] ?></div>
-            <div class="service-description"><?= $kat['deskripsi'] ?? 'Layanan ' . $kat['nama_kategori'] ?></div>
-            <div class="service-prefix">Prefix: <?= $kat['prefix'] ?></div>
+        <div class="service-card bg-gradient-card rounded-xl p-4 cursor-pointer relative overflow-hidden border border-white/30 shadow-md hover:shadow-lg text-gray-800" data-kategori-id="<?= $kat['id'] ?>">
+            <div class="relative z-10">
+                <h3 class="font-bold text-lg text-dark-600"><?= $kat['nama_kategori'] ?></h3>
+                <p class="text-sm text-gray-600 mt-1"><?= $kat['deskripsi'] ?? 'Layanan ' . $kat['nama_kategori'] ?></p>
+                <div class="text-xs text-gray-500 mt-2">
+                    <span class="font-medium">Prefix:</span> <?= $kat['prefix'] ?>
+                </div>
+            </div>
+            <!-- Disabled Overlay -->
+            <div class="disabled-overlay absolute inset-0 bg-black/20 rounded-xl flex items-center justify-center opacity-0 pointer-events-none transition-opacity duration-300">
+                <div class="bg-white/90 rounded-lg px-3 py-1 text-xs font-medium text-gray-700">
+                    <i class="fas fa-lock mr-1"></i> Sudah Ambil Antrian
+                </div>
+            </div>
         </div>
         <?php endforeach; ?>
     </div>
-    
-    <div class="mobile-bottom-bar">
-        <button id="mobileBtnAmbil" disabled>
-            <span class="btn-text">Pilih layanan terlebih dahulu</span>
-        </button>
+
+    <!-- Bottom Action Bar -->
+    <div class="bottom-bar fixed bottom-0 left-0 right-0 p-4 z-40">
+        <div class="max-w-md mx-auto w-full">
+            <button id="mobileBtnAmbil" disabled class="w-full py-3 px-4 rounded-full font-semibold text-white bg-gradient-button hover:shadow-lg transition-all disabled:bg-gradient-button-disabled disabled:cursor-not-allowed disabled:opacity-80">
+                <span class="btn-text">Pilih layanan terlebih dahulu</span>
+            </button>
+        </div>
     </div>
-    
+
     <script>
         // Persistent storage for queue number
         const STORAGE_KEY = 'queuebank_mobile_queue';
@@ -627,13 +268,24 @@
         });
         
         function setupMobileServiceCards() {
-            document.querySelectorAll('.mobile-service-card').forEach(card => {
+            document.querySelectorAll('.service-card').forEach(card => {
                 card.addEventListener('click', function() {
-                    document.querySelectorAll('.mobile-service-card').forEach(c => {
-                        c.classList.remove('selected');
+                    // Check if card is disabled
+                    if (this.classList.contains('disabled')) {
+                        return; // Don't allow selection of disabled cards
+                    }
+                    
+                    document.querySelectorAll('.service-card').forEach(c => {
+                        c.classList.remove('bg-gradient-selected', 'text-white');
+                        c.querySelector('h3').classList.remove('text-white');
+                        c.querySelector('p').classList.remove('text-white');
+                        c.querySelector('div').classList.remove('text-white');
                     });
                     
-                    this.classList.add('selected');
+                    this.classList.add('bg-gradient-selected', 'text-white');
+                    this.querySelector('h3').classList.add('text-white');
+                    this.querySelector('p').classList.add('text-white');
+                    this.querySelector('div').classList.add('text-white');
                     
                     const mobileBtn = document.getElementById('mobileBtnAmbil');
                     mobileBtn.disabled = false;
@@ -642,10 +294,16 @@
             });
             
             document.getElementById('mobileBtnAmbil').addEventListener('click', function() {
-                const selectedCard = document.querySelector('.mobile-service-card.selected');
+                const selectedCard = document.querySelector('.service-card.bg-gradient-selected');
                 if (selectedCard) {
                     const kategoriId = selectedCard.dataset.kategoriId;
-                    const kategoriNama = selectedCard.querySelector('.service-name').textContent;
+                    const kategoriNama = selectedCard.querySelector('h3').textContent;
+                    
+                    // Show loading state
+                    const btnText = this.querySelector('.btn-text');
+                    const originalText = btnText.textContent;
+                    btnText.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...';
+                    this.disabled = true;
                     
                     // Call the actual API to get queue number
                     fetch('/ambil-nomor', {
@@ -661,6 +319,7 @@
                             // Save queue number to persistent storage
                             const queueData = {
                                 nomor_antrian: data.nomor_antrian,
+                                nomor_antrian_full: data.nomor_antrian_full,
                                 kategori: data.kategori,
                                 antrian_id: data.antrian_id,
                                 waktu_ambil: new Date().toISOString(),
@@ -672,19 +331,27 @@
                             showQueueNumber(queueData);
                             
                             // Reset selection
-                            selectedCard.classList.remove('selected');
+                            selectedCard.classList.remove('bg-gradient-selected', 'text-white');
+                            selectedCard.querySelector('h3').classList.remove('text-white');
+                            selectedCard.querySelector('p').classList.remove('text-white');
+                            selectedCard.querySelector('div').classList.remove('text-white');
+                            
                             this.disabled = true;
-                            this.querySelector('.btn-text').textContent = 'Pilih layanan terlebih dahulu';
+                            btnText.textContent = 'Pilih layanan terlebih dahulu';
                             
                             // Update info cards
                             updateQueueInfo();
                         } else {
                             alert('Gagal mengambil nomor: ' + data.message);
+                            btnText.textContent = originalText;
+                            this.disabled = false;
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
                         alert('Terjadi kesalahan saat mengambil nomor antrian');
+                        btnText.textContent = originalText;
+                        this.disabled = false;
                     });
                 }
             });
@@ -701,52 +368,122 @@
                     const hoursDiff = (now - queueTime) / (1000 * 60 * 60);
                     
                     if (hoursDiff < 24) {
-                        showQueueNumber(queueData);
+                        // Show status bar and disable other services
+                        showStatusBar(queueData);
+                        disableOtherServices(queueData.kategori_id);
                         updateQueueInfo();
                     } else {
                         // Remove expired queue
                         localStorage.removeItem(STORAGE_KEY);
+                        hideStatusBar();
+                        enableAllServices();
                     }
                 } catch (e) {
                     localStorage.removeItem(STORAGE_KEY);
+                    hideStatusBar();
+                    enableAllServices();
                 }
             }
         }
         
         function showQueueNumber(queueData) {
-            document.getElementById('currentNomorAntrian').textContent = queueData.nomor_antrian;
+            // Show modal
+            const modal = document.getElementById('currentQueueStatus');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.querySelector('#currentQueueStatus > div').classList.remove('scale-95');
+            modal.querySelector('#currentQueueStatus > div').classList.add('scale-100');
+            
+            // Use display number for user-friendly view
+            const displayNumber = queueData.nomor_antrian || queueData.nomor_antrian_full;
+            document.getElementById('currentNomorAntrian').textContent = displayNumber;
             document.getElementById('currentKategoriAntrian').textContent = queueData.kategori;
             
             // Set current timestamp
             const now = new Date();
-            const timestamp = now.getFullYear() + '-' + 
-                            String(now.getMonth() + 1).padStart(2, '0') + '-' + 
-                            String(now.getDate()).padStart(2, '0') + ' ' + 
-                            String(now.getHours()).padStart(2, '0') + ':' + 
-                            String(now.getMinutes()).padStart(2, '0') + ':' + 
-                            String(now.getSeconds()).padStart(2, '0');
+            const timestamp = now.toLocaleString('id-ID', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
             document.getElementById('currentTimestamp').textContent = timestamp;
-            
-            // Show the current queue status
-            document.getElementById('currentQueueStatus').classList.add('show');
             
             // Calculate position and estimated time
             calculateQueuePosition(queueData.antrian_id, queueData.kategori_id);
+            
+            // Show status bar and disable other services
+            showStatusBar(queueData);
+            disableOtherServices(queueData.kategori_id);
+        }
+        
+        function showStatusBar(queueData) {
+            const statusBar = document.getElementById('currentQueueStatusBar');
+            const displayNumber = queueData.nomor_antrian || queueData.nomor_antrian_full;
+            
+            document.getElementById('statusBarNomorAntrian').textContent = displayNumber;
+            document.getElementById('statusBarKategori').textContent = queueData.kategori;
+            
+            statusBar.style.display = 'block';
+            statusBar.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        function hideStatusBar() {
+            const statusBar = document.getElementById('currentQueueStatusBar');
+            statusBar.style.display = 'none';
+        }
+        
+        function disableOtherServices(selectedKategoriId) {
+            document.querySelectorAll('.service-card').forEach(card => {
+                const kategoriId = card.dataset.kategoriId;
+                const overlay = card.querySelector('.disabled-overlay');
+                
+                if (kategoriId !== selectedKategoriId) {
+                    card.classList.add('disabled');
+                    overlay.style.opacity = '1';
+                    overlay.style.pointerEvents = 'auto';
+                } else {
+                    card.classList.add('bg-gradient-selected', 'text-white');
+                    card.querySelector('h3').classList.add('text-white');
+                    card.querySelector('p').classList.add('text-white');
+                    card.querySelector('div').classList.add('text-white');
+                }
+            });
+        }
+        
+        function enableAllServices() {
+            document.querySelectorAll('.service-card').forEach(card => {
+                card.classList.remove('disabled', 'bg-gradient-selected', 'text-white');
+                card.querySelector('h3').classList.remove('text-white');
+                card.querySelector('p').classList.remove('text-white');
+                card.querySelector('div').classList.remove('text-white');
+                
+                const overlay = card.querySelector('.disabled-overlay');
+                overlay.style.opacity = '0';
+                overlay.style.pointerEvents = 'none';
+            });
         }
         
         function hideQueueStatus() {
-            document.getElementById('currentQueueStatus').classList.remove('show');
+            const modal = document.getElementById('currentQueueStatus');
+            modal.querySelector('#currentQueueStatus > div').classList.remove('scale-100');
+            modal.querySelector('#currentQueueStatus > div').classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('opacity-0', 'pointer-events-none');
+            }, 200);
         }
         
         function printAntrian() {
             // Create print content
             const printContent = `
                 <div style="text-align: center; padding: 20px; font-family: Arial, sans-serif;">
-                    <h2>Nomor Antrian</h2>
+                    <h2 style="font-size: 24px; margin-bottom: 10px;">Nomor Antrian</h2>
                     <div style="font-size: 48px; font-weight: bold; color: #28a745; margin: 20px 0;">
                         ${document.getElementById('currentNomorAntrian').textContent}
                     </div>
-                    <div style="font-size: 18px; margin: 10px 0;">
+                    <div style="font-size: 18px; margin: 10px 0; background: #28a745; color: white; display: inline-block; padding: 5px 15px; border-radius: 20px;">
                         ${document.getElementById('currentKategoriAntrian').textContent}
                     </div>
                     <div style="font-size: 14px; color: #666; margin: 10px 0;">
@@ -755,14 +492,31 @@
                     <div style="font-size: 12px; color: #999; margin: 20px 0;">
                         ${document.getElementById('currentTimestamp').textContent}
                     </div>
+                    <div style="font-size: 10px; color: #ccc; margin: 10px 0;">
+                        ID: ${document.getElementById('currentNomorAntrian').textContent}
+                    </div>
                 </div>
             `;
             
             // Open print window
             const printWindow = window.open('', '_blank');
-            printWindow.document.write(printContent);
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Cetak Nomor Antrian</title>
+                        <style>
+                            @media print {
+                                @page { size: auto; margin: 5mm; }
+                                body { -webkit-print-color-adjust: exact; }
+                            }
+                        </style>
+                    </head>
+                    <body onload="window.print();window.close()">
+                        ${printContent}
+                    </body>
+                </html>
+            `);
             printWindow.document.close();
-            printWindow.print();
         }
         
         function calculateQueuePosition(antrianId, kategoriId) {
@@ -774,12 +528,7 @@
                         // Update position
                         const posisi = data.posisi_antrian || 0;
                         document.getElementById('currentPosisiAntrian').textContent = posisi;
-                        
-                        // Log for debugging
-                        console.log('Queue position data:', data);
-                        console.log('Position:', posisi);
                     } else {
-                        console.log('API response not successful:', data);
                         document.getElementById('currentPosisiAntrian').textContent = '-';
                     }
                 })
@@ -832,6 +581,13 @@
         }
         
         function startRealTimeUpdates() {
+            // Initial update
+            updateMobileInfo();
+            document.getElementById('mobileUpdateTerakhir').textContent = new Date().toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
             // Update info every 30 seconds
             setInterval(() => {
                 updateMobileInfo();
@@ -841,6 +597,89 @@
                 });
             }, 30000);
         }
+        
+        function showQueueNumberFromStatusBar() {
+            const savedQueue = localStorage.getItem(STORAGE_KEY);
+            if (savedQueue) {
+                try {
+                    const queueData = JSON.parse(savedQueue);
+                    showQueueModal(queueData);
+                } catch (e) {
+                    console.error('Error showing queue from status bar:', e);
+                    alert('Terjadi kesalahan saat menampilkan detail antrian');
+                }
+            } else {
+                alert('Tidak ada data antrian yang tersimpan');
+            }
+        }
+        
+        function showQueueModal(queueData) {
+            // Show modal without changing status bar or disabling services
+            const modal = document.getElementById('currentQueueStatus');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.querySelector('#currentQueueStatus > div').classList.remove('scale-95');
+            modal.querySelector('#currentQueueStatus > div').classList.add('scale-100');
+            
+            // Use display number for user-friendly view
+            const displayNumber = queueData.nomor_antrian || queueData.nomor_antrian_full;
+            document.getElementById('currentNomorAntrian').textContent = displayNumber;
+            document.getElementById('currentKategoriAntrian').textContent = queueData.kategori;
+            
+            // Set current timestamp
+            const now = new Date();
+            const timestamp = now.toLocaleString('id-ID', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('currentTimestamp').textContent = timestamp;
+            
+            // Calculate position and estimated time
+            calculateQueuePosition(queueData.antrian_id, queueData.kategori_id);
+        }
+        
+        function printAntrianFromStatusBar() {
+            const savedQueue = localStorage.getItem(STORAGE_KEY);
+            if (savedQueue) {
+                try {
+                    const queueData = JSON.parse(savedQueue);
+                    // Update modal content first
+                    showQueueModal(queueData);
+                    // Wait a bit for modal to update, then print
+                    setTimeout(() => {
+                        printAntrian();
+                    }, 300);
+                } catch (e) {
+                    console.error('Error printing from status bar:', e);
+                    alert('Terjadi kesalahan saat mencetak antrian');
+                }
+            } else {
+                alert('Tidak ada data antrian yang tersimpan');
+            }
+        }
+        
+        // Function untuk reset manual (untuk testing)
+        function resetQueue() {
+            localStorage.removeItem(STORAGE_KEY);
+            hideStatusBar();
+            enableAllServices();
+            
+            const mobileBtn = document.getElementById('mobileBtnAmbil');
+            mobileBtn.disabled = true;
+            mobileBtn.querySelector('.btn-text').textContent = 'Pilih layanan terlebih dahulu';
+            
+            // Hide modal if open
+            const modal = document.getElementById('currentQueueStatus');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.querySelector('#currentQueueStatus > div').classList.remove('scale-100');
+            modal.querySelector('#currentQueueStatus > div').classList.add('scale-95');
+        }
+        
+        // Expose reset function globally for testing
+        window.resetQueue = resetQueue;
     </script>
 </body>
 </html>
