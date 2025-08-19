@@ -19,6 +19,10 @@ class HomeController extends BaseController
 
     public function index()
     {
-        return view('home');
+        return view('display/home', [
+            'title' => 'Antrian',
+            'antrian' => $this->antrianModel->getAntrianAktif(),
+            'kategori' => $this->kategoriAntrianModel->findAll(),
+        ]);
     }
 }

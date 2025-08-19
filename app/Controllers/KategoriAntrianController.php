@@ -70,37 +70,39 @@ class KategoriAntrianController extends Controller
 
     public function update($id)
     {
-        $kategori = $this->kategoriModel->find($id);
-        if (! $kategori) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException("Kategori dengan ID $id tidak ditemukan");
-        }
-
-        // Validasi dinamis
-        $rules = [
-            'nama_kategori' => 'required|max_length[50]',
-            'deskripsi'     => 'permit_empty|max_length[500]',
-            'status'        => 'required|in_list[aktif,nonaktif]',
-        ];
-
-        if ($this->request->getPost('prefix') !== $kategori['prefix']) {
-            $rules['prefix'] = 'required|max_length[5]|is_unique[kategori_antrians.prefix]';
-        } else {
-            $rules['prefix'] = 'required|max_length[5]';
-        }
-
-        if (! $this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
-        }
-
-        $this->kategoriModel->update($id, [
-            'nama_kategori' => $this->request->getPost('nama_kategori'),
-            'prefix'        => $this->request->getPost('prefix'),
-            'deskripsi'     => $this->request->getPost('deskripsi'),
-            'status'        => $this->request->getPost('status'),
-        ]);
-
-        return redirect()->to('/admin/kategori')->with('success', 'Kategori berhasil diperbarui');
+    $kategori = $this->kategoriModel->find($id);
+    if (! $kategori) {
+        throw new \CodeIgniter\Exceptions\PageNotFoundException("Kategori dengan ID $id tidak ditemukan");
     }
+
+    // Validasi dinamis
+    $rules = [
+        'nama_kategori' => 'required|max_length[50]',
+        'deskripsi'     => 'permit_empty|max_length[500]',
+        'status'        => 'required|in_list[aktif,nonaktif]',
+    ];
+
+    if ($this->request->getPost('prefix') !== $kategori['prefix']) {
+        $rules['prefix'] = 'required|max_length[5]|is_unique[kategori_antrians.prefix]';
+    } else {
+        $rules['prefix'] = 'required|max_length[5]';
+    }
+
+    if (! $this->validate($rules)) {
+        return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+    }
+
+    // gunakan skipValidation supaya validationRules dari Model tidak ikut dijalankan
+    $this->kategoriModel->skipValidation(true)->update($id, [
+        'nama_kategori' => $this->request->getPost('nama_kategori'),
+        'prefix'        => $this->request->getPost('prefix'),
+        'deskripsi'     => $this->request->getPost('deskripsi'),
+        'status'        => $this->request->getPost('status'),
+    ]);
+
+    return redirect()->to('/admin/kategori')->with('success', 'Kategori berhasil diperbarui');
+    }
+
 
     public function delete($id)
     {
