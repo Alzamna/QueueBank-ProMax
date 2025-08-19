@@ -127,6 +127,98 @@ function testPanggilAntrian() {
     }
 }
 
+// Function to test selesai antrian functionality
+function testSelesaiAntrian() {
+    console.log('Testing selesai antrian...');
+    
+    // Test with POST data
+    const testData = {
+        antrian_id: 6
+    };
+    
+    console.log('Test data:', testData);
+    
+    // Test with fetch API
+    fetch('<?= base_url('petugas/test-selesai-antrian') ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(testData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Test selesai antrian result:', data);
+        if (data.success) {
+            alert('Test successful! Check console for details.');
+        } else {
+            alert('Test failed: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Test selesai antrian error:', error);
+        alert('Test error: ' + error.message);
+    });
+    
+    // Also test with jQuery if available
+    if (typeof $ !== 'undefined') {
+        console.log('Testing with jQuery...');
+        $.post('<?= base_url('petugas/test-selesai-antrian') ?>', testData)
+            .done(function(data) {
+                console.log('jQuery test result:', data);
+            })
+            .fail(function(xhr, status, error) {
+                console.error('jQuery test failed:', {xhr, status, error});
+            });
+    }
+}
+
+// Function to test lewati antrian functionality
+function testLewatiAntrian() {
+    console.log('Testing lewati antrian...');
+    
+    // Test with POST data
+    const testData = {
+        antrian_id: 6
+    };
+    
+    console.log('Test data:', testData);
+    
+    // Test with fetch API
+    fetch('<?= base_url('petugas/test-lewati-antrian') ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(testData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Test lewati antrian result:', data);
+        if (data.success) {
+            alert('Test successful! Check console for details.');
+        } else {
+            alert('Test failed: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Test lewati antrian error:', error);
+        alert('Test error: ' + error.message);
+        });
+    
+    // Also test with jQuery if available
+    if (typeof $ !== 'undefined') {
+        console.log('Testing with jQuery...');
+        $.post('<?= base_url('petugas/test-lewati-antrian') ?>', testData)
+            .done(function(data) {
+                console.log('jQuery test result:', data);
+            })
+            .fail(function(xhr, status, error) {
+                console.error('jQuery test failed:', {xhr, status, error});
+            });
+    }
+}
+
 // Function to log form data before submission
 function logFormData(formId) {
     const form = document.getElementById(formId);
@@ -149,6 +241,8 @@ function addDebugButtons() {
             <button onclick="debugUserAccess()" style="margin: 2px; padding: 5px; font-size: 10px;">Debug Access</button><br>
             <button onclick="testAjaxCalls()" style="margin: 2px; padding: 5px; font-size: 10px;">Test AJAX</button><br>
             <button onclick="testPanggilAntrian()" style="margin: 2px; padding: 5px; font-size: 10px;">Test Panggil</button><br>
+            <button onclick="testSelesaiAntrian()" style="margin: 2px; padding: 5px; font-size: 10px;">Test Selesai</button><br>
+            <button onclick="testLewatiAntrian()" style="margin: 2px; padding: 5px; font-size: 10px;">Test Lewati</button><br>
             <button onclick="console.clear()" style="margin: 2px; padding: 5px; font-size: 10px;">Clear Console</button>
         </div>
     `;
@@ -255,6 +349,8 @@ window.petugasDebug = {
     debugUserAccess,
     testAjaxCalls,
     testPanggilAntrian,
+    testSelesaiAntrian,
+    testLewatiAntrian,
     logFormData,
     enhancedAjaxCall
 };

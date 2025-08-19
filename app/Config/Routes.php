@@ -57,6 +57,8 @@ $routes->group('petugas', ['filter' => 'auth'], function($routes) {
     $routes->get('debug-user-access', 'PetugasController::debugUserAccess');
     $routes->get('test-system', 'PetugasController::testSystem');
     $routes->match(['get', 'post'], 'test-panggil-antrian', 'PetugasController::testPanggilAntrian');
+    $routes->match(['get', 'post'], 'test-selesai-antrian', 'PetugasController::testSelesaiAntrian');
+    $routes->match(['get', 'post'], 'test-lewati-antrian', 'PetugasController::testLewatiAntrian');
 });
 
 

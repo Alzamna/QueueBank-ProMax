@@ -245,8 +245,32 @@ class PetugasController extends BaseController
 
     public function selesaiAntrian()
     {
-        if ($this->request->getMethod() === 'post') {
-            $antrian_id = $this->request->getPost('antrian_id');
+        // Debug: Log request details
+        log_message('debug', 'selesaiAntrian called');
+        log_message('debug', 'Request method: ' . $this->request->getMethod());
+        log_message('debug', 'Request headers: ' . json_encode($this->request->getHeaders()));
+        log_message('debug', 'Request body: ' . json_encode($this->request->getPost()));
+        
+        // Try to get data from different sources
+        $antrian_id = $this->request->getPost('antrian_id') ?? $this->request->getVar('antrian_id') ?? null;
+        
+        // If still no data, try to get from raw input
+        if (!$antrian_id) {
+            $rawInput = $this->request->getBody();
+            log_message('debug', 'Raw input: ' . $rawInput);
+            
+            // Try to parse JSON input
+            if ($rawInput) {
+                $jsonData = json_decode($rawInput, true);
+                if ($jsonData) {
+                    $antrian_id = $antrian_id ?? $jsonData['antrian_id'] ?? null;
+                    log_message('debug', 'Parsed JSON data: ' . json_encode($jsonData));
+                }
+            }
+        }
+        
+        // Accept both POST and any other method for debugging
+        if ($this->request->getMethod() === 'post' || $antrian_id) {
             $petugas_id = session()->get('user_id');
 
             // Validate input
@@ -324,13 +348,54 @@ class PetugasController extends BaseController
             }
         }
 
-        return $this->response->setJSON(['success' => false, 'message' => 'Metode request tidak valid']);
+        // Debug: Log why method validation failed
+        log_message('debug', 'Method validation failed for selesaiAntrian. Expected POST, got: ' . $this->request->getMethod());
+        
+        // Try to get data anyway for debugging
+        $postData = $this->request->getPost();
+        $rawInput = $this->request->getBody();
+        log_message('debug', 'Post data: ' . json_encode($postData));
+        log_message('debug', 'Raw input: ' . $rawInput);
+        
+        return $this->response->setJSON([
+            'success' => false, 
+            'message' => 'Metode request tidak valid untuk selesaiAntrian. Expected POST, got: ' . $this->request->getMethod(),
+            'debug' => [
+                'method' => $this->request->getMethod(),
+                'post_data' => $postData,
+                'raw_input' => $rawInput
+            ]
+        ]);
     }
 
     public function lewatiAntrian()
     {
-        if ($this->request->getMethod() === 'post') {
-            $antrian_id = $this->request->getPost('antrian_id');
+        // Debug: Log request details
+        log_message('debug', 'lewatiAntrian called');
+        log_message('debug', 'Request method: ' . $this->request->getMethod());
+        log_message('debug', 'Request headers: ' . json_encode($this->request->getHeaders()));
+        log_message('debug', 'Request body: ' . json_encode($this->request->getPost()));
+        
+        // Try to get data from different sources
+        $antrian_id = $this->request->getPost('antrian_id') ?? $this->request->getVar('antrian_id') ?? null;
+        
+        // If still no data, try to get from raw input
+        if (!$antrian_id) {
+            $rawInput = $this->request->getBody();
+            log_message('debug', 'Raw input: ' . $rawInput);
+            
+            // Try to parse JSON input
+            if ($rawInput) {
+                $jsonData = json_decode($rawInput, true);
+                if ($jsonData) {
+                    $antrian_id = $antrian_id ?? $jsonData['antrian_id'] ?? null;
+                    log_message('debug', 'Parsed JSON data: ' . json_encode($jsonData));
+                }
+            }
+        }
+        
+        // Accept both POST and any other method for debugging
+        if ($this->request->getMethod() === 'post' || $antrian_id) {
             $petugas_id = session()->get('user_id');
 
             // Validate input
@@ -408,7 +473,24 @@ class PetugasController extends BaseController
             }
         }
 
-        return $this->response->setJSON(['success' => false, 'message' => 'Metode request tidak valid']);
+        // Debug: Log why method validation failed
+        log_message('debug', 'Method validation failed for lewatiAntrian. Expected POST, got: ' . $this->request->getMethod());
+        
+        // Try to get data anyway for debugging
+        $postData = $this->request->getPost();
+        $rawInput = $this->request->getBody();
+        log_message('debug', 'Post data: ' . json_encode($postData));
+        log_message('debug', 'Raw input: ' . $rawInput);
+        
+        return $this->response->setJSON([
+            'success' => false, 
+            'message' => 'Metode request tidak valid untuk lewatiAntrian. Expected POST, got: ' . $this->request->getMethod(),
+            'debug' => [
+                'method' => $this->request->getMethod(),
+                'post_data' => $postData,
+                'raw_input' => $rawInput
+                ]
+        ]);
     }
 
     /**
@@ -642,6 +724,82 @@ class PetugasController extends BaseController
                 'method' => $this->request->getMethod(),
                 'antrian_id' => $antrian_id,
                 'loket_id' => $loket_id,
+                'post_data' => $this->request->getPost(),
+                'get_data' => $this->request->getGet(),
+                'raw_input' => $rawInput,
+                'headers' => $this->request->getHeaders()
+            ]
+        ]);
+    }
+
+    /**
+     * Test method for selesai antrian - accepts any method
+     */
+    public function testSelesaiAntrian()
+    {
+        log_message('debug', 'testSelesaiAntrian called');
+        log_message('debug', 'Request method: ' . $this->request->getMethod());
+        log_message('debug', 'Request headers: ' . json_encode($this->request->getHeaders()));
+        log_message('debug', 'Request body: ' . json_encode($this->request->getBody()));
+        
+        // Try to get data from different sources
+        $antrian_id = $this->request->getPost('antrian_id') ?? $this->request->getVar('antrian_id') ?? null;
+        
+        // Try to get from raw input
+        $rawInput = $this->request->getBody();
+        if ($rawInput) {
+            $jsonData = json_decode($rawInput, true);
+            if ($jsonData) {
+                $antrian_id = $antrian_id ?? $jsonData['antrian_id'] ?? null;
+            }
+        }
+        
+        log_message('debug', 'Extracted data - antrian_id: ' . $antrian_id);
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Test selesai antrian called successfully',
+            'debug' => [
+                'method' => $this->request->getMethod(),
+                'antrian_id' => $antrian_id,
+                'post_data' => $this->request->getPost(),
+                'get_data' => $this->request->getGet(),
+                'raw_input' => $rawInput,
+                'headers' => $this->request->getHeaders()
+            ]
+        ]);
+    }
+
+    /**
+     * Test method for lewati antrian - accepts any method
+     */
+    public function testLewatiAntrian()
+    {
+        log_message('debug', 'testLewatiAntrian called');
+        log_message('debug', 'Request method: ' . $this->request->getMethod());
+        log_message('debug', 'Request headers: ' . json_encode($this->request->getHeaders()));
+        log_message('debug', 'Request body: ' . json_encode($this->request->getBody()));
+        
+        // Try to get data from different sources
+        $antrian_id = $this->request->getPost('antrian_id') ?? $this->request->getVar('antrian_id') ?? null;
+        
+        // Try to get from raw input
+        $rawInput = $this->request->getBody();
+        if ($rawInput) {
+            $jsonData = json_decode($rawInput, true);
+            if ($jsonData) {
+                $antrian_id = $antrian_id ?? $jsonData['antrian_id'] ?? null;
+            }
+        }
+        
+        log_message('debug', 'Extracted data - antrian_id: ' . $antrian_id);
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Test lewati antrian called successfully',
+            'debug' => [
+                'method' => $this->request->getMethod(),
+                'antrian_id' => $antrian_id,
                 'post_data' => $this->request->getPost(),
                 'get_data' => $this->request->getGet(),
                 'raw_input' => $rawInput,
