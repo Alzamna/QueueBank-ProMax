@@ -20,11 +20,11 @@ class UserModel extends Model
     protected $updatedField = 'updated_at';
 
     protected $validationRules = [
-        'username' => 'required|min_length[3]|max_length[50]|is_unique[users.username]',
+        'username' => 'required|min_length[3]|max_length[50]',
         'password' => 'required|min_length[6]',
         'role' => 'required|in_list[admin,petugas]',
         'nama_lengkap' => 'required|max_length[100]',
-        'email' => 'permit_empty|valid_email|max_length[100]',
+        'email' => 'required|valid_email|max_length[100]',
     ];
 
     protected $validationMessages = [

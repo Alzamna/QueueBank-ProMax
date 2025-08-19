@@ -19,6 +19,13 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->get('pengaturan', 'AdminController::pengaturan');
     $routes->get('laporan', 'AdminController::laporan');
 
+    // Pengguna Routes
+    $routes->get('pengguna', 'Admin\PenggunaController::index');
+    $routes->post('pengguna/add', 'Admin\PenggunaController::add');
+    $routes->get('pengguna/edit/(:num)', 'Admin\PenggunaController::edit/$1');
+    $routes->post('pengguna/update/(:num)', 'Admin\PenggunaController::update/$1');
+    $routes->get('pengguna/delete/(:num)', 'Admin\PenggunaController::delete/$1');
+
     $routes->get('lokets', 'Loket::index');
     $routes->get('lokets/create', 'Loket::create');
     $routes->post('lokets/store', 'Loket::store');
@@ -40,13 +47,6 @@ $routes->group('petugas', ['filter' => 'auth'], function($routes) {
     $routes->post('panggil-antrian', 'PetugasController::panggilAntrian');
     $routes->post('selesai-antrian', 'PetugasController::selesaiAntrian');
     $routes->post('lewati-antrian', 'PetugasController::lewatiAntrian');
-});
-
-// Pengguna Routes
-$routes->group('admin', ['filter' => 'auth'], function($routes) {
-    $routes->get('pengguna', 'Admin\PenggunaController::index');
-    $routes->post('pengguna/add', 'Admin\PenggunaController::add');
-    $routes->get('pengguna/delete/(:num)', 'Admin\PenggunaController::delete/$1');
 });
 
 

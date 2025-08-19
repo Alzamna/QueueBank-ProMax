@@ -2,11 +2,6 @@
 
 <?= $this->section('content'); ?>
 <div class="container-fluid px-4">
-    <h1 class="mt-4">Kelola Pengguna</h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="<?= base_url('admin') ?>">Dashboard</a></li>
-        <li class="breadcrumb-item active">Kelola Pengguna</li>
-    </ol>
 
     <?php if (session()->getFlashdata('message')) : ?>
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -14,6 +9,62 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
+
+    <?php if (session()->getFlashdata('error')) : ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <?= session()->getFlashdata('error'); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="small text-white-50">Total Pengguna</div>
+                            <div class="h4 mb-0"><?= $total_users ?></div>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="small text-white-50">Administrator</div>
+                            <div class="h4 mb-0"><?= $admin_count ?></div>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-user-shield fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-info text-white mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <div class="small text-white-50">Petugas</div>
+                            <div class="h4 mb-0"><?= $petugas_count ?></div>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-user-tie fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="card mb-4">
         <div class="card-header">
@@ -49,9 +100,9 @@
                             <td><?= $user['email']; ?></td>
                             <td><?= $user['role']; ?></td>
                             <td>
-                                <button class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal<?= $user['id']; ?>">
+                                <a href="<?= base_url('admin/pengguna/edit/' . $user['id']) ?>" class="btn btn-warning btn-sm">
                                     <i class="fas fa-edit"></i>
-                                </button>
+                                </a>
                                 <button class="btn btn-danger btn-sm" onclick="deleteUser(<?= $user['id']; ?>)">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -72,29 +123,41 @@
                 <h5 class="modal-title">Tambah Pengguna</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="<?= base_url('admin/pengguna/add') ?>" method="post">
+            <form action="<?= base_url('admin/pengguna/add') ?>" method="post" id="addUserForm">
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
-                        <input type="text" class="form-control" id="nama_lengkap" name="nama_lengkap" required>
+                        <input type="text" class="form-control" id="nama_lengkap" name="nama_lengkap" 
+                               value="<?= old('nama_lengkap') ?>" required>
                     </div>
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
+                        <input type="text" class="form-control" id="username" name="username" 
+                               value="<?= old('username') ?>" minlength="3" maxlength="50" required>
+                        <div class="form-text">Minimal 3 karakter, maksimal 50 karakter</div>
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
+                        <input type="email" class="form-control" id="email" name="email" 
+                               value="<?= old('email') ?>" required>
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               minlength="6" required>
+                        <div class="form-text">Minimal 6 karakter</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Konfirmasi Password</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" 
+                               minlength="6" required>
+                        <div class="form-text">Masukkan ulang password</div>
                     </div>
                     <div class="mb-3">
                         <label for="role" class="form-label">Role</label>
                         <select class="form-select" id="role" name="role" required>
-                            <option value="admin">Admin</option>
-                            <option value="petugas">Petugas</option>
+                            <option value="admin" <?= old('role') == 'admin' ? 'selected' : '' ?>>Admin</option>
+                            <option value="petugas" <?= old('role') == 'petugas' ? 'selected' : '' ?>>Petugas</option>
                         </select>
                     </div>
                 </div>
@@ -114,5 +177,47 @@ function deleteUser(id) {
         window.location.href = `<?= base_url('admin/pengguna/delete/') ?>${id}`;
     }
 }
+
+
+
+// Password confirmation validation
+document.addEventListener('DOMContentLoaded', function() {
+    const addUserForm = document.getElementById('addUserForm');
+    const password = document.getElementById('password');
+    const confirmPassword = document.getElementById('confirm_password');
+    const addUserModal = document.getElementById('addUserModal');
+
+    addUserForm.addEventListener('submit', function(e) {
+        if (password.value !== confirmPassword.value) {
+            e.preventDefault();
+            alert('Password dan konfirmasi password tidak cocok!');
+            confirmPassword.focus();
+            return false;
+        }
+    });
+
+    // Real-time password confirmation check
+    confirmPassword.addEventListener('input', function() {
+        if (password.value !== confirmPassword.value) {
+            confirmPassword.setCustomValidity('Password tidak cocok');
+        } else {
+            confirmPassword.setCustomValidity('');
+        }
+    });
+
+    // Reset form when modal is closed
+    addUserModal.addEventListener('hidden.bs.modal', function() {
+        addUserForm.reset();
+        confirmPassword.setCustomValidity('');
+    });
+
+    // Show success message and close modal if there's a success message
+    <?php if (session()->getFlashdata('message')) : ?>
+        const modal = bootstrap.Modal.getInstance(addUserModal);
+        if (modal) {
+            modal.hide();
+        }
+    <?php endif; ?>
+});
 </script>
 <?= $this->endSection(); ?>
