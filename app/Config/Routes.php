@@ -56,6 +56,7 @@ $routes->group('petugas', ['filter' => 'auth'], function($routes) {
     $routes->get('get-kategori-info', 'PetugasController::getKategoriInfo');
     $routes->get('debug-user-access', 'PetugasController::debugUserAccess');
     $routes->get('test-system', 'PetugasController::testSystem');
+    $routes->match(['get', 'post'], 'test-panggil-antrian', 'PetugasController::testPanggilAntrian');
 });
 
 

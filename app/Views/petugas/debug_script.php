@@ -80,6 +80,53 @@ function testAjaxCalls() {
         });
 }
 
+// Function to test panggil antrian functionality
+function testPanggilAntrian() {
+    console.log('Testing panggil antrian...');
+    
+    // Test with POST data
+    const testData = {
+        antrian_id: 6,
+        loket_id: 1
+    };
+    
+    console.log('Test data:', testData);
+    
+    // Test with fetch API
+    fetch('<?= base_url('petugas/test-panggil-antrian') ?>', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(testData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Test panggil antrian result:', data);
+        if (data.success) {
+            alert('Test successful! Check console for details.');
+        } else {
+            alert('Test failed: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Test panggil antrian error:', error);
+        alert('Test error: ' + error.message);
+    });
+    
+    // Also test with jQuery if available
+    if (typeof $ !== 'undefined') {
+        console.log('Testing with jQuery...');
+        $.post('<?= base_url('petugas/test-panggil-antrian') ?>', testData)
+            .done(function(data) {
+                console.log('jQuery test result:', data);
+            })
+            .fail(function(xhr, status, error) {
+                console.error('jQuery test failed:', {xhr, status, error});
+            });
+    }
+}
+
 // Function to log form data before submission
 function logFormData(formId) {
     const form = document.getElementById(formId);
@@ -101,6 +148,7 @@ function addDebugButtons() {
             <button onclick="testSystem()" style="margin: 2px; padding: 5px; font-size: 10px;">Test System</button><br>
             <button onclick="debugUserAccess()" style="margin: 2px; padding: 5px; font-size: 10px;">Debug Access</button><br>
             <button onclick="testAjaxCalls()" style="margin: 2px; padding: 5px; font-size: 10px;">Test AJAX</button><br>
+            <button onclick="testPanggilAntrian()" style="margin: 2px; padding: 5px; font-size: 10px;">Test Panggil</button><br>
             <button onclick="console.clear()" style="margin: 2px; padding: 5px; font-size: 10px;">Clear Console</button>
         </div>
     `;
@@ -133,6 +181,27 @@ function enhancedAjaxCall(url, options = {}) {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Petugas dashboard loaded');
     
+    // Test jQuery availability
+    if (typeof $ !== 'undefined') {
+        console.log('jQuery is available, version:', $.fn.jquery);
+    } else {
+        console.error('jQuery is NOT available');
+    }
+    
+    // Test Bootstrap availability
+    if (typeof bootstrap !== 'undefined') {
+        console.log('Bootstrap is available');
+    } else {
+        console.error('Bootstrap is NOT available');
+    }
+    
+    // Test SweetAlert2 availability
+    if (typeof Swal !== 'undefined') {
+        console.log('SweetAlert2 is available');
+    } else {
+        console.error('SweetAlert2 is NOT available');
+    }
+    
     // Add debug buttons in development mode
     if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         addDebugButtons();
@@ -150,6 +219,34 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Button clicked:', e.target.textContent, 'ID:', e.target.id);
         }
     });
+    
+    // Test AJAX functionality
+    setTimeout(function() {
+        console.log('Testing AJAX functionality...');
+        if (typeof $ !== 'undefined') {
+            // Test jQuery AJAX
+            $.ajax({
+                url: '<?= base_url('petugas/debug-user-access') ?>',
+                method: 'GET',
+                success: function(data) {
+                    console.log('jQuery AJAX test successful:', data);
+                },
+                error: function(xhr, status, error) {
+                    console.error('jQuery AJAX test failed:', {xhr, status, error});
+                }
+            });
+        } else {
+            // Test fetch API
+            fetch('<?= base_url('petugas/debug-user-access') ?>')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Fetch API test successful:', data);
+                })
+                .catch(error => {
+                    console.error('Fetch API test failed:', error);
+                });
+        }
+    }, 1000);
 });
 
 // Export functions for global use
@@ -157,6 +254,7 @@ window.petugasDebug = {
     testSystem,
     debugUserAccess,
     testAjaxCalls,
+    testPanggilAntrian,
     logFormData,
     enhancedAjaxCall
 };

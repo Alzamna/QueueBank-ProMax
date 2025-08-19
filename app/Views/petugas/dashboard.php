@@ -386,20 +386,77 @@ function panggilAntrian(antrianId) {
 }
 
 function konfirmasiPanggil() {
+    console.log('konfirmasiPanggil called');
+    console.log('selectedAntrianId:', selectedAntrianId);
+    
     const loketId = document.getElementById('loketId').value;
+    console.log('loketId:', loketId);
     
     if (!loketId) {
         alert('Silakan pilih loket terlebih dahulu');
         return;
     }
     
+    if (!selectedAntrianId) {
+        alert('Tidak ada antrian yang dipilih');
+        return;
+    }
+    
+    // Check if jQuery is available
+    if (typeof $ === 'undefined') {
+        console.error('jQuery is not available, using fetch instead');
+        // Fallback to fetch API
+        fetch('<?= site_url('petugas/panggil-antrian') ?>', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                antrian_id: selectedAntrianId,
+                loket_id: loketId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Fetch response:', data);
+            if (data.success) {
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalPanggilAntrian'));
+                if (modal) modal.hide();
+                
+                // Show success message
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: data.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    location.reload();
+                });
+            } else {
+                alert('Gagal memanggil antrian: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            alert('Terjadi kesalahan sistem: ' + error.message);
+        });
+        return;
+    }
+    
+    // Use jQuery if available
+    console.log('Using jQuery for AJAX call');
     $.post('<?= site_url('petugas/panggil-antrian') ?>', {
         antrian_id: selectedAntrianId,
         loket_id: loketId
-    }, function(response) {
+    })
+    .done(function(response) {
+        console.log('jQuery response:', response);
         if (response.success) {
             // Close modal
-            bootstrap.Modal.getInstance(document.getElementById('modalPanggilAntrian')).hide();
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalPanggilAntrian'));
+            if (modal) modal.hide();
             
             // Show success message
             Swal.fire({
@@ -414,12 +471,17 @@ function konfirmasiPanggil() {
         } else {
             alert('Gagal memanggil antrian: ' + response.message);
         }
-    }).fail(function() {
-        alert('Terjadi kesalahan sistem');
+    })
+    .fail(function(xhr, status, error) {
+        console.error('jQuery AJAX failed:', {xhr, status, error});
+        console.error('Response text:', xhr.responseText);
+        alert('Terjadi kesalahan sistem: ' + error);
     });
 }
 
 function selesaiAntrian(antrianId) {
+    console.log('selesaiAntrian called with ID:', antrianId);
+    
     Swal.fire({
         title: 'Konfirmasi',
         text: 'Tandai antrian ini selesai?',
@@ -431,9 +493,50 @@ function selesaiAntrian(antrianId) {
         cancelButtonText: 'Batal'
     }).then((result) => {
         if (result.isConfirmed) {
+            // Check if jQuery is available
+            if (typeof $ === 'undefined') {
+                console.error('jQuery is not available, using fetch instead');
+                // Fallback to fetch API
+                fetch('<?= site_url('petugas/selesai-antrian') ?>', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        antrian_id: antrianId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Fetch response:', data);
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: data.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        alert('Gagal menyelesaikan antrian: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    alert('Terjadi kesalahan sistem: ' + error.message);
+                });
+                return;
+            }
+            
+            // Use jQuery if available
+            console.log('Using jQuery for AJAX call');
             $.post('<?= site_url('petugas/selesai-antrian') ?>', {
                 antrian_id: antrianId
-            }, function(response) {
+            })
+            .done(function(response) {
+                console.log('jQuery response:', response);
                 if (response.success) {
                     Swal.fire({
                         icon: 'success',
@@ -442,17 +545,24 @@ function selesaiAntrian(antrianId) {
                         showConfirmButton: false,
                         timer: 1500
                     }).then(() => {
-                location.reload();
+                        location.reload();
                     });
                 } else {
                     alert('Gagal menyelesaikan antrian: ' + response.message);
-            }
-        });
-    }
+                }
+            })
+            .fail(function(xhr, status, error) {
+                console.error('jQuery AJAX failed:', {xhr, status, error});
+                console.error('Response text:', xhr.responseText);
+                alert('Terjadi kesalahan sistem: ' + error);
+            });
+        }
     });
 }
 
 function lewatiAntrian(antrianId) {
+    console.log('lewatiAntrian called with ID:', antrianId);
+    
     Swal.fire({
         title: 'Konfirmasi',
         text: 'Lewati antrian ini?',
@@ -464,9 +574,50 @@ function lewatiAntrian(antrianId) {
         cancelButtonText: 'Batal'
     }).then((result) => {
         if (result.isConfirmed) {
+            // Check if jQuery is available
+            if (typeof $ === 'undefined') {
+                console.error('jQuery is not available, using fetch instead');
+                // Fallback to fetch API
+                fetch('<?= site_url('petugas/lewati-antrian') ?>', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        antrian_id: antrianId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Fetch response:', data);
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: data.message,
+                            showConfirmButton: false,
+                            timer: 1500
+                        }).then(() => {
+                            location.reload();
+                        });
+                    } else {
+                        alert('Gagal melewati antrian: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    alert('Terjadi kesalahan sistem: ' + error.message);
+                });
+                return;
+            }
+            
+            // Use jQuery if available
+            console.log('Using jQuery for AJAX call');
             $.post('<?= site_url('petugas/lewati-antrian') ?>', {
                 antrian_id: antrianId
-            }, function(response) {
+            })
+            .done(function(response) {
+                console.log('jQuery response:', response);
                 if (response.success) {
                     Swal.fire({
                         icon: 'success',
@@ -475,13 +626,18 @@ function lewatiAntrian(antrianId) {
                         showConfirmButton: false,
                         timer: 1500
                     }).then(() => {
-                location.reload();
+                        location.reload();
                     });
                 } else {
                     alert('Gagal melewati antrian: ' + response.message);
-            }
-        });
-    }
+                }
+            })
+            .fail(function(xhr, status, error) {
+                console.error('jQuery AJAX failed:', {xhr, status, error});
+                console.error('Response text:', xhr.responseText);
+                alert('Terjadi kesalahan sistem: ' + error);
+            });
+        }
     });
 }
 
