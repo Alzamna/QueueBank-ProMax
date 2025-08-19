@@ -4,24 +4,42 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\BaseController;
 use App\Models\UserModel;
+use App\Models\KategoriAntrianModel;
+use App\Models\UserKategoriModel;
 
 class PenggunaController extends BaseController
 {
 	protected $userModel;
+	protected $kategoriModel;
+	protected $userKategoriModel;
 
 	public function __construct()
 	{
 		$this->userModel = new UserModel();
+		$this->kategoriModel = new KategoriAntrianModel();
+		$this->userKategoriModel = new UserKategoriModel();
 	}
 
 	public function index()
 	{
+		$users = $this->userModel->findAll();
+		
+		// Get categories for each user
+		foreach ($users as &$user) {
+			if ($user['role'] === 'petugas') {
+				$user['kategori'] = $this->userKategoriModel->getCategoriesByUserId($user['id']);
+			} else {
+				$user['kategori'] = [];
+			}
+		}
+
 		$data = [
 			'title' => 'Kelola Pengguna',
-			'users' => $this->userModel->findAll(),
+			'users' => $users,
 			'total_users' => $this->userModel->countAll(),
 			'admin_count' => $this->userModel->where('role', 'admin')->countAllResults(),
-			'petugas_count' => $this->userModel->where('role', 'petugas')->countAllResults()
+			'petugas_count' => $this->userModel->where('role', 'petugas')->countAllResults(),
+			'kategori_list' => $this->kategoriModel->where('status', 'aktif')->findAll()
 		];
 
 		return view('admin/pengguna/pengguna', $data);
@@ -63,7 +81,14 @@ class PenggunaController extends BaseController
 		try {
 			// Skip validation since we handle uniqueness manually
 			$this->userModel->skipValidation(true);
-			$this->userModel->insert($data);
+			$userId = $this->userModel->insert($data);
+			
+			// If user is petugas, assign categories
+			if ($data['role'] === 'petugas' && $this->request->getPost('kategori_ids')) {
+				$kategoriIds = $this->request->getPost('kategori_ids');
+				$this->userKategoriModel->assignCategoriesToUser($userId, $kategoriIds);
+			}
+			
 			session()->setFlashdata('message', 'Pengguna berhasil ditambahkan');
 		} catch (\Exception $e) {
 			session()->setFlashdata('error', 'Gagal menambahkan pengguna: ' . $e->getMessage());
@@ -74,25 +99,29 @@ class PenggunaController extends BaseController
 
 	public function edit($id)
 	{
-		$data = [
-			'title' => 'Edit Pengguna',
-			'user' => $this->userModel->find($id)
-		];
-
-		if (empty($data['user'])) {
-			session()->setFlashdata('error', 'Pengguna tidak ditemukan');
-			return redirect()->to('admin/pengguna/pengguna');
-		}
-
-		return view('admin/pengguna/edit', $data);
+		// Redirect to main page since we now use modal for editing
+		return redirect()->to('admin/pengguna/pengguna');
 	}
 
 	public function update($id)
 	{
+		// Debug logging
+		log_message('info', 'Update user request received for ID: ' . $id);
+		log_message('info', 'Request method: ' . $this->request->getMethod());
+		log_message('info', 'Is AJAX: ' . ($this->request->isAJAX() ? 'Yes' : 'No'));
+		log_message('info', 'Headers: ' . json_encode($this->request->getHeaders()));
+		log_message('info', 'Post data: ' . json_encode($this->request->getPost()));
+		
+		// Set JSON response headers
+		$this->response->setHeader('Content-Type', 'application/json');
+		
 		$user = $this->userModel->find($id);
 		if (empty($user)) {
-			session()->setFlashdata('error', 'Pengguna tidak ditemukan');
-			return redirect()->to('admin/pengguna/pengguna');
+			log_message('error', 'User not found for ID: ' . $id);
+			return $this->response->setJSON([
+				'success' => false,
+				'message' => 'Pengguna tidak ditemukan'
+			]);
 		}
 
 		$data = [
@@ -111,28 +140,58 @@ class PenggunaController extends BaseController
 		// Validate username uniqueness (excluding current user)
 		$existingUser = $this->userModel->where('username', $data['username'])->where('id !=', $id)->first();
 		if ($existingUser) {
-			session()->setFlashdata('error', 'Username sudah digunakan');
-			return redirect()->back()->withInput();
+			log_message('warning', 'Username already exists: ' . $data['username']);
+			return $this->response->setJSON([
+				'success' => false,
+				'message' => 'Username sudah digunakan'
+			]);
 		}
 
 		// Validate email uniqueness (excluding current user)
 		$existingEmail = $this->userModel->where('email', $data['email'])->where('id !=', $id)->first();
 		if ($existingEmail) {
-			session()->setFlashdata('error', 'Email sudah digunakan');
-			return redirect()->back()->withInput();
+			log_message('warning', 'Email already exists: ' . $data['email']);
+			return $this->response->setJSON([
+				'success' => false,
+				'message' => 'Email sudah digunakan'
+			]);
 		}
 
 		try {
+			log_message('info', 'Starting user update for ID: ' . $id);
+			
 			// Skip validation for update since we handle uniqueness manually
 			$this->userModel->skipValidation(true);
-			$this->userModel->update($id, $data);
-			session()->setFlashdata('message', 'Pengguna berhasil diperbarui');
+			$updateResult = $this->userModel->update($id, $data);
+			
+			log_message('info', 'User update result: ' . ($updateResult ? 'success' : 'failed'));
+			
+			// Update user's assigned categories if role is petugas
+			if ($data['role'] === 'petugas' && $this->request->getPost('kategori_ids')) {
+				$kategoriIds = $this->request->getPost('kategori_ids');
+				log_message('info', 'Updating categories for user: ' . json_encode($kategoriIds));
+				$this->userKategoriModel->assignCategoriesToUser($id, $kategoriIds);
+			} else {
+				// Remove all category assignments if role is not petugas
+				log_message('info', 'Removing all category assignments for user');
+				$this->userKategoriModel->where('user_id', $id)->delete();
+			}
+			
+			log_message('info', 'Sending AJAX response: success');
+			return $this->response->setJSON([
+				'success' => true,
+				'message' => 'Pengguna berhasil diperbarui'
+			]);
+			
 		} catch (\Exception $e) {
-			session()->setFlashdata('error', 'Gagal memperbarui pengguna: ' . $e->getMessage());
-			return redirect()->back()->withInput();
+			log_message('error', 'Exception in user update: ' . $e->getMessage());
+			log_message('error', 'Stack trace: ' . $e->getTraceAsString());
+			
+			return $this->response->setJSON([
+				'success' => false,
+				'message' => 'Gagal memperbarui pengguna: ' . $e->getMessage()
+			]);
 		}
-		
-		return redirect()->to('admin/pengguna/pengguna');
 	}
 
 	public function delete($id)

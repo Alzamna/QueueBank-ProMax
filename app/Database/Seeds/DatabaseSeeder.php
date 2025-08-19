@@ -11,6 +11,7 @@ class DatabaseSeeder extends Seeder
         $this->call('UserSeeder');
         $this->call('LoketSeeder');
         $this->call('KategoriAntrianSeeder');
+        $this->call('UserKategoriSeeder');
         $this->call('PengaturanDisplaySeeder');
     }
 }

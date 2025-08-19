@@ -18,6 +18,9 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->get('kategori', 'AdminController::kategoriAntrian');
     $routes->get('pengaturan', 'AdminController::pengaturan');
     $routes->get('laporan', 'AdminController::laporan');
+    $routes->get('user-kategori', 'AdminController::userKategori');
+    $routes->post('assign-kategori', 'AdminController::assignKategori');
+    $routes->get('get-user-kategori/(:num)', 'AdminController::getUserKategori/$1');
 
     // Pengguna Routes
     $routes->get('pengguna', 'Admin\PenggunaController::index');
@@ -44,9 +47,15 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
 // Petugas Routes
 $routes->group('petugas', ['filter' => 'auth'], function($routes) {
     $routes->get('dashboard', 'PetugasController::dashboard');
+    $routes->get('dashboard/(:num)', 'PetugasController::dashboardKategori/$1');
     $routes->post('panggil-antrian', 'PetugasController::panggilAntrian');
     $routes->post('selesai-antrian', 'PetugasController::selesaiAntrian');
     $routes->post('lewati-antrian', 'PetugasController::lewatiAntrian');
+    $routes->get('get-antrian-by-kategori/(:num)', 'PetugasController::getAntrianByKategori/$1');
+    $routes->get('get-dashboard-summary', 'PetugasController::getDashboardSummary');
+    $routes->get('get-kategori-info', 'PetugasController::getKategoriInfo');
+    $routes->get('debug-user-access', 'PetugasController::debugUserAccess');
+    $routes->get('test-system', 'PetugasController::testSystem');
 });
 
 

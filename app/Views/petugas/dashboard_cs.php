@@ -5,8 +5,11 @@
     <!-- Header Section -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h1 class="h3 mb-1 text-gray-800">Dashboard Petugas</h1>
-            <p class="text-muted">Kelola antrian sesuai kategori layanan Anda</p>
+            <h1 class="h3 mb-1 text-gray-800">
+                <i class="fas fa-headset text-blue-600 mr-2"></i>
+                Dashboard Customer Service
+            </h1>
+            <p class="text-muted">Kelola antrian layanan customer service dan konsultasi</p>
         </div>
         <div class="d-flex align-items-center space-x-3">
             <div class="text-end">
@@ -14,66 +17,87 @@
                 <p class="text-lg font-semibold text-gray-800"><?= date('d F Y') ?></p>
             </div>
             <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-                <i class="fas fa-user-tie text-white text-lg"></i>
+                <i class="fas fa-headset text-white text-lg"></i>
             </div>
         </div>
     </div>
 
-    <!-- Kategori Selection -->
+    <!-- Quick Stats Cards -->
     <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <h5 class="card-title mb-3">
-                        <i class="fas fa-tags text-blue-600 mr-2"></i>
-                        Pilih Kategori Layanan
-                    </h5>
-                    <div class="row">
-                        <?php foreach($kategori as $kat): ?>
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <div class="kategori-card <?= ($selected_kategori && $selected_kategori['id'] == $kat['id']) ? 'active' : '' ?>" 
-                                     onclick="selectKategori(<?= $kat['id'] ?>, '<?= $kat['nama_kategori'] ?>')">
-                                    <div class="text-center p-3">
-                                        <div class="kategori-icon mb-2">
-                                            <?php
-                                            $icon = 'fa-users';
-                                            if (strpos(strtolower($kat['nama_kategori']), 'teller') !== false) $icon = 'fa-cash-register';
-                                            elseif (strpos(strtolower($kat['nama_kategori']), 'cs') !== false || strpos(strtolower($kat['nama_kategori']), 'customer') !== false) $icon = 'fa-headset';
-                                            elseif (strpos(strtolower($kat['nama_kategori']), 'prioritas') !== false) $icon = 'fa-star';
-                                            elseif (strpos(strtolower($kat['nama_kategori']), 'kredit') !== false) $icon = 'fa-credit-card';
-                                            elseif (strpos(strtolower($kat['nama_kategori']), 'deposito') !== false) $icon = 'fa-piggy-bank';
-                                            ?>
-                                            <i class="fas <?= $icon ?> fa-2x"></i>
-                                        </div>
-                                        <h6 class="kategori-title mb-1"><?= $kat['nama_kategori'] ?></h6>
-                                        <small class="text-muted"><?= $kat['prefix'] ?></small>
-                                    </div>
-                                </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-clock text-white text-xl"></i>
                             </div>
-                        <?php endforeach; ?>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Menunggu</h6>
+                            <h4 class="mb-0 text-blue-600"><?= $stats['menunggu'] ?? 0 ?></h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-bullhorn text-white text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Dipanggil</h6>
+                            <h4 class="mb-0 text-yellow-600"><?= $stats['dipanggil'] ?? 0 ?></h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-check text-white text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Selesai</h6>
+                            <h4 class="mb-0 text-green-600"><?= $stats['selesai'] ?? 0 ?></h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-600 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-forward text-white text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h6 class="text-muted mb-1">Lewati</h6>
+                            <h4 class="mb-0 text-red-600"><?= $stats['lewati'] ?? 0 ?></h4>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <?php if(isset($selected_kategori)): ?>
-    <!-- Selected Kategori Info -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="alert alert-info border-0 shadow-sm">
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-info-circle text-info mr-3 fa-lg"></i>
-                    <div>
-                        <h6 class="alert-heading mb-1">Kategori Aktif: <?= $selected_kategori['nama_kategori'] ?></h6>
-                        <p class="mb-0">Prefix: <?= $selected_kategori['prefix'] ?> | Deskripsi: <?= $selected_kategori['deskripsi'] ?? 'Tidak ada deskripsi' ?></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Dashboard Content -->
+    <!-- Main Content -->
     <div class="row">
         <!-- Left Column - Antrian Aktif -->
         <div class="col-lg-8">
@@ -82,9 +106,15 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">
                             <i class="fas fa-list-ol text-blue-600 mr-2"></i>
-                            Antrian Aktif - <?= $selected_kategori['nama_kategori'] ?>
+                            Antrian Customer Service Aktif
                         </h5>
-                        <span class="badge bg-primary fs-6"><?= count($antrian_aktif) ?> Antrian</span>
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-primary fs-6 me-2"><?= count($antrian_aktif) ?> Antrian</span>
+                            <button class="btn btn-outline-primary btn-sm" onclick="refreshAntrian()">
+                                <i class="fas fa-sync-alt mr-1"></i>
+                                Refresh
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="card-body p-0">
@@ -95,12 +125,12 @@
                                     <tr>
                                         <th class="border-0 px-4 py-3">No. Antrian</th>
                                         <th class="border-0 px-4 py-3">Waktu Ambil</th>
-                                        <th class="border-0 px-4 py-3">Status</th>
+                                        <th class="border-0 px-4 py-3">Estimasi Waktu</th>
                                         <th class="border-0 px-4 py-3">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach($antrian_aktif as $antrian): ?>
+                                    <?php foreach($antrian_aktif as $index => $antrian): ?>
                                         <tr class="antrian-row">
                                             <td class="px-4 py-3">
                                                 <div class="d-flex align-items-center">
@@ -108,7 +138,8 @@
                                                         <?= $antrian['nomor_antrian'] ?>
                                                     </div>
                                                     <div>
-                                                        <small class="text-muted d-block"><?= $antrian['prefix'] ?></small>
+                                                        <small class="text-muted d-block">CS</small>
+                                                        <small class="text-primary fw-bold">#<?= $index + 1 ?></small>
                                                     </div>
                                                 </div>
                                             </td>
@@ -119,16 +150,19 @@
                                                 </div>
                                             </td>
                                             <td class="px-4 py-3">
-                                                <span class="badge bg-warning text-dark px-3 py-2">
-                                                    <i class="fas fa-clock mr-1"></i>
-                                                    Menunggu
-                                                </span>
+                                                <div class="text-muted">
+                                                    <i class="fas fa-hourglass-half mr-1"></i>
+                                                    <?= $index + 1 * 10 ?> menit
+                                                </div>
                                             </td>
                                             <td class="px-4 py-3">
                                                 <div class="btn-group" role="group">
                                                     <button class="btn btn-primary btn-sm" onclick="panggilAntrian(<?= $antrian['id'] ?>)">
                                                         <i class="fas fa-bullhorn mr-1"></i>
                                                         Panggil
+                                                    </button>
+                                                    <button class="btn btn-outline-info btn-sm" onclick="lihatDetail(<?= $antrian['id'] ?>)">
+                                                        <i class="fas fa-eye"></i>
                                                     </button>
                                                 </div>
                                             </td>
@@ -142,55 +176,22 @@
                             <div class="empty-state">
                                 <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                                 <h6 class="text-muted">Tidak ada antrian aktif</h6>
-                                <p class="text-muted">Semua antrian telah dilayani atau belum ada yang mengambil nomor</p>
+                                <p class="text-muted">Semua antrian customer service telah dilayani</p>
                             </div>
                         </div>
                     <?php endif; ?>
                 </div>
             </div>
         </div>
-        
-        <!-- Right Column - Stats & Actions -->
+
+        <!-- Right Column - Sidebar -->
         <div class="col-lg-4">
-            <!-- Quick Stats -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body p-4">
-                    <h6 class="card-title text-muted mb-3">Statistik Hari Ini</h6>
-                    <div class="row text-center">
-                        <div class="col-6 mb-3">
-                            <div class="stat-item">
-                                <div class="stat-number text-primary"><?= $stats['menunggu'] ?? 0 ?></div>
-                                <div class="stat-label text-muted">Menunggu</div>
-                            </div>
-                        </div>
-                        <div class="col-6 mb-3">
-                            <div class="stat-item">
-                                <div class="stat-number text-info"><?= $stats['dipanggil'] ?? 0 ?></div>
-                                <div class="stat-label text-muted">Dipanggil</div>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="stat-item">
-                                <div class="stat-number text-success"><?= $stats['selesai'] ?? 0 ?></div>
-                                <div class="stat-label text-muted">Selesai</div>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="stat-item">
-                                <div class="stat-number text-warning"><?= $stats['lewati'] ?? 0 ?></div>
-                                <div class="stat-label text-muted">Lewati</div>
-                            </div>
-                        </div>
-                </div>
-                </div>
-            </div>
-            
             <!-- Antrian Dipanggil -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white border-0 py-3">
                     <h6 class="card-title mb-0">
-                        <i class="fas fa-bullhorn text-info mr-2"></i>
-                        Sedang Dipanggil
+                        <i class="fas fa-bullhorn text-yellow-600 mr-2"></i>
+                        Sedang Dilayani
                     </h6>
                 </div>
                 <div class="card-body p-0">
@@ -203,7 +204,7 @@
                                     </div>
                                     <div class="flex-grow-1">
                                         <div class="fw-bold"><?= $antrian['nama_loket'] ?? 'Loket ' . $antrian['loket_id'] ?></div>
-                                        <small class="text-muted">Dipanggil <?= date('H:i', strtotime($antrian['waktu_panggil'])) ?></small>
+                                        <small class="text-muted">Mulai <?= date('H:i', strtotime($antrian['waktu_panggil'])) ?></small>
                                     </div>
                                     <div class="btn-group-vertical">
                                         <button class="btn btn-success btn-sm mb-1" onclick="selesaiAntrian(<?= $antrian['id'] ?>)">
@@ -219,31 +220,59 @@
                     <?php else: ?>
                         <div class="text-center py-4">
                             <i class="fas fa-volume-mute fa-2x text-muted mb-2"></i>
-                            <p class="text-muted mb-0">Tidak ada antrian yang sedang dipanggil</p>
+                            <p class="text-muted mb-0">Tidak ada antrian yang sedang dilayani</p>
                         </div>
                     <?php endif; ?>
                 </div>
             </div>
 
             <!-- Quick Actions -->
-            <div class="card border-0 shadow-sm">
+            <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">
                     <h6 class="card-title text-muted mb-3">Aksi Cepat</h6>
                     <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary" onclick="refreshDashboard()">
-                            <i class="fas fa-sync-alt mr-2"></i>
-                            Refresh Dashboard
+                        <button class="btn btn-outline-primary" onclick="panggilBerikutnya()">
+                            <i class="fas fa-forward mr-2"></i>
+                            Panggil Berikutnya
                         </button>
-                        <button class="btn btn-outline-info" onclick="lihatLaporan()">
+                        <button class="btn btn-outline-info" onclick="lihatLaporanCS()">
                             <i class="fas fa-chart-bar mr-2"></i>
-                            Lihat Laporan
+                            Laporan CS
                         </button>
+                        <button class="btn btn-outline-warning" onclick="setBreak()">
+                            <i class="fas fa-coffee mr-2"></i>
+                            Set Break
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Customer Service -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h6 class="card-title text-muted mb-3">Info Customer Service</h6>
+                    <div class="space-y-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Status:</span>
+                            <span class="badge bg-primary">Aktif</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Loket:</span>
+                            <span class="fw-bold">CS 1</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Jam Kerja:</span>
+                            <span class="fw-bold">08:00 - 16:00</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted">Target:</span>
+                            <span class="fw-bold">30 layanan/hari</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <?php endif; ?>
 </div>
 
 <!-- Modal Panggil Antrian -->
@@ -251,7 +280,10 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Panggil Antrian</h5>
+                <h5 class="modal-title">
+                    <i class="fas fa-bullhorn text-primary mr-2"></i>
+                    Panggil Antrian Customer Service
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -261,56 +293,37 @@
                         <input type="text" class="form-control" id="nomorAntrian" readonly>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Loket</label>
+                        <label class="form-label">Loket CS</label>
                         <select class="form-select" id="loketId" required>
-                            <option value="">Pilih Loket</option>
+                            <option value="">Pilih Loket CS</option>
                             <?php foreach($lokets as $loket): ?>
                                 <option value="<?= $loket['id'] ?>"><?= $loket['nama_loket'] ?></option>
                             <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Jenis Layanan</label>
+                        <select class="form-select" id="jenisLayanan">
+                            <option value="konsultasi">Konsultasi</option>
+                            <option value="keluhan">Keluhan</option>
+                            <option value="informasi">Informasi</option>
+                            <option value="lainnya">Lainnya</option>
                         </select>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" onclick="konfirmasiPanggil()">Panggil</button>
+                <button type="button" class="btn btn-primary" onclick="konfirmasiPanggil()">
+                    <i class="fas fa-bullhorn mr-1"></i>
+                    Panggil
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-.kategori-card {
-    background: white;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.kategori-card:hover {
-    border-color: #3b82f6;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.1);
-}
-
-.kategori-card.active {
-    border-color: #3b82f6;
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-    box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2);
-}
-
-.kategori-icon {
-    color: #3b82f6;
-}
-
-.kategori-title {
-    color: #1f2937;
-    font-weight: 600;
-}
-
 .antrian-number-display {
     background: linear-gradient(135deg, #3b82f6, #1d4ed8);
     color: white;
@@ -322,27 +335,8 @@
     text-align: center;
 }
 
-.stat-item {
-    padding: 16px 8px;
-}
-
-.stat-number {
-    font-size: 1.5rem;
-    font-weight: bold;
-    display: block;
-}
-
-.stat-label {
-    font-size: 0.875rem;
-    margin-top: 4px;
-}
-
-.empty-state {
-    padding: 40px 20px;
-}
-
 .antrian-row:hover {
-    background-color: #f8fafc;
+    background-color: #eff6ff;
 }
 
 .btn-group-vertical .btn {
@@ -353,23 +347,18 @@
     align-items: center;
     justify-content: center;
 }
+
+.empty-state {
+    padding: 40px 20px;
+}
+
+.space-y-3 > * + * {
+    margin-top: 0.75rem;
+}
 </style>
 
 <script>
 let selectedAntrianId = null;
-
-function selectKategori(kategoriId, namaKategori) {
-    // Remove active class from all cards
-    document.querySelectorAll('.kategori-card').forEach(card => {
-        card.classList.remove('active');
-    });
-    
-    // Add active class to selected card
-    event.currentTarget.classList.add('active');
-    
-    // Redirect to dashboard with selected kategori
-    window.location.href = `<?= site_url('petugas/dashboard') ?>?kategori_id=${kategoriId}`;
-}
 
 function panggilAntrian(antrianId) {
     selectedAntrianId = antrianId;
@@ -380,6 +369,7 @@ function panggilAntrian(antrianId) {
     
     document.getElementById('nomorAntrian').value = nomorAntrian;
     document.getElementById('loketId').value = '';
+    document.getElementById('jenisLayanan').value = 'konsultasi';
     
     // Show modal
     new bootstrap.Modal(document.getElementById('modalPanggilAntrian')).show();
@@ -387,15 +377,21 @@ function panggilAntrian(antrianId) {
 
 function konfirmasiPanggil() {
     const loketId = document.getElementById('loketId').value;
+    const jenisLayanan = document.getElementById('jenisLayanan').value;
     
     if (!loketId) {
-        alert('Silakan pilih loket terlebih dahulu');
+        Swal.fire({
+            icon: 'warning',
+            title: 'Peringatan',
+            text: 'Silakan pilih loket CS terlebih dahulu'
+        });
         return;
     }
     
     $.post('<?= site_url('petugas/panggil-antrian') ?>', {
         antrian_id: selectedAntrianId,
-        loket_id: loketId
+        loket_id: loketId,
+        jenis_layanan: jenisLayanan
     }, function(response) {
         if (response.success) {
             // Close modal
@@ -412,17 +408,25 @@ function konfirmasiPanggil() {
                 location.reload();
             });
         } else {
-            alert('Gagal memanggil antrian: ' + response.message);
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal',
+                text: response.message
+            });
         }
     }).fail(function() {
-        alert('Terjadi kesalahan sistem');
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Terjadi kesalahan sistem'
+        });
     });
 }
 
 function selesaiAntrian(antrianId) {
     Swal.fire({
         title: 'Konfirmasi',
-        text: 'Tandai antrian ini selesai?',
+        text: 'Tandai layanan ini selesai?',
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#10b981',
@@ -442,13 +446,17 @@ function selesaiAntrian(antrianId) {
                         showConfirmButton: false,
                         timer: 1500
                     }).then(() => {
-                location.reload();
+                        location.reload();
                     });
                 } else {
-                    alert('Gagal menyelesaikan antrian: ' + response.message);
-            }
-        });
-    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: response.message
+                    });
+                }
+            });
+        }
     });
 }
 
@@ -475,28 +483,66 @@ function lewatiAntrian(antrianId) {
                         showConfirmButton: false,
                         timer: 1500
                     }).then(() => {
-                location.reload();
+                        location.reload();
                     });
                 } else {
-                    alert('Gagal melewati antrian: ' + response.message);
-            }
-        });
-    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal',
+                        text: response.message
+                    });
+                }
+            });
+        }
     });
 }
 
-function refreshDashboard() {
-                location.reload();
-            }
+function refreshAntrian() {
+    location.reload();
+}
 
-function lihatLaporan() {
-    // Redirect to report page or show report modal
-    alert('Fitur laporan akan segera tersedia');
+function panggilBerikutnya() {
+    // Get first waiting antrian
+    const firstAntrian = document.querySelector('.antrian-row');
+    if (firstAntrian) {
+        const panggilBtn = firstAntrian.querySelector('[onclick*="panggilAntrian"]');
+        const antrianId = panggilBtn.getAttribute('onclick').match(/\d+/)[0];
+        panggilAntrian(antrianId);
+    } else {
+        Swal.fire({
+            icon: 'info',
+            title: 'Info',
+            text: 'Tidak ada antrian yang menunggu'
+        });
+    }
+}
+
+function lihatLaporanCS() {
+    Swal.fire({
+        icon: 'info',
+        title: 'Info',
+        text: 'Fitur laporan CS akan segera tersedia'
+    });
+}
+
+function setBreak() {
+    Swal.fire({
+        icon: 'info',
+        title: 'Info',
+        text: 'Fitur set break akan segera tersedia'
+    });
+}
+
+function lihatDetail(antrianId) {
+    Swal.fire({
+        icon: 'info',
+        title: 'Info',
+        text: 'Fitur detail antrian akan segera tersedia'
+    });
 }
 
 // Auto refresh every 30 seconds
 setInterval(function() {
-    // Only refresh if no modal is open
     if (!document.querySelector('.modal.show')) {
         location.reload();
     }
@@ -505,8 +551,5 @@ setInterval(function() {
 
 <!-- SweetAlert2 for better notifications -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-<!-- Debug Script -->
-<?= $this->include('petugas/debug_script') ?>
 
 <?= $this->endSection() ?>

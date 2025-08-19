@@ -87,6 +87,7 @@
                         <th>Username</th>
                         <th>Email</th>
                         <th>Role</th>
+                        <th>Kategori Antrian</th>
                         <th>Aksi</th>
                     </tr>
                 </thead>
@@ -100,9 +101,20 @@
                             <td><?= $user['email']; ?></td>
                             <td><?= $user['role']; ?></td>
                             <td>
-                                <a href="<?= base_url('admin/pengguna/edit/' . $user['id']) ?>" class="btn btn-warning btn-sm">
+                                <?php if ($user['role'] === 'petugas' && !empty($user['kategori'])): ?>
+                                    <?php foreach ($user['kategori'] as $kategori): ?>
+                                        <span class="badge bg-info me-1"><?= esc($kategori['nama_kategori']); ?></span>
+                                    <?php endforeach; ?>
+                                <?php elseif ($user['role'] === 'petugas'): ?>
+                                    <span class="text-muted">Belum ada kategori</span>
+                                <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" onclick="editUser(<?= $user['id']; ?>, '<?= esc($user['nama_lengkap'] ?? ($user['nama'] ?? '')); ?>', '<?= $user['username']; ?>', '<?= $user['email']; ?>', '<?= $user['role']; ?>', <?= htmlspecialchars(json_encode($user['kategori'] ?? []), ENT_QUOTES, 'UTF-8'); ?>)">
                                     <i class="fas fa-edit"></i>
-                                </a>
+                                </button>
                                 <button class="btn btn-danger btn-sm" onclick="deleteUser(<?= $user['id']; ?>)">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -160,10 +172,96 @@
                             <option value="petugas" <?= old('role') == 'petugas' ? 'selected' : '' ?>>Petugas</option>
                         </select>
                     </div>
+                    <div class="mb-3" id="kategoriSection" style="display: none;">
+                        <label for="kategori_ids" class="form-label">Kategori Antrian yang Dikelola</label>
+                        <div class="form-text mb-2">Pilih kategori antrian yang akan dikelola oleh petugas ini</div>
+                        <?php if (isset($kategori_list) && !empty($kategori_list)): ?>
+                            <?php foreach ($kategori_list as $kategori): ?>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="kategori_ids[]" 
+                                           value="<?= $kategori['id']; ?>" id="kategori_<?= $kategori['id']; ?>">
+                                    <label class="form-check-label" for="kategori_<?= $kategori['id']; ?>">
+                                        <?= esc($kategori['nama_kategori']); ?> (<?= $kategori['prefix']; ?>)
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="alert alert-warning">
+                                Belum ada kategori antrian yang tersedia. 
+                                <a href="<?= base_url('admin/kategori') ?>" class="alert-link">Buat kategori terlebih dahulu</a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary">Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Pengguna</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="" method="post" id="editUserForm">
+                <input type="hidden" id="edit_user_id" name="user_id">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_nama_lengkap" class="form-label">Nama Lengkap</label>
+                        <input type="text" class="form-control" id="edit_nama_lengkap" name="nama_lengkap" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="edit_username" name="username" minlength="3" maxlength="50" required>
+                        <div class="form-text">Minimal 3 karakter, maksimal 50 karakter</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="edit_email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_password" class="form-label">Password Baru (Kosongkan jika tidak ingin mengubah)</label>
+                        <input type="password" class="form-control" id="edit_password" name="password" minlength="6">
+                        <div class="form-text">Minimal 6 karakter</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_role" class="form-label">Role</label>
+                        <select class="form-select" id="edit_role" name="role" required>
+                            <option value="admin">Admin</option>
+                            <option value="petugas">Petugas</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="editKategoriSection" style="display: none;">
+                        <label for="edit_kategori_ids" class="form-label">Kategori Antrian yang Dikelola</label>
+                        <div class="form-text mb-2">Pilih kategori antrian yang akan dikelola oleh petugas ini</div>
+                        <?php if (isset($kategori_list) && !empty($kategori_list)): ?>
+                            <?php foreach ($kategori_list as $kategori): ?>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="kategori_ids[]" 
+                                           value="<?= $kategori['id']; ?>" id="edit_kategori_<?= $kategori['id']; ?>">
+                                    <label class="form-check-label" for="edit_kategori_<?= $kategori['id']; ?>">
+                                        <?= esc($kategori['nama_kategori']); ?> (<?= $kategori['prefix']; ?>)
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="alert alert-warning">
+                                Belum ada kategori antrian yang tersedia. 
+                                <a href="<?= base_url('admin/kategori') ?>" class="alert-link">Buat kategori terlebih dahulu</a>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">Update Pengguna</button>
                 </div>
             </form>
         </div>
@@ -178,6 +276,64 @@ function deleteUser(id) {
     }
 }
 
+function editUser(id, namaLengkap, username, email, role, kategori) {
+    try {
+        // Set form values
+        document.getElementById('edit_user_id').value = id;
+        document.getElementById('edit_nama_lengkap').value = namaLengkap;
+        document.getElementById('edit_username').value = username;
+        document.getElementById('edit_email').value = email;
+        document.getElementById('edit_role').value = role;
+        
+        // Clear password field
+        document.getElementById('edit_password').value = '';
+        
+        // Handle kategori section visibility and checkboxes
+        const editKategoriSection = document.getElementById('editKategoriSection');
+        const checkboxes = editKategoriSection.querySelectorAll('input[type="checkbox"]');
+        
+        // Reset all checkboxes
+        checkboxes.forEach(checkbox => checkbox.checked = false);
+        
+        // Show/hide kategori section based on role
+        if (role === 'petugas') {
+            editKategoriSection.style.display = 'block';
+            
+            // Check appropriate kategori checkboxes
+            if (kategori && kategori.length > 0) {
+                kategori.forEach(kat => {
+                    const checkbox = document.getElementById(`edit_kategori_${kat.id}`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
+            }
+        } else {
+            editKategoriSection.style.display = 'none';
+        }
+        
+        // Show the modal using Bootstrap 5
+        const editModalElement = document.getElementById('editUserModal');
+        if (editModalElement && typeof bootstrap !== 'undefined') {
+            const editModal = new bootstrap.Modal(editModalElement);
+            editModal.show();
+        } else {
+            // Fallback: show modal manually
+            editModalElement.style.display = 'block';
+            editModalElement.classList.add('show');
+            document.body.classList.add('modal-open');
+            
+            // Add backdrop
+            const backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop fade show';
+            document.body.appendChild(backdrop);
+        }
+    } catch (error) {
+        console.error('Error in editUser function:', error);
+        alert('Terjadi kesalahan saat membuka modal edit: ' + error.message);
+    }
+}
+
 
 
 // Password confirmation validation
@@ -186,6 +342,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const password = document.getElementById('password');
     const confirmPassword = document.getElementById('confirm_password');
     const addUserModal = document.getElementById('addUserModal');
+    const roleSelect = document.getElementById('role');
+    const kategoriSection = document.getElementById('kategoriSection');
+    
+    // Edit modal elements
+    const editUserModal = document.getElementById('editUserModal');
+    const editUserForm = document.getElementById('editUserForm');
+    const editRoleSelect = document.getElementById('edit_role');
+    const editKategoriSection = document.getElementById('editKategoriSection');
 
     addUserForm.addEventListener('submit', function(e) {
         if (password.value !== confirmPassword.value) {
@@ -205,10 +369,43 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Show/hide kategori section based on role selection
+    roleSelect.addEventListener('change', function() {
+        if (this.value === 'petugas') {
+            kategoriSection.style.display = 'block';
+        } else {
+            kategoriSection.style.display = 'none';
+            // Uncheck all kategori checkboxes when role is not petugas
+            const checkboxes = kategoriSection.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = false);
+        }
+    });
+
+    // Show/hide kategori section for edit modal based on role selection
+    editRoleSelect.addEventListener('change', function() {
+        if (this.value === 'petugas') {
+            editKategoriSection.style.display = 'block';
+        } else {
+            editKategoriSection.style.display = 'none';
+            // Uncheck all kategori checkboxes when role is not petugas
+            const checkboxes = editKategoriSection.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => checkbox.checked = false);
+        }
+    });
+
     // Reset form when modal is closed
     addUserModal.addEventListener('hidden.bs.modal', function() {
         addUserForm.reset();
         confirmPassword.setCustomValidity('');
+        kategoriSection.style.display = 'none';
+    });
+
+    // Reset edit form when modal is closed
+    editUserModal.addEventListener('hidden.bs.modal', function() {
+        editUserForm.reset();
+        editKategoriSection.style.display = 'none';
+        // Reset form action
+        editUserForm.action = '';
     });
 
     // Show success message and close modal if there's a success message
@@ -218,6 +415,72 @@ document.addEventListener('DOMContentLoaded', function() {
             modal.hide();
         }
     <?php endif; ?>
+
+    // Handle edit form submission
+    editUserForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const userId = document.getElementById('edit_user_id').value;
+        
+        // Send AJAX request to update user
+        fetch(`<?= base_url('admin/pengguna/update/') ?>${userId}`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => {
+            // Check if response is ok
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            // Try to parse JSON
+            return response.text().then(text => {
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error('Response text:', text);
+                    // Check if response contains HTML error page
+                    if (text.includes('<!DOCTYPE html>') || text.includes('<html')) {
+                        throw new Error('Server returned HTML error page instead of JSON response. Please check server logs.');
+                    }
+                    throw new Error('Invalid JSON response from server: ' + text.substring(0, 100));
+                }
+            });
+        })
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-success alert-dismissible fade show';
+                alertDiv.innerHTML = `
+                    ${data.message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                `;
+                document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.row'));
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(editUserModal);
+                if (modal) {
+                    modal.hide();
+                }
+                
+                // Reload page after a short delay to show updated data
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                // Show error message
+                alert('Gagal memperbarui pengguna: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan saat memperbarui pengguna: ' + error.message);
+        });
+    });
 });
 </script>
 <?= $this->endSection(); ?>

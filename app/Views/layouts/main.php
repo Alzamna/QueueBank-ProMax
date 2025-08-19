@@ -11,7 +11,7 @@
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Custom CSS -->
-    <link href="<?= base_url('app/Views/layouts/main.css') ?>" rel="stylesheet">
+    <!-- <link href="<?= base_url('app/Views/layouts/main.css') ?>" rel="stylesheet"> -->
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -168,6 +168,10 @@
                                 <a href="<?= site_url('admin/kategori') ?>" class="sidebar-link <?= strpos(current_url(), 'admin/kategori') !== false ? 'active' : '' ?>">
                                     <i class="fas fa-tags sidebar-icon w-5 mr-3"></i>
                                     <span class="font-medium">Kategori Antrian</span>
+                                </a>
+                                <a href="<?= site_url('admin/user-kategori') ?>" class="sidebar-link <?= strpos(current_url(), 'admin/user-kategori') !== false ? 'active' : '' ?>">
+                                    <i class="fas fa-user-tag sidebar-icon w-5 mr-3"></i>
+                                    <span class="font-medium">Kategori Pengguna</span>
                                 </a>
                                 <a href="<?= site_url('admin/pengaturan') ?>" class="sidebar-link <?= strpos(current_url(), 'admin/pengaturan') !== false ? 'active' : '' ?>">
                                     <i class="fas fa-cog sidebar-icon w-5 mr-3"></i>

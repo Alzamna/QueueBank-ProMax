@@ -9,6 +9,7 @@ use App\Models\KategoriAntrianModel;
 use App\Models\AntrianModel;
 use App\Models\PengaturanDisplayModel;
 use App\Models\PenggunaModel;
+use App\Models\UserKategoriModel;
 
 class AdminController extends BaseController
 {
@@ -18,6 +19,7 @@ class AdminController extends BaseController
     protected $antrianModel;
     protected $pengaturanDisplayModel;
     protected $penggunaModel;
+    protected $userKategoriModel;
 
     public function __construct()
     {
@@ -27,6 +29,7 @@ class AdminController extends BaseController
         $this->antrianModel = new AntrianModel();
         $this->pengaturanDisplayModel = new PengaturanDisplayModel();
         $this->penggunaModel = new PenggunaModel();
+        $this->userKategoriModel = new UserKategoriModel();
     }
 
     public function dashboard()
@@ -93,5 +96,49 @@ class AdminController extends BaseController
         ];
 
         return view('admin/laporan/index', $data);
+    }
+
+    public function userKategori()
+    {
+        $data = [
+            'title' => 'Kelola Kategori Pengguna',
+            'users' => $this->userModel->where('role', 'petugas')->findAll(),
+            'kategori' => $this->kategoriAntrianModel->where('status', 'aktif')->findAll(),
+            'userKategori' => $this->userKategoriModel->getAllUserKategori(),
+        ];
+
+        return view('admin/user_kategori/index', $data);
+    }
+
+    public function assignKategori()
+    {
+        if ($this->request->getMethod() === 'post') {
+            $user_id = $this->request->getPost('user_id');
+            $kategori_ids = $this->request->getPost('kategori_ids');
+
+            if ($this->userKategoriModel->assignCategoriesToUser($user_id, $kategori_ids)) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Kategori berhasil ditugaskan ke pengguna'
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Gagal menugaskan kategori ke pengguna'
+                ]);
+                }
+        }
+
+        return $this->response->setJSON(['success' => false, 'message' => 'Invalid request method']);
+    }
+
+    public function getUserKategori($user_id)
+    {
+        $userKategori = $this->userKategoriModel->getCategoriesByUserId($user_id);
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'userKategori' => $userKategori
+        ]);
     }
 }

@@ -21,7 +21,6 @@ class UserModel extends Model
 
     protected $validationRules = [
         'username' => 'required|min_length[3]|max_length[50]',
-        'password' => 'required|min_length[6]',
         'role' => 'required|in_list[admin,petugas]',
         'nama_lengkap' => 'required|max_length[100]',
         'email' => 'required|valid_email|max_length[100]',
@@ -30,8 +29,27 @@ class UserModel extends Model
     protected $validationMessages = [
         'username' => [
             'is_unique' => 'Username sudah digunakan'
+        ],
+        'email' => [
+            'is_unique' => 'Email sudah digunakan'
         ]
     ];
 
     protected $skipValidation = false;
+
+    // Override validation rules for updates
+    public function getValidationRules(array $options = []): array
+    {
+        $rules = $this->validationRules;
+        
+        // If updating and password is empty, remove password validation
+        if (isset($options['id']) && (!isset($options['password']) || empty($options['password']))) {
+            // Password is optional for updates
+        } else {
+            // Password is required for new users
+            $rules['password'] = 'required|min_length[6]';
+        }
+        
+        return $rules;
+    }
 }

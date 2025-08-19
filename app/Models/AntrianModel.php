@@ -27,7 +27,7 @@ class AntrianModel extends Model
 
     protected $skipValidation = false;
 
-    public function getAntrianAktif($kategori_id = null)
+    public function getAntrianAktif($kategori_id = null, $user_id = null)
     {
         $builder = $this->db->table($this->table . ' as antrians')
             ->select('antrians.*, kategori_antrians.nama_kategori, kategori_antrians.prefix, lokets.nama_loket, users.nama_lengkap as nama_petugas')
@@ -39,6 +39,12 @@ class AntrianModel extends Model
 
         if ($kategori_id !== null) {
             $builder->where('antrians.kategori_id', $kategori_id);
+        }
+
+        // If user_id is provided, filter by user's assigned categories
+        if ($user_id !== null) {
+            $builder->join('user_kategori', 'user_kategori.kategori_id = antrians.kategori_id')
+                    ->where('user_kategori.user_id', $user_id);
         }
 
         return $builder->get()->getResultArray();
@@ -99,6 +105,32 @@ class AntrianModel extends Model
 
         if ($loket_id !== null) {
             $builder->where('antrians.loket_id', $loket_id);
+        }
+
+        return $builder->get()->getResultArray();
+    }
+
+    /**
+     * Get called queue numbers by kategori
+     * @param int $kategori_id
+     * @param int $user_id
+     * @return array
+     */
+    public function getAntrianDipanggilByKategori($kategori_id, $user_id = null)
+    {
+        $builder = $this->db->table($this->table . ' as antrians')
+            ->select('antrians.*, kategori_antrians.nama_kategori, kategori_antrians.prefix, lokets.nama_loket, users.nama_lengkap as nama_petugas')
+            ->join('kategori_antrians', 'kategori_antrians.id = antrians.kategori_id')
+            ->join('lokets', 'lokets.id = antrians.loket_id', 'left')
+            ->join('users', 'users.id = antrians.petugas_id', 'left')
+            ->where('antrians.status', 'dipanggil')
+            ->where('antrians.kategori_id', $kategori_id)
+            ->orderBy('antrians.id', 'DESC');
+
+        // If user_id is provided, filter by user's assigned categories
+        if ($user_id !== null) {
+            $builder->join('user_kategori', 'user_kategori.kategori_id = antrians.kategori_id')
+                    ->where('user_kategori.user_id', $user_id);
         }
 
         return $builder->get()->getResultArray();
@@ -292,5 +324,41 @@ class AntrianModel extends Model
             return $prefix . $date_suffix . str_pad($number, 3, '0', STR_PAD_LEFT);
         }
         return $display_number;
+    }
+
+    /**
+     * Get statistics for a specific kategori
+     * @param int $kategori_id
+     * @return array
+     */
+    public function getStatistikKategori($kategori_id)
+    {
+        $today = date('Y-m-d');
+        
+        $stats = $this->db->table($this->table)
+            ->select('
+                status,
+                COUNT(*) as total
+            ')
+            ->where('kategori_id', $kategori_id)
+            ->where('DATE(waktu_ambil)', $today)
+            ->groupBy('status')
+            ->get()
+            ->getResultArray();
+
+        $result = [
+            'menunggu' => 0,
+            'dipanggil' => 0,
+            'selesai' => 0,
+            'lewati' => 0
+        ];
+
+        foreach ($stats as $stat) {
+            if (isset($result[$stat['status']])) {
+                $result[$stat['status']] = (int)$stat['total'];
+            }
+        }
+
+        return $result;
     }
 }
