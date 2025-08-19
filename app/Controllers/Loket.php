@@ -79,7 +79,8 @@ class Loket extends Controller
         return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
     }
 
-    $this->loketModel->update($id, [
+    // update tanpa validasi model (supaya gak bentrok dengan validationRules di LoketModel)
+    $this->loketModel->skipValidation(true)->update($id, [
         'nama_loket' => $this->request->getPost('nama_loket'),
         'kode_loket' => $this->request->getPost('kode_loket'),
         'warna'      => $this->request->getPost('warna'),
@@ -88,6 +89,7 @@ class Loket extends Controller
 
     return redirect()->to('/admin/lokets')->with('success', 'Loket berhasil diperbarui');
     }
+
 
     public function delete($id)
     {
