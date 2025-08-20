@@ -12,7 +12,7 @@ class UserModel extends Model
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
     protected $protectFields = true;
-    protected $allowedFields = ['username', 'password', 'role', 'nama_lengkap', 'email'];
+    protected $allowedFields = ['username', 'password', 'role', 'nama_lengkap', 'email', 'loket_id'];
 
     protected $useTimestamps = true;
     protected $dateFormat = 'datetime';
@@ -51,5 +51,29 @@ class UserModel extends Model
         }
         
         return $rules;
+    }
+
+    /**
+     * Get users with related data (loket and kategori)
+     */
+    public function getUsersWithDetails()
+    {
+        $users = $this->findAll();
+        
+        foreach ($users as &$user) {
+            // Get loket info for petugas
+            if ($user['role'] === 'petugas' && !empty($user['loket_id'])) {
+                $loketModel = new \App\Models\LoketModel();
+                $user['loket'] = $loketModel->find($user['loket_id']);
+            }
+            
+            // Get kategori info for petugas
+            if ($user['role'] === 'petugas') {
+                $userKategoriModel = new \App\Models\UserKategoriModel();
+                $user['kategori'] = $userKategoriModel->getCategoriesByUserId($user['id']);
+            }
+        }
+        
+        return $users;
     }
 }

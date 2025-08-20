@@ -123,10 +123,9 @@ class PetugasController extends BaseController
         
         // Try to get data from different sources
         $antrian_id = $this->request->getPost('antrian_id') ?? $this->request->getVar('antrian_id') ?? null;
-        $loket_id = $this->request->getPost('loket_id') ?? $this->request->getVar('loket_id') ?? null;
         
         // If still no data, try to get from raw input
-        if (!$antrian_id || !$loket_id) {
+        if (!$antrian_id) {
             $rawInput = $this->request->getBody();
             log_message('debug', 'Raw input: ' . $rawInput);
             
@@ -135,21 +134,33 @@ class PetugasController extends BaseController
                 $jsonData = json_decode($rawInput, true);
                 if ($jsonData) {
                     $antrian_id = $antrian_id ?? $jsonData['antrian_id'] ?? null;
-                    $loket_id = $loket_id ?? $jsonData['loket_id'] ?? null;
                     log_message('debug', 'Parsed JSON data: ' . json_encode($jsonData));
                 }
             }
         }
         
         // Accept both POST and any other method for debugging
-        if ($this->request->getMethod() === 'post' || $antrian_id || $loket_id) {
+        if ($this->request->getMethod() === 'post' || $antrian_id) {
             $petugas_id = session()->get('user_id');
 
-            // Validate input
-            if (!$antrian_id || !$loket_id || !$petugas_id) {
+            // Get petugas data to get assigned loket
+            $userModel = new \App\Models\UserModel();
+            $petugas = $userModel->find($petugas_id);
+            
+            if (!$petugas || empty($petugas['loket_id'])) {
                 return $this->response->setJSON([
                     'success' => false, 
-                    'message' => 'Data tidak lengkap: antrian_id, loket_id, atau petugas_id kosong'
+                    'message' => 'Anda belum ditugaskan ke loket manapun'
+                ]);
+            }
+            
+            $loket_id = $petugas['loket_id'];
+
+            // Validate input
+            if (!$antrian_id || !$petugas_id) {
+                return $this->response->setJSON([
+                    'success' => false, 
+                    'message' => 'Data tidak lengkap: antrian_id atau petugas_id kosong'
                 ]);
             }
 

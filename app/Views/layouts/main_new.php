@@ -95,12 +95,6 @@
                                 Pengaturan
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white-50" href="<?= base_url('admin/laporan') ?>">
-                                <i class="fas fa-chart-bar me-2"></i>
-                                Laporan
-                            </a>
-                        </li>
                     </ul>
                 </div>
             </div>

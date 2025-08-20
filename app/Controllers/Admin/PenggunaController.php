@@ -6,40 +6,33 @@ use App\Controllers\BaseController;
 use App\Models\UserModel;
 use App\Models\KategoriAntrianModel;
 use App\Models\UserKategoriModel;
+use App\Models\LoketModel;
 
 class PenggunaController extends BaseController
 {
 	protected $userModel;
 	protected $kategoriModel;
 	protected $userKategoriModel;
+	protected $loketModel;
 
 	public function __construct()
 	{
 		$this->userModel = new UserModel();
 		$this->kategoriModel = new KategoriAntrianModel();
 		$this->userKategoriModel = new UserKategoriModel();
+		$this->loketModel = new LoketModel();
 	}
 
 	public function index()
 	{
-		$users = $this->userModel->findAll();
-		
-		// Get categories for each user
-		foreach ($users as &$user) {
-			if ($user['role'] === 'petugas') {
-				$user['kategori'] = $this->userKategoriModel->getCategoriesByUserId($user['id']);
-			} else {
-				$user['kategori'] = [];
-			}
-		}
-
 		$data = [
 			'title' => 'Kelola Pengguna',
-			'users' => $users,
+			'users' => $this->userModel->getUsersWithDetails(),
 			'total_users' => $this->userModel->countAll(),
 			'admin_count' => $this->userModel->where('role', 'admin')->countAllResults(),
 			'petugas_count' => $this->userModel->where('role', 'petugas')->countAllResults(),
-			'kategori_list' => $this->kategoriModel->where('status', 'aktif')->findAll()
+			'kategori_list' => $this->kategoriModel->where('status', 'aktif')->orderBy('nama_kategori', 'ASC')->findAll(),
+			'loket_list' => $this->loketModel->where('status', 'aktif')->orderBy('nama_loket', 'ASC')->findAll()
 		];
 
 		return view('admin/pengguna/pengguna', $data);
@@ -56,12 +49,22 @@ class PenggunaController extends BaseController
 			return redirect()->back()->withInput();
 		}
 
+		$role = $this->request->getPost('role');
+		$loket_id = $this->request->getPost('loket_id');
+		
+		// Validate loket_id for petugas
+		if ($role === 'petugas' && empty($loket_id)) {
+			session()->setFlashdata('error', 'Loket harus dipilih untuk petugas');
+			return redirect()->back()->withInput();
+		}
+		
 		$data = [
 			'nama_lengkap' => $this->request->getPost('nama_lengkap'),
 			'username' => $this->request->getPost('username'),
 			'email' => $this->request->getPost('email'),
 			'password' => password_hash($password, PASSWORD_DEFAULT),
-			'role' => $this->request->getPost('role')
+			'role' => $role,
+			'loket_id' => $role === 'petugas' ? $loket_id : null
 		];
 
 		// Validate username uniqueness
@@ -124,11 +127,23 @@ class PenggunaController extends BaseController
 			]);
 		}
 
+		$role = $this->request->getPost('role');
+		$loket_id = $this->request->getPost('loket_id');
+		
+		// Validate loket_id for petugas
+		if ($role === 'petugas' && empty($loket_id)) {
+			return $this->response->setJSON([
+				'success' => false,
+				'message' => 'Loket harus dipilih untuk petugas'
+			]);
+		}
+		
 		$data = [
 			'nama_lengkap' => $this->request->getPost('nama_lengkap'),
 			'username' => $this->request->getPost('username'),
 			'email' => $this->request->getPost('email'),
-			'role' => $this->request->getPost('role')
+			'role' => $role,
+			'loket_id' => $role === 'petugas' ? $loket_id : null
 		];
 
 		// Check if password is provided

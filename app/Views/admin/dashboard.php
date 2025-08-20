@@ -59,9 +59,9 @@
                                 <tbody>
                                     <?php foreach($statistik as $item): ?>
                                         <tr>
-                                            <td><?= $item['nama_kategori'] ?></td>
-                                            <td><?= $item['total_antrian'] ?></td>
-                                            <td><?= round($item['rata_rata_waktu'] / 60, 2) ?></td>
+                                            <td><?= $item['nama_kategori'] ?? 'Tidak ada nama' ?></td>
+                                            <td><?= $item['total_antrian'] ?? 0 ?></td>
+                                            <td><?= $item['rata_rata_waktu'] ? round($item['rata_rata_waktu'] / 60, 2) : 0 ?></td>
                                         </tr>
                                     <?php endforeach; ?>
                                 </tbody>

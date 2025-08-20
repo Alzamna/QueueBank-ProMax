@@ -374,6 +374,66 @@
         
         <!-- Right Column - Stats & Actions -->
         <div class="col-lg-4">
+            <!-- Petugas Info -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h6 class="card-title text-muted mb-3">Informasi Petugas</h6>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar-sm bg-primary rounded-circle d-flex align-items-center justify-content-center me-3">
+                            <i class="fas fa-user text-white"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0"><?= session()->get('nama_lengkap') ?></h6>
+                            <small class="text-muted"><?= session()->get('role') ?></small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar-sm bg-success rounded-circle d-flex align-items-center justify-content-center me-3">
+                            <i class="fas fa-desktop text-white"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Loket</h6>
+                            <small class="text-muted">
+                                <?php 
+                                $userModel = new \App\Models\UserModel();
+                                $user = $userModel->find(session()->get('user_id'));
+                                if ($user && !empty($user['loket_id'])) {
+                                    $loketModel = new \App\Models\LoketModel();
+                                    $loket = $loketModel->find($user['loket_id']);
+                                    if ($loket) {
+                                        echo '<span class="badge bg-success">' . esc($loket['nama_loket']) . ' (' . esc($loket['kode_loket']) . ')</span>';
+                                    }
+                                } else {
+                                    echo '<span class="text-danger">Belum ditugaskan ke loket</span>';
+                                }
+                                ?>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-sm bg-info rounded-circle d-flex align-items-center justify-content-center me-3">
+                            <i class="fas fa-tags text-white"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-0">Kategori</h6>
+                            <small class="text-muted">
+                                <?php 
+                                $userKategoriModel = new \App\Models\UserKategoriModel();
+                                $userKategori = $userKategoriModel->getCategoriesByUserId(session()->get('user_id'));
+                                if (!empty($userKategori)) {
+                                    foreach ($userKategori as $uk) {
+                                        echo '<span class="badge bg-info me-1">' . esc($uk['nama_kategori']) . '</span>';
+                                    }
+                                } else {
+                                    echo 'Belum ada kategori';
+                                }
+                                ?>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <!-- Quick Stats -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">
@@ -461,10 +521,6 @@
                             <i class="fas fa-sync-alt mr-2"></i>
                             Refresh Dashboard
                         </button>
-                        <button class="btn btn-outline-info" onclick="lihatLaporan()">
-                            <i class="fas fa-chart-bar mr-2"></i>
-                            Lihat Laporan
-                        </button>
                     </div>
                 </div>
             </div>
@@ -489,12 +545,8 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Loket</label>
-                        <select class="form-select" id="loketId" required>
-                            <option value="">Pilih Loket</option>
-                            <?php foreach($lokets as $loket): ?>
-                                <option value="<?= $loket['id'] ?>"><?= $loket['nama_loket'] ?></option>
-                            <?php endforeach; ?>
-                        </select>
+                        <input type="text" class="form-control" id="loketInfo" readonly>
+                        <small class="form-text text-muted">Loket yang sudah ditugaskan untuk Anda</small>
                     </div>
                 </form>
             </div>
@@ -580,6 +632,12 @@
     align-items: center;
     justify-content: center;
 }
+
+.avatar-sm {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1rem;
+}
 </style>
 
 <script>
@@ -606,7 +664,11 @@ function panggilAntrian(antrianId) {
     const nomorAntrian = antrianRow.querySelector('.antrian-number-display').textContent;
     
     document.getElementById('nomorAntrian').value = nomorAntrian;
-    document.getElementById('loketId').value = '';
+    
+    // Get assigned loket info from the info card
+    const loketInfoElement = document.querySelector('.card-body .badge.bg-success');
+    const loketInfo = loketInfoElement ? loketInfoElement.textContent : 'Loket tidak ditemukan';
+    document.getElementById('loketInfo').value = loketInfo;
     
     // Show modal
     new bootstrap.Modal(document.getElementById('modalPanggilAntrian')).show();
@@ -615,14 +677,6 @@ function panggilAntrian(antrianId) {
 function konfirmasiPanggil() {
     console.log('konfirmasiPanggil called');
     console.log('selectedAntrianId:', selectedAntrianId);
-    
-    const loketId = document.getElementById('loketId').value;
-    console.log('loketId:', loketId);
-    
-    if (!loketId) {
-        alert('Silakan pilih loket terlebih dahulu');
-        return;
-    }
     
     if (!selectedAntrianId) {
         alert('Tidak ada antrian yang dipilih');
@@ -639,8 +693,7 @@ function konfirmasiPanggil() {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
             body: new URLSearchParams({
-                antrian_id: selectedAntrianId,
-                loket_id: loketId
+                antrian_id: selectedAntrianId
             })
         })
         .then(response => response.json())
@@ -666,8 +719,7 @@ function konfirmasiPanggil() {
     // Use jQuery if available
     console.log('Using jQuery for AJAX call');
     $.post('<?= site_url('petugas/panggil-antrian') ?>', {
-        antrian_id: selectedAntrianId,
-        loket_id: loketId
+        antrian_id: selectedAntrianId
     })
     .done(function(response) {
         console.log('jQuery response:', response);
@@ -848,10 +900,7 @@ function refreshDashboard() {
     location.reload();
 }
 
-function lihatLaporan() {
-    // Redirect to report page or show report modal
-    alert('Fitur laporan akan segera tersedia');
-}
+
 
 // Function to refresh statistics
 function refreshStatistik() {

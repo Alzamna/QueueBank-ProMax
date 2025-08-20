@@ -87,6 +87,7 @@
                         <th>Username</th>
                         <th>Email</th>
                         <th>Role</th>
+                        <th>Loket</th>
                         <th>Kategori Antrian</th>
                         <th>Aksi</th>
                     </tr>
@@ -101,6 +102,17 @@
                             <td><?= $user['email']; ?></td>
                             <td><?= $user['role']; ?></td>
                             <td>
+                                <?php if ($user['role'] === 'petugas' && !empty($user['loket'])): ?>
+                                    <span class="badge bg-success">
+                                        <?= esc($user['loket']['nama_loket']); ?> (<?= esc($user['loket']['kode_loket']); ?>)
+                                    </span>
+                                <?php elseif ($user['role'] === 'petugas'): ?>
+                                    <span class="text-muted">Belum ada loket</span>
+                                <?php else: ?>
+                                    <span class="text-muted">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
                                 <?php if ($user['role'] === 'petugas' && !empty($user['kategori'])): ?>
                                     <?php foreach ($user['kategori'] as $kategori): ?>
                                         <span class="badge bg-info me-1"><?= esc($kategori['nama_kategori']); ?></span>
@@ -112,7 +124,7 @@
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <button class="btn btn-warning btn-sm" onclick="editUser(<?= $user['id']; ?>, '<?= esc($user['nama_lengkap'] ?? ($user['nama'] ?? '')); ?>', '<?= $user['username']; ?>', '<?= $user['email']; ?>', '<?= $user['role']; ?>', <?= htmlspecialchars(json_encode($user['kategori'] ?? []), ENT_QUOTES, 'UTF-8'); ?>)">
+                                <button class="btn btn-warning btn-sm" onclick="editUser(<?= $user['id']; ?>, '<?= esc($user['nama_lengkap'] ?? ($user['nama'] ?? '')); ?>', '<?= $user['username']; ?>', '<?= $user['email']; ?>', '<?= $user['role']; ?>', <?= htmlspecialchars(json_encode($user['kategori'] ?? []), ENT_QUOTES, 'UTF-8'); ?>, <?= $user['loket_id'] ?? 'null'; ?>)">
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 <button class="btn btn-danger btn-sm" onclick="deleteUser(<?= $user['id']; ?>)">
@@ -170,6 +182,22 @@
                         <select class="form-select" id="role" name="role" required>
                             <option value="admin" <?= old('role') == 'admin' ? 'selected' : '' ?>>Admin</option>
                             <option value="petugas" <?= old('role') == 'petugas' ? 'selected' : '' ?>>Petugas</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="loketSection" style="display: none;">
+                        <label for="loket_id" class="form-label">Loket yang Dikelola</label>
+                        <div class="form-text mb-2">Pilih loket yang akan dikelola oleh petugas ini</div>
+                        <select class="form-select" id="loket_id" name="loket_id" required>
+                            <option value="">Pilih Loket</option>
+                            <?php if (isset($loket_list) && !empty($loket_list)): ?>
+                                <?php foreach ($loket_list as $loket): ?>
+                                    <option value="<?= $loket['id']; ?>">
+                                        <?= esc($loket['nama_loket']); ?> (<?= esc($loket['kode_loket']); ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <option value="" disabled>Belum ada loket tersedia</option>
+                            <?php endif; ?>
                         </select>
                     </div>
                     <div class="mb-3" id="kategoriSection" style="display: none;">
@@ -238,6 +266,22 @@
                             <option value="petugas">Petugas</option>
                         </select>
                     </div>
+                    <div class="mb-3" id="editLoketSection" style="display: none;">
+                        <label for="edit_loket_id" class="form-label">Loket yang Dikelola</label>
+                        <div class="form-text mb-2">Pilih loket yang akan dikelola oleh petugas ini</div>
+                        <select class="form-select" id="edit_loket_id" name="loket_id" required>
+                            <option value="">Pilih Loket</option>
+                            <?php if (isset($loket_list) && !empty($loket_list)): ?>
+                                <?php foreach ($loket_list as $loket): ?>
+                                    <option value="<?= $loket['id']; ?>">
+                                        <?= esc($loket['nama_loket']); ?> (<?= esc($loket['kode_loket']); ?>)
+                                    </option>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <option value="" disabled>Belum ada loket tersedia</option>
+                            <?php endif; ?>
+                        </select>
+                    </div>
                     <div class="mb-3" id="editKategoriSection" style="display: none;">
                         <label for="edit_kategori_ids" class="form-label">Kategori Antrian yang Dikelola</label>
                         <div class="form-text mb-2">Pilih kategori antrian yang akan dikelola oleh petugas ini</div>
@@ -276,7 +320,7 @@ function deleteUser(id) {
     }
 }
 
-function editUser(id, namaLengkap, username, email, role, kategori) {
+function editUser(id, namaLengkap, username, email, role, kategori, loketId) {
     try {
         // Set form values
         document.getElementById('edit_user_id').value = id;
@@ -287,6 +331,20 @@ function editUser(id, namaLengkap, username, email, role, kategori) {
         
         // Clear password field
         document.getElementById('edit_password').value = '';
+        
+        // Handle loket section visibility and selection
+        const editLoketSection = document.getElementById('editLoketSection');
+        if (role === 'petugas') {
+            editLoketSection.style.display = 'block';
+            if (loketId) {
+                document.getElementById('edit_loket_id').value = loketId;
+            } else {
+                document.getElementById('edit_loket_id').value = '';
+            }
+        } else {
+            editLoketSection.style.display = 'none';
+            document.getElementById('edit_loket_id').value = '';
+        }
         
         // Handle kategori section visibility and checkboxes
         const editKategoriSection = document.getElementById('editKategoriSection');
@@ -305,7 +363,7 @@ function editUser(id, namaLengkap, username, email, role, kategori) {
                     const checkbox = document.getElementById(`edit_kategori_${kat.id}`);
                     if (checkbox) {
                         checkbox.checked = true;
-                    }
+                }
                 });
             }
         } else {
@@ -372,24 +430,32 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show/hide kategori section based on role selection
     roleSelect.addEventListener('change', function() {
         if (this.value === 'petugas') {
+            loketSection.style.display = 'block';
             kategoriSection.style.display = 'block';
         } else {
+            loketSection.style.display = 'none';
             kategoriSection.style.display = 'none';
             // Uncheck all kategori checkboxes when role is not petugas
             const checkboxes = kategoriSection.querySelectorAll('input[type="checkbox"]');
             checkboxes.forEach(checkbox => checkbox.checked = false);
+            // Reset loket selection
+            document.getElementById('loket_id').value = '';
         }
     });
 
     // Show/hide kategori section for edit modal based on role selection
     editRoleSelect.addEventListener('change', function() {
         if (this.value === 'petugas') {
+            editLoketSection.style.display = 'block';
             editKategoriSection.style.display = 'block';
         } else {
+            editLoketSection.style.display = 'none';
             editKategoriSection.style.display = 'none';
             // Uncheck all kategori checkboxes when role is not petugas
             const checkboxes = editKategoriSection.querySelectorAll('input[type="checkbox"]');
             checkboxes.forEach(checkbox => checkbox.checked = false);
+            // Reset loket selection
+            document.getElementById('edit_loket_id').value = '';
         }
     });
 
@@ -397,12 +463,14 @@ document.addEventListener('DOMContentLoaded', function() {
     addUserModal.addEventListener('hidden.bs.modal', function() {
         addUserForm.reset();
         confirmPassword.setCustomValidity('');
+        loketSection.style.display = 'none';
         kategoriSection.style.display = 'none';
     });
 
     // Reset edit form when modal is closed
     editUserModal.addEventListener('hidden.bs.modal', function() {
         editUserForm.reset();
+        editLoketSection.style.display = 'none';
         editKategoriSection.style.display = 'none';
         // Reset form action
         editUserForm.action = '';

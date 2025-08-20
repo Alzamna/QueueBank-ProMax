@@ -238,14 +238,23 @@ class AntrianModel extends Model
         }
 
         $builder = $this->db->table($this->table . ' as antrians')
-            ->select('antrians.kategori_id, kategori_antrians.nama_kategori, COUNT(*) as total_antrian, AVG(TIMESTAMPDIFF(SECOND, antrians.waktu_ambil, antrians.waktu_selesai)) as rata_waktu_layanan')
+            ->select('antrians.kategori_id, kategori_antrians.nama_kategori, COUNT(*) as total_antrian, AVG(TIMESTAMPDIFF(SECOND, antrians.waktu_ambil, antrians.waktu_selesai)) as rata_rata_waktu')
             ->join('kategori_antrians', 'kategori_antrians.id = antrians.kategori_id')
             ->where('DATE(antrians.waktu_ambil)', $tanggal)
             ->where('antrians.status', 'selesai')
             ->groupBy('antrians.kategori_id, kategori_antrians.nama_kategori')
             ->orderBy('antrians.kategori_id', 'ASC');
 
-        return $builder->get()->getResultArray();
+        $result = $builder->get()->getResultArray();
+        
+        // Handle NULL values for rata_rata_waktu
+        foreach ($result as &$item) {
+            if ($item['rata_rata_waktu'] === null) {
+                $item['rata_rata_waktu'] = 0;
+            }
+        }
+        
+        return $result;
     }
 
     /**
@@ -459,5 +468,49 @@ class AntrianModel extends Model
             'selesai' => (int)$selesai,
             'lewati' => (int)$lewati
         ];
+    }
+
+    /**
+     * Get comprehensive daily statistics for admin dashboard
+     * @param string|null $tanggal
+     * @return array
+     */
+    public function getStatistikHarianLengkap($tanggal = null)
+    {
+        if ($tanggal === null) {
+            $tanggal = date('Y-m-d');
+        }
+
+        // Get all categories first
+        $kategori = $this->db->table('kategori_antrians')
+            ->select('id, nama_kategori')
+            ->where('status', 'aktif')
+            ->get()
+            ->getResultArray();
+
+        $result = [];
+        
+        foreach ($kategori as $kat) {
+            // Get statistics for each category
+            $stats = $this->db->table($this->table . ' as antrians')
+                ->select('
+                    COUNT(*) as total_antrian,
+                    AVG(TIMESTAMPDIFF(SECOND, antrians.waktu_ambil, antrians.waktu_selesai)) as rata_rata_waktu
+                ')
+                ->where('antrians.kategori_id', $kat['id'])
+                ->where('DATE(antrians.waktu_ambil)', $tanggal)
+                ->where('antrians.status', 'selesai')
+                ->get()
+                ->getRowArray();
+
+            $result[] = [
+                'kategori_id' => $kat['id'],
+                'nama_kategori' => $kat['nama_kategori'],
+                'total_antrian' => (int)($stats['total_antrian'] ?? 0),
+                'rata_rata_waktu' => $stats['rata_rata_waktu'] ? (int)$stats['rata_rata_waktu'] : 0
+            ];
+        }
+
+        return $result;
     }
 }

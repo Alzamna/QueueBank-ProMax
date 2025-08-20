@@ -24,10 +24,10 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
 
     // Pengguna Routes
     $routes->get('pengguna', 'Admin\PenggunaController::index');
-    $routes->post('pengguna/add', 'Admin\PenggunaController::add');
+    $routes->post('pengguna/add', 'AdminController::addPengguna');
     $routes->get('pengguna/edit/(:num)', 'Admin\PenggunaController::edit/$1');
-    $routes->post('pengguna/update/(:num)', 'Admin\PenggunaController::update/$1');
-    $routes->get('pengguna/delete/(:num)', 'Admin\PenggunaController::delete/$1');
+    $routes->post('pengguna/update/(:num)', 'AdminController::updatePengguna/$1');
+    $routes->get('pengguna/delete/(:num)', 'AdminController::deletePengguna/$1');
 
     $routes->get('lokets', 'Loket::index');
     $routes->get('lokets/create', 'Loket::create');
