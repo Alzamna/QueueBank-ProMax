@@ -154,6 +154,62 @@ class AntrianModel extends Model
         return $builder->countAllResults();
     }
 
+    /**
+     * Get completed queue numbers by category
+     * @param int $kategori_id
+     * @param int $user_id
+     * @return array
+     */
+    public function getAntrianSelesaiByKategori($kategori_id, $user_id = null)
+    {
+        $builder = $this->db->table($this->table . ' as antrians')
+            ->select('antrians.*, kategori_antrians.nama_kategori, kategori_antrians.prefix, lokets.nama_loket, users.nama_lengkap as nama_petugas')
+            ->join('kategori_antrians', 'kategori_antrians.id = antrians.kategori_id')
+            ->join('lokets', 'lokets.id = antrians.loket_id', 'left')
+            ->join('users', 'users.id = antrians.petugas_id', 'left')
+            ->where('antrians.status', 'selesai')
+            ->where('antrians.kategori_id', $kategori_id)
+            ->where('DATE(antrians.waktu_selesai)', date('Y-m-d'))
+            ->orderBy('antrians.waktu_selesai', 'DESC')
+            ->limit(10); // Show last 10 completed queues
+
+        // If user_id is provided, filter by user's assigned categories
+        if ($user_id !== null) {
+            $builder->join('user_kategori', 'user_kategori.kategori_id = antrians.kategori_id')
+                    ->where('user_kategori.user_id', $user_id);
+        }
+
+        return $builder->get()->getResultArray();
+    }
+
+    /**
+     * Get skipped queue numbers by category
+     * @param int $kategori_id
+     * @param int $user_id
+     * @return array
+     */
+    public function getAntrianDilewatiByKategori($kategori_id, $user_id = null)
+    {
+        $builder = $this->db->table($this->table . ' as antrians')
+            ->select('antrians.*, kategori_antrians.nama_kategori, kategori_antrians.prefix, lokets.nama_loket, users.nama_lengkap as nama_petugas')
+            ->join('kategori_antrians', 'kategori_antrians.id = antrians.kategori_id')
+            ->join('lokets', 'lokets.id = antrians.loket_id', 'left')
+            ->join('users', 'users.id = antrians.petugas_id', 'left')
+            ->where('antrians.status', 'lewati')
+            ->where('antrians.kategori_id', $kategori_id)
+            ->where('DATE(antrians.waktu_selesai)', date('Y-m-d'))
+            ->orderBy('antrians.waktu_selesai', 'DESC')
+            ->limit(10); // Show last 10 skipped queues
+
+        // If user_id is provided, filter by user's assigned categories
+        if ($user_id !== null) {
+            $builder->join('user_kategori', 'user_kategori.kategori_id = antrians.kategori_id')
+                    ->where('user_kategori.user_id', $user_id);
+        }
+
+        return $builder->get()->getResultArray();
+    }
+
     public function getAntrianSelesai($loket_id = null, $limit = null)
     {
         $builder = $this->db->table($this->table . ' as antrians')
@@ -335,6 +391,7 @@ class AntrianModel extends Model
     {
         $today = date('Y-m-d');
         
+        // Get statistics for today based on waktu_ambil
         $stats = $this->db->table($this->table)
             ->select('
                 status,
@@ -360,5 +417,47 @@ class AntrianModel extends Model
         }
 
         return $result;
+    }
+
+    /**
+     * Get real-time statistics for a specific kategori
+     * @param int $kategori_id
+     * @return array
+     */
+    public function getStatistikKategoriRealTime($kategori_id)
+    {
+        $today = date('Y-m-d');
+        
+        // Get real-time statistics using separate queries for better performance
+        $menunggu = $this->db->table($this->table)
+            ->where('kategori_id', $kategori_id)
+            ->where('status', 'menunggu')
+            ->where('DATE(waktu_ambil)', $today)
+            ->countAllResults();
+            
+        $dipanggil = $this->db->table($this->table)
+            ->where('kategori_id', $kategori_id)
+            ->where('status', 'dipanggil')
+            ->where('DATE(waktu_ambil)', $today)
+            ->countAllResults();
+            
+        $selesai = $this->db->table($this->table)
+            ->where('kategori_id', $kategori_id)
+            ->where('status', 'selesai')
+            ->where('DATE(waktu_ambil)', $today)
+            ->countAllResults();
+            
+        $lewati = $this->db->table($this->table)
+            ->where('kategori_id', $kategori_id)
+            ->where('status', 'lewati')
+            ->where('DATE(waktu_ambil)', $today)
+            ->countAllResults();
+
+        return [
+            'menunggu' => (int)$menunggu,
+            'dipanggil' => (int)$dipanggil,
+            'selesai' => (int)$selesai,
+            'lewati' => (int)$lewati
+        ];
     }
 }

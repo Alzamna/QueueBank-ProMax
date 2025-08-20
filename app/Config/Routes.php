@@ -53,12 +53,14 @@ $routes->group('petugas', ['filter' => 'auth'], function($routes) {
     $routes->post('lewati-antrian', 'PetugasController::lewatiAntrian');
     $routes->get('get-antrian-by-kategori/(:num)', 'PetugasController::getAntrianByKategori/$1');
     $routes->get('get-dashboard-summary', 'PetugasController::getDashboardSummary');
+    $routes->get('get-statistik-real-time', 'PetugasController::getStatistikRealTime');
     $routes->get('get-kategori-info', 'PetugasController::getKategoriInfo');
     $routes->get('debug-user-access', 'PetugasController::debugUserAccess');
     $routes->get('test-system', 'PetugasController::testSystem');
     $routes->match(['get', 'post'], 'test-panggil-antrian', 'PetugasController::testPanggilAntrian');
     $routes->match(['get', 'post'], 'test-selesai-antrian', 'PetugasController::testSelesaiAntrian');
     $routes->match(['get', 'post'], 'test-lewati-antrian', 'PetugasController::testLewatiAntrian');
+    $routes->post('panggil-ulang-antrian', 'PetugasController::panggilUlangAntrian');
 });
 
 

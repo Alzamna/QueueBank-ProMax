@@ -48,6 +48,8 @@ class PetugasController extends BaseController
         $selected_kategori = null;
         $antrian_aktif = [];
         $antrian_dipanggil = [];
+        $antrian_selesai = [];
+        $antrian_dilewati = [];
         $stats = [
             'menunggu' => 0,
             'dipanggil' => 0,
@@ -78,6 +80,12 @@ class PetugasController extends BaseController
             // Get antrian dipanggil for selected kategori
             $antrian_dipanggil = $this->antrianModel->getAntrianDipanggilByKategori($kategori_id, $petugas_id);
             
+            // Get antrian selesai for selected kategori
+            $antrian_selesai = $this->antrianModel->getAntrianSelesaiByKategori($kategori_id, $petugas_id);
+            
+            // Get antrian dilewati for selected kategori
+            $antrian_dilewati = $this->antrianModel->getAntrianDilewatiByKategori($kategori_id, $petugas_id);
+            
             // Get statistics for selected kategori
             $stats = $this->getStatistikKategori($kategori_id);
         }
@@ -89,6 +97,8 @@ class PetugasController extends BaseController
             'lokets' => $this->loketModel->where('status', 'aktif')->findAll(),
             'antrian_aktif' => $antrian_aktif,
             'antrian_dipanggil' => $antrian_dipanggil,
+            'antrian_selesai' => $antrian_selesai,
+            'antrian_dilewati' => $antrian_dilewati,
             'stats' => $stats,
         ];
 
@@ -100,7 +110,7 @@ class PetugasController extends BaseController
      */
     private function getStatistikKategori($kategori_id)
     {
-        return $this->antrianModel->getStatistikKategori($kategori_id);
+        return $this->antrianModel->getStatistikKategoriRealTime($kategori_id);
     }
 
     public function panggilAntrian()
@@ -200,12 +210,12 @@ class PetugasController extends BaseController
                 ];
 
                 $result = $this->antrianModel->update($antrian_id, $updateData);
-                
+
                 if ($result) {
-                    return $this->response->setJSON([
-                        'success' => true,
-                        'message' => 'Antrian berhasil dipanggil',
-                        'nomor_antrian' => $antrian['nomor_antrian'],
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Antrian berhasil dipanggil',
+                    'nomor_antrian' => $antrian['nomor_antrian'],
                         'loket' => $loket['nama_loket']
                     ]);
                 } else {
@@ -327,11 +337,11 @@ class PetugasController extends BaseController
                 ];
 
                 $result = $this->antrianModel->update($antrian_id, $updateData);
-                
+
                 if ($result) {
-                    return $this->response->setJSON([
-                        'success' => true,
-                        'message' => 'Antrian selesai dilayani'
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Antrian selesai dilayani'
                     ]);
                 } else {
                     return $this->response->setJSON([
@@ -452,11 +462,11 @@ class PetugasController extends BaseController
                 ];
 
                 $result = $this->antrianModel->update($antrian_id, $updateData);
-                
+
                 if ($result) {
-                    return $this->response->setJSON([
-                        'success' => true,
-                        'message' => 'Antrian dilewati'
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Antrian dilewati'
                     ]);
                 } else {
                     return $this->response->setJSON([
@@ -550,6 +560,47 @@ class PetugasController extends BaseController
         return $this->response->setJSON([
             'success' => true,
             'summary' => $summary
+        ]);
+    }
+
+    /**
+     * Get real-time statistics for dashboard
+     */
+    public function getStatistikRealTime()
+    {
+        $kategori_id = $this->request->getGet('kategori_id');
+        $petugas_id = session()->get('user_id');
+        
+        if (!$kategori_id) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Kategori ID diperlukan'
+            ]);
+        }
+        
+        // Verify that the selected category is assigned to this user
+        $userKategori = $this->userKategoriModel->getCategoriesByUserId($petugas_id);
+        $isAssigned = false;
+        foreach ($userKategori as $uk) {
+            if ($uk['id'] == $kategori_id) {
+                $isAssigned = true;
+                break;
+            }
+        }
+        
+        if (!$isAssigned) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses ke kategori ini'
+            ]);
+        }
+        
+        $stats = $this->getStatistikKategori($kategori_id);
+        
+        return $this->response->setJSON([
+            'success' => true,
+            'stats' => $stats,
+            'timestamp' => date('Y-m-d H:i:s')
         ]);
     }
 
@@ -777,6 +828,7 @@ class PetugasController extends BaseController
     {
         log_message('debug', 'testLewatiAntrian called');
         log_message('debug', 'Request method: ' . $this->request->getMethod());
+        log_message('debug', 'Request method: ' . $this->request->getMethod());
         log_message('debug', 'Request headers: ' . json_encode($this->request->getHeaders()));
         log_message('debug', 'Request body: ' . json_encode($this->request->getBody()));
         
@@ -804,6 +856,138 @@ class PetugasController extends BaseController
                 'get_data' => $this->request->getGet(),
                 'raw_input' => $rawInput,
                 'headers' => $this->request->getHeaders()
+            ]
+        ]);
+    }
+
+    /**
+     * Panggil ulang antrian yang dilewati
+     */
+    public function panggilUlangAntrian()
+    {
+        // Debug: Log request details
+        log_message('debug', 'panggilUlangAntrian called');
+        log_message('debug', 'Request method: ' . $this->request->getMethod());
+        log_message('debug', 'Request headers: ' . json_encode($this->request->getHeaders()));
+        log_message('debug', 'Request body: ' . json_encode($this->request->getPost()));
+        
+        // Try to get data from different sources
+        $antrian_id = $this->request->getPost('antrian_id') ?? $this->request->getVar('antrian_id') ?? null;
+        
+        // If still no data, try to get from raw input
+        if (!$antrian_id) {
+            $rawInput = $this->request->getBody();
+            log_message('debug', 'Raw input: ' . $rawInput);
+            
+            // Try to parse JSON input
+            if ($rawInput) {
+                $jsonData = json_decode($rawInput, true);
+                if ($jsonData) {
+                    $antrian_id = $antrian_id ?? $jsonData['antrian_id'] ?? null;
+                    log_message('debug', 'Parsed JSON data: ' . json_encode($jsonData));
+                }
+            }
+        }
+        
+        // Accept both POST and any other method for debugging
+        if ($this->request->getMethod() === 'post' || $antrian_id) {
+            $petugas_id = session()->get('user_id');
+
+            // Validate input
+            if (!$antrian_id || !$petugas_id) {
+                return $this->response->setJSON([
+                    'success' => false, 
+                    'message' => 'Data tidak lengkap: antrian_id atau petugas_id kosong'
+                ]);
+            }
+
+            $antrian = $this->antrianModel->find($antrian_id);
+            if (!$antrian) {
+                return $this->response->setJSON([
+                    'success' => false, 
+                    'message' => 'Antrian tidak ditemukan'
+                ]);
+            }
+
+            if ($antrian['status'] !== 'lewati') {
+                return $this->response->setJSON([
+                    'success' => false, 
+                    'message' => 'Antrian harus dalam status lewati untuk dipanggil ulang'
+                ]);
+            }
+
+            // Verify that the queue category is assigned to this user
+            $userKategori = $this->userKategoriModel->getCategoriesByUserId($petugas_id);
+            if (empty($userKategori)) {
+                return $this->response->setJSON([
+                    'success' => false, 
+                    'message' => 'Anda tidak memiliki kategori layanan yang ditugaskan'
+                ]);
+            }
+
+            $isAssigned = false;
+            foreach ($userKategori as $uk) {
+                if ($uk['id'] == $antrian['kategori_id']) {
+                    $isAssigned = true;
+                    break;
+                }
+            }
+            
+            if (!$isAssigned) {
+                return $this->response->setJSON([
+                    'success' => false, 
+                    'message' => 'Anda tidak memiliki akses untuk menangani antrian kategori ini'
+                ]);
+            }
+            
+            try {
+                $updateData = [
+                    'status' => 'menunggu',
+                    'waktu_panggil' => null,
+                    'waktu_selesai' => null,
+                    'loket_id' => null,
+                    'petugas_id' => null,
+                ];
+
+                $result = $this->antrianModel->update($antrian_id, $updateData);
+                
+                if ($result) {
+                    return $this->response->setJSON([
+                        'success' => true,
+                        'message' => 'Antrian berhasil dipanggil ulang',
+                        'nomor_antrian' => $antrian['nomor_antrian']
+                    ]);
+                } else {
+                    return $this->response->setJSON([
+                        'success' => false, 
+                        'message' => 'Gagal memperbarui status antrian'
+                    ]);
+                }
+            } catch (Exception $e) {
+                log_message('error', 'Error panggilUlangAntrian: ' . $e->getMessage());
+                return $this->response->setJSON([
+                    'success' => false, 
+                    'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+                ]);
+            }
+        }
+
+        // Debug: Log why method validation failed
+        log_message('debug', 'Method validation failed for panggilUlangAntrian. Expected POST, got: ' . $this->request->getMethod());
+        
+        // Try to get data anyway for debugging
+        $postData = $this->request->getPost();
+        $rawInput = $this->request->getBody();
+        log_message('debug', 'Post data: ' . json_encode($postData));
+        log_message('debug', 'Raw input: ' . $rawInput);
+        
+        return $this->response->setJSON([
+            'success' => false, 
+            'message' => 'Metode request tidak valid untuk panggilUlangAntrian. Expected POST, got: ' . $this->request->getMethod(),
+            'debug' => [
+                'method' => $this->request->getMethod(),
+                'post_data' => $postData,
+                'raw_input' => $rawInput
             ]
         ]);
     }
