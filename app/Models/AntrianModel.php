@@ -71,7 +71,6 @@ class AntrianModel extends Model
 
         $prefix = $kategori['prefix'];
         $today = date('Y-m-d');
-        $date_suffix = date('ymd'); // Format: 240101 untuk 1 Januari 2024
 
         // Get the last queue number for today
         $lastAntrian = $this->db->table($this->table)
@@ -84,13 +83,20 @@ class AntrianModel extends Model
         $nextNumber = 1;
         if ($lastAntrian) {
             // Extract number from existing queue number
-            // Format: {PREFIX}{DATE}{NUMBER} (e.g., A240101001, A240101002)
-            $lastNumber = (int)substr($lastAntrian['nomor_antrian'], -3);
+            // Handle both old format (PREFIX+DATE+NUMBER) and new format (PREFIX+NUMBER)
+            $nomor = $lastAntrian['nomor_antrian'];
+            if (strlen($nomor) >= 9) {
+                // Old format: {PREFIX}{DATE}{NUMBER} (e.g., A240101001)
+                $lastNumber = (int)substr($nomor, -3);
+            } else {
+                // New format: {PREFIX}{NUMBER} (e.g., A001)
+                $lastNumber = (int)substr($nomor, 1);
+            }
             $nextNumber = $lastNumber + 1;
         }
 
-        // Format: prefix + date + 3-digit number (e.g., A240101001, C240101001)
-        return $prefix . $date_suffix . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        // Format: prefix + 3-digit number (e.g., A001, C001)
+        return $prefix . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
     }
 
     public function getAntrianDipanggil()
@@ -358,14 +364,16 @@ class AntrianModel extends Model
      */
     public function getDisplayNomorAntrian($nomor_antrian)
     {
-        // Extract prefix and number from full queue number
-        // Format: {PREFIX}{DATE}{NUMBER} -> Display: {PREFIX}{NUMBER}
+        // Handle both old format (PREFIX+DATE+NUMBER) and new format (PREFIX+NUMBER)
         if (strlen($nomor_antrian) >= 9) {
+            // Old format: {PREFIX}{DATE}{NUMBER} -> Display: {PREFIX}{NUMBER}
             $prefix = substr($nomor_antrian, 0, 1);
             $number = substr($nomor_antrian, -3);
             return $prefix . $number;
+        } else {
+            // New format: {PREFIX}{NUMBER} (e.g., A001, C001)
+            return $nomor_antrian;
         }
-        return $nomor_antrian;
     }
 
     /**
@@ -376,17 +384,9 @@ class AntrianModel extends Model
      */
     public function getFullNomorAntrian($display_number, $date = null)
     {
-        if ($date === null) {
-            $date = date('Y-m-d');
-        }
-        $date_suffix = date('ymd', strtotime($date));
-        
-        // Format: {PREFIX}{NUMBER} -> {PREFIX}{DATE}{NUMBER}
-        if (strlen($display_number) >= 4) {
-            $prefix = substr($display_number, 0, 1);
-            $number = substr($display_number, 1);
-            return $prefix . $date_suffix . str_pad($number, 3, '0', STR_PAD_LEFT);
-        }
+        // For new format, the number is already in the correct format
+        // Format: {PREFIX}{NUMBER} (e.g., A001, C001)
+        // This method is kept for backward compatibility but now returns the same value
         return $display_number;
     }
 
