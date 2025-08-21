@@ -529,34 +529,7 @@
     <?php endif; ?>
 </div>
 
-<!-- Modal Panggil Antrian -->
-<div class="modal fade" id="modalPanggilAntrian" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Panggil Antrian</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formPanggilAntrian">
-                    <div class="mb-3">
-                        <label class="form-label">Nomor Antrian</label>
-                        <input type="text" class="form-control" id="nomorAntrian" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Loket</label>
-                        <input type="text" class="form-control" id="loketInfo" readonly>
-                        <small class="form-text text-muted">Loket yang sudah ditugaskan untuk Anda</small>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" onclick="konfirmasiPanggil()">Panggil</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <style>
 .kategori-card {
@@ -659,29 +632,8 @@ function selectKategori(kategoriId, namaKategori) {
 function panggilAntrian(antrianId) {
     selectedAntrianId = antrianId;
     
-    // Get antrian data
-    const antrianRow = document.querySelector(`[onclick="panggilAntrian(${antrianId})"]`).closest('.antrian-row');
-    const nomorAntrian = antrianRow.querySelector('.antrian-number-display').textContent;
-    
-    document.getElementById('nomorAntrian').value = nomorAntrian;
-    
-    // Get assigned loket info from the info card
-    const loketInfoElement = document.querySelector('.card-body .badge.bg-success');
-    const loketInfo = loketInfoElement ? loketInfoElement.textContent : 'Loket tidak ditemukan';
-    document.getElementById('loketInfo').value = loketInfo;
-    
-    // Show modal
-    new bootstrap.Modal(document.getElementById('modalPanggilAntrian')).show();
-}
-
-function konfirmasiPanggil() {
-    console.log('konfirmasiPanggil called');
-    console.log('selectedAntrianId:', selectedAntrianId);
-    
-    if (!selectedAntrianId) {
-        alert('Tidak ada antrian yang dipilih');
-        return;
-    }
+    // Langsung panggil antrian tanpa modal popup
+    console.log('Memanggil antrian ID:', antrianId);
     
     // Check if jQuery is available
     if (typeof $ === 'undefined') {
@@ -700,18 +652,31 @@ function konfirmasiPanggil() {
         .then(data => {
             console.log('Fetch response:', data);
             if (data.success) {
-                // Close modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalPanggilAntrian'));
-                if (modal) modal.hide();
-                
-                location.reload();
+                // Show success message with SweetAlert
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Antrian berhasil dipanggil!',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    location.reload();
+                });
             } else {
-                alert('Gagal memanggil antrian: ' + data.message);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Gagal memanggil antrian: ' + data.message
+                });
             }
         })
         .catch(error => {
             console.error('Fetch error:', error);
-            alert('Terjadi kesalahan sistem: ' + error.message);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Terjadi kesalahan sistem: ' + error.message
+            });
         });
         return;
     }
@@ -724,21 +689,36 @@ function konfirmasiPanggil() {
     .done(function(response) {
         console.log('jQuery response:', response);
         if (response.success) {
-            // Close modal
-            const modal = bootstrap.Modal.getInstance(document.getElementById('modalPanggilAntrian'));
-            if (modal) modal.hide();
-            
-            location.reload();
+            // Show success message with SweetAlert
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil!',
+                text: 'Antrian berhasil dipanggil!',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                location.reload();
+            });
         } else {
-            alert('Gagal memanggil antrian: ' + response.message);
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: 'Gagal memanggil antrian: ' + response.message
+            });
         }
     })
     .fail(function(xhr, status, error) {
         console.error('jQuery AJAX failed:', {xhr, status, error});
         console.error('Response text:', xhr.responseText);
-        alert('Terjadi kesalahan sistem: ' + error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error!',
+            text: 'Terjadi kesalahan sistem: ' + error
+        });
     });
 }
+
+
 
 function selesaiAntrian(antrianId) {
     console.log('selesaiAntrian called with ID:', antrianId);

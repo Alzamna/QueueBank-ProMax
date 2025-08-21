@@ -293,61 +293,7 @@
     </div>
 </div>
 
-<!-- Modal Panggil Antrian -->
-<div class="modal fade" id="modalPanggilAntrian" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-bullhorn text-warning mr-2"></i>
-                    Panggil Antrian Prioritas
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formPanggilAntrian">
-                    <div class="mb-3">
-                        <label class="form-label">Nomor Antrian</label>
-                        <input type="text" class="form-control" id="nomorAntrian" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Loket Prioritas</label>
-                        <select class="form-select" id="loketId" required>
-                            <option value="">Pilih Loket Prioritas</option>
-                            <?php foreach($lokets as $loket): ?>
-                                <option value="<?= $loket['id'] ?>"><?= $loket['nama_loket'] ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Jenis Layanan</label>
-                        <select class="form-select" id="jenisLayanan">
-                            <option value="konsultasi">Konsultasi</option>
-                            <option value="transaksi">Transaksi</option>
-                            <option value="investasi">Investasi</option>
-                            <option value="lainnya">Lainnya</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Level Prioritas</label>
-                        <select class="form-select" id="levelPrioritas">
-                            <option value="1">Level 1 - Sangat Prioritas</option>
-                            <option value="2">Level 2 - Prioritas</option>
-                            <option value="3">Level 3 - Standar</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-warning" onclick="konfirmasiPanggil()">
-                    <i class="fas fa-bullhorn mr-1"></i>
-                    Panggil
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <style>
 .antrian-number-display {
@@ -397,48 +343,18 @@ let selectedAntrianId = null;
 function panggilAntrian(antrianId) {
     selectedAntrianId = antrianId;
     
-    // Get antrian data
-    const antrianRow = document.querySelector(`[onclick="panggilAntrian(${antrianId})"]`).closest('.antrian-row');
-    const nomorAntrian = antrianRow.querySelector('.antrian-number-display').textContent;
-    
-    document.getElementById('nomorAntrian').value = nomorAntrian;
-    document.getElementById('loketId').value = '';
-    document.getElementById('jenisLayanan').value = 'konsultasi';
-    document.getElementById('levelPrioritas').value = '1';
-    
-    // Show modal
-    new bootstrap.Modal(document.getElementById('modalPanggilAntrian')).show();
-}
-
-function konfirmasiPanggil() {
-    const loketId = document.getElementById('loketId').value;
-    const jenisLayanan = document.getElementById('jenisLayanan').value;
-    const levelPrioritas = document.getElementById('levelPrioritas').value;
-    
-    if (!loketId) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Peringatan',
-            text: 'Silakan pilih loket prioritas terlebih dahulu'
-        });
-        return;
-    }
+    // Langsung panggil antrian tanpa modal popup
+    console.log('Memanggil antrian ID:', antrianId);
     
     $.post('<?= site_url('petugas/panggil-antrian') ?>', {
-        antrian_id: selectedAntrianId,
-        loket_id: loketId,
-        jenis_layanan: jenisLayanan,
-        level_prioritas: levelPrioritas
+        antrian_id: selectedAntrianId
     }, function(response) {
         if (response.success) {
-            // Close modal
-            bootstrap.Modal.getInstance(document.getElementById('modalPanggilAntrian')).hide();
-            
-            // Show success message
+            // Show success message with SweetAlert
             Swal.fire({
                 icon: 'success',
                 title: 'Berhasil!',
-                text: response.message,
+                text: 'Antrian berhasil dipanggil!',
                 showConfirmButton: false,
                 timer: 1500
             }).then(() => {
@@ -459,6 +375,8 @@ function konfirmasiPanggil() {
         });
     });
 }
+
+
 
 function selesaiAntrian(antrianId) {
     Swal.fire({
