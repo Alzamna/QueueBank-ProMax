@@ -61,6 +61,7 @@ $routes->group('petugas', ['filter' => 'auth'], function($routes) {
     $routes->match(['get', 'post'], 'test-selesai-antrian', 'PetugasController::testSelesaiAntrian');
     $routes->match(['get', 'post'], 'test-lewati-antrian', 'PetugasController::testLewatiAntrian');
     $routes->post('panggil-ulang-antrian', 'PetugasController::panggilUlangAntrian');
+
 });
 
 
@@ -80,6 +81,7 @@ $routes->get('cek-status-mobile', 'AntrianController::cekStatusMobile');
 $routes->get('statistik-antrian', 'AntrianController::getStatistikAntrian');
 $routes->get('today-summary', 'AntrianController::getTodaySummary');
 $routes->get('cleanup-old-data', 'AntrianController::cleanupOldData');
+
 
 // Desktop Routes (Mesin Antrian)
 $routes->get('desktop', 'DesktopController::index');

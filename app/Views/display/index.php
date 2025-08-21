@@ -1109,20 +1109,12 @@
             <div>
                 <!-- Current Queue -->
                 <div class="current-queue fade-in">
-                    <div class="current-queue-header">
-                        <div class="current-queue-icon">
-                            <i class="fas fa-tv"></i>
-                        </div>
-                        <h2>Nomor Antrian yang Dipanggil</h2>
-                    </div>
-                    
+                    <h2>Nomor Antrian yang Dipanggil</h2>
                     <div class="display-number" id="currentNumber">-</div>
-                    
                     <div class="loket-info" id="currentLoket" style="display: none;">
                         <i class="fas fa-map-marker-alt loket-icon"></i>
                         <span id="loketText">-</span>
                     </div>
-                    
                     <div class="service-badge" id="serviceBadge" style="display: none;">
                         <span id="serviceText">-</span>
                     </div>
@@ -1225,277 +1217,42 @@
     </div>
 
     <script>
-        // Sample data for demonstration
-        let queueData = [
-            {
-                id: '1',
-                nomor_antrian: 'A001',
-                status: 'dipanggil',
-                loket_id: 1,
-                nama_loket: 'Teller 1',
-                nama_kategori: 'Tabungan',
-                timestamp: new Date()
-            },
-            {
-                id: '2',
-                nomor_antrian: 'A002',
-                status: 'menunggu',
-                loket_id: 2,
-                nama_loket: 'Teller 2',
-                nama_kategori: 'Transfer',
-                timestamp: new Date()
-            },
-            {
-                id: '3',
-                nomor_antrian: 'A003',
-                status: 'menunggu',
-                loket_id: 1,
-                nama_loket: 'Teller 1',
-                nama_kategori: 'Deposito',
-                timestamp: new Date()
-            },
-            {
-                id: '4',
-                nomor_antrian: 'A004',
-                status: 'menunggu',
-                loket_id: 3,
-                nama_loket: 'Customer Service',
-                nama_kategori: 'Pembukaan Rekening',
-                timestamp: new Date()
-            },
-            {
-                id: '5',
-                nomor_antrian: 'A005',
-                status: 'menunggu',
-                loket_id: 2,
-                nama_loket: 'Teller 2',
-                nama_kategori: 'Penarikan Tunai',
-                timestamp: new Date()
-            }
-        ];
+   document.addEventListener('DOMContentLoaded', function() {
+    loadCurrentAntrian();
+    setInterval(loadCurrentAntrian, 3000); // refresh every 3 seconds
+});
 
-        // Update display function
-        function updateDisplay() {
-            // Find current queue (being called)
-            const current = queueData.find(item => item.status === 'dipanggil');
-            const currentNumberEl = document.getElementById('currentNumber');
-            const currentLoketEl = document.getElementById('currentLoket');
-            const loketTextEl = document.getElementById('loketText');
-            const serviceBadgeEl = document.getElementById('serviceBadge');
-            const serviceTextEl = document.getElementById('serviceText');
+function loadCurrentAntrian() {
+    fetch("<?= base_url('display/antrian') ?>")
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.data) {
+                let antrian = data.data;
+                document.getElementById("currentNumber").innerText = 
+                    (antrian.prefix ?? '') + (antrian.nomor_antrian ?? '-');
 
-            if (current) {
-                // Animate number change
-                if (currentNumberEl.textContent !== current.nomor_antrian) {
-                    currentNumberEl.classList.add('animate');
-                    setTimeout(() => {
-                        currentNumberEl.classList.remove('animate');
-                    }, 600);
+                if (antrian.loket) {
+                    document.getElementById("currentLoket").style.display = 'block';
+                    document.getElementById("loketText").innerText = antrian.loket;
+                } else {
+                    document.getElementById("currentLoket").style.display = 'none';
                 }
 
-                currentNumberEl.textContent = current.nomor_antrian;
-                loketTextEl.textContent = current.nama_loket || `Loket ${current.loket_id}`;
-                serviceTextEl.textContent = current.nama_kategori;
-                currentLoketEl.style.display = 'flex';
-                serviceBadgeEl.style.display = 'inline-flex';
+                if (antrian.kategori) {
+                    document.getElementById("serviceBadge").style.display = 'block';
+                    document.getElementById("serviceText").innerText = antrian.kategori;
+                } else {
+                    document.getElementById("serviceBadge").style.display = 'none';
+                }
             } else {
-                currentNumberEl.textContent = '-';
-                currentLoketEl.style.display = 'none';
-                serviceBadgeEl.style.display = 'none';
+                document.getElementById("currentNumber").innerText = "-";
+                document.getElementById("currentLoket").style.display = 'none';
+                document.getElementById("serviceBadge").style.display = 'none';
             }
+        })
+        .catch(err => console.error("Failed to load queue:", err));
+}
 
-            // Update next queue
-            const nextQueues = queueData.filter(item => item.status === 'menunggu').slice(0, 3);
-            const nextQueueEl = document.getElementById('nextQueue');
-
-            if (nextQueues.length > 0) {
-                let nextHtml = '';
-                nextQueues.forEach((queue, index) => {
-                    const positionClass = index === 0 ? 'position-1' : index === 1 ? 'position-2' : 'position-3';
-                    const statusClass = index === 0 ? 'status-next' : 'status-waiting';
-                    const statusText = index === 0 ? 'Selanjutnya' : `+${index + 1}`;
-
-                    nextHtml += `
-                        <div class="queue-item">
-                            <div class="queue-item-left">
-                                <div class="queue-position ${positionClass}">${index + 1}</div>
-                                <div class="queue-details">
-                                    <h4>${queue.nomor_antrian}</h4>
-                                    <p>${queue.nama_kategori}</p>
-                                </div>
-                            </div>
-                            <div class="queue-status ${statusClass}">${statusText}</div>
-                        </div>
-                    `;
-                });
-                nextQueueEl.innerHTML = nextHtml;
-            } else {
-                nextQueueEl.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-users"></i>
-                        <h4>Tidak ada antrian menunggu</h4>
-                        <p>Semua antrian telah selesai diproses</p>
-                    </div>
-                `;
-            }
-
-            // Update statistics
-            const total = queueData.length;
-            const completed = queueData.filter(item => item.status === 'selesai').length;
-            const waiting = queueData.filter(item => item.status === 'menunggu').length;
-
-            document.getElementById('totalAntrian').textContent = total;
-            document.getElementById('completedAntrian').textContent = completed;
-            document.getElementById('waitingAntrian').textContent = waiting;
-
-            // Update mobile info cards
-            document.getElementById('mobileTotalAntrian').textContent = total;
-            document.getElementById('mobileSedangDipanggil').textContent = queueData.filter(item => item.status === 'dipanggil').length;
-            document.getElementById('mobileSedangMenunggu').textContent = waiting > 0 ? waiting : '-';
-            
-            // Update mobile last update time
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('id-ID', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-            document.getElementById('mobileUpdateTerakhir').textContent = timeString;
-        }
-
-        // Update clock function
-        function updateClock() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('id-ID', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-            const dateString = now.toLocaleDateString('id-ID', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-
-            document.getElementById('clock').textContent = timeString;
-            document.getElementById('date').textContent = dateString;
-        }
-
-        // Simulate queue progression
-        function simulateQueueProgression() {
-            // Randomly progress queue status
-            const randomIndex = Math.floor(Math.random() * queueData.length);
-            const item = queueData[randomIndex];
-
-            if (item.status === 'menunggu') {
-                // Sometimes call a waiting queue
-                if (Math.random() > 0.7) {
-                    // First, mark current as completed
-                    const current = queueData.find(q => q.status === 'dipanggil');
-                    if (current) {
-                        current.status = 'selesai';
-                    }
-                    // Then call the next one
-                    item.status = 'dipanggil';
-                }
-            } else if (item.status === 'dipanggil') {
-                // Sometimes complete current queue
-                if (Math.random() > 0.8) {
-                    item.status = 'selesai';
-                }
-            }
-
-            // Occasionally add new queue items
-            if (Math.random() > 0.9 && queueData.length < 10) {
-                const newId = (queueData.length + 1).toString();
-                const queueNumber = `A${String(queueData.length + 1).padStart(3, '0')}`;
-                const services = ['Tabungan', 'Transfer', 'Deposito', 'Pembukaan Rekening', 'Penarikan Tunai', 'Kredit'];
-                const lokets = ['Teller 1', 'Teller 2', 'Customer Service'];
-                
-                queueData.push({
-                    id: newId,
-                    nomor_antrian: queueNumber,
-                    status: 'menunggu',
-                    loket_id: Math.floor(Math.random() * 3) + 1,
-                    nama_loket: lokets[Math.floor(Math.random() * lokets.length)],
-                    nama_kategori: services[Math.floor(Math.random() * services.length)],
-                    timestamp: new Date()
-                });
-            }
-        }
-
-        // API simulation functions (replace with actual API calls)
-        function fetchQueueData() {
-            // In real implementation, replace with:
-            // fetch('/display/antrian')
-            //     .then(response => response.json())
-            //     .then(data => {
-            //         queueData = data;
-            //         updateDisplay();
-            //     });
-            
-            simulateQueueProgression();
-            updateDisplay();
-        }
-
-        function fetchSettings() {
-            // In real implementation, replace with:
-            // fetch('/display/pengaturan')
-            //     .then(response => response.json())
-            //     .then(data => {
-            //         if (data.teks_berjalan) {
-            //             updateRunningText(data.teks_berjalan);
-            //         }
-            //     });
-        }
-
-        // Initialize
-        function init() {
-            updateDisplay();
-            updateClock();
-            
-            // Set intervals
-            setInterval(fetchQueueData, 3000); // Update queue every 3 seconds
-            setInterval(updateClock, 1000); // Update clock every second
-            setInterval(fetchSettings, 10000); // Update settings every 10 seconds
-        }
-
-        // Start the application
-        document.addEventListener('DOMContentLoaded', init);
-
-        // Add some visual feedback for interactions
-        document.addEventListener('click', function(e) {
-            // Add ripple effect to clickable elements
-            if (e.target.closest('.queue-item, .stat-item')) {
-                const element = e.target.closest('.queue-item, .stat-item');
-                element.style.transform = 'scale(0.98)';
-                setTimeout(() => {
-                    element.style.transform = '';
-                }, 150);
-            }
-        });
-
-        // Add keyboard shortcuts for testing
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'n' || e.key === 'N') {
-                // Simulate next queue call
-                const waiting = queueData.find(item => item.status === 'menunggu');
-                if (waiting) {
-                    const current = queueData.find(item => item.status === 'dipanggil');
-                    if (current) current.status = 'selesai';
-                    waiting.status = 'dipanggil';
-                    updateDisplay();
-                }
-            } else if (e.key === 'c' || e.key === 'C') {
-                // Complete current queue
-                const current = queueData.find(item => item.status === 'dipanggil');
-                if (current) {
-                    current.status = 'selesai';
-                    updateDisplay();
-                }
-            }
-        });
     </script>
 </body>
 </html>

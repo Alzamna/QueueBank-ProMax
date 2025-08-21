@@ -93,22 +93,21 @@ class AntrianModel extends Model
         return $prefix . $date_suffix . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
     }
 
-    public function getAntrianDipanggil($loket_id = null)
+    public function getAntrianDipanggil()
     {
-        $builder = $this->db->table($this->table . ' as antrians')
-            ->select('antrians.*, kategori_antrians.nama_kategori, kategori_antrians.prefix, lokets.nama_loket, users.nama_lengkap as nama_petugas')
-            ->join('kategori_antrians', 'kategori_antrians.id = antrians.kategori_id')
-            ->join('lokets', 'lokets.id = antrians.loket_id', 'left')
-            ->join('users', 'users.id = antrians.petugas_id', 'left')
-            ->where('antrians.status', 'dipanggil')
-            ->orderBy('antrians.id', 'DESC');
-
-        if ($loket_id !== null) {
-            $builder->where('antrians.loket_id', $loket_id);
-        }
-
-        return $builder->get()->getResultArray();
+        return $this->db->table($this->table . ' as a')
+            ->select('a.*, k.nama_kategori, k.prefix, l.nama_loket, u.nama_lengkap as petugas')
+            ->join('kategori_antrians k', 'k.id = a.kategori_id')
+            ->join('lokets l', 'l.id = a.loket_id', 'left')
+            ->join('users u', 'u.id = a.petugas_id', 'left')
+            ->where('a.status', 'dipanggil')
+            ->where('a.waktu_panggil IS NOT NULL')
+            ->orderBy('a.waktu_panggil', 'ASC')
+            ->get()
+            ->getResultArray();
     }
+
+
 
     /**
      * Get called queue numbers by kategori
