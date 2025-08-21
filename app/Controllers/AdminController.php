@@ -149,9 +149,26 @@ class AdminController extends BaseController
 
     public function addPengguna()
     {
-        if ($this->request->getMethod() === 'post') {
-            $role = $this->request->getPost('role');
-            $loket_id = $this->request->getPost('loket_id');
+        // Debug: Log the request method and data
+        log_message('debug', 'AddPengguna called with method: ' . $this->request->getMethod());
+        log_message('debug', 'AddPengguna POST data: ' . json_encode($this->request->getPost()));
+        log_message('debug', 'AddPengguna is AJAX: ' . ($this->request->isAJAX() ? 'true' : 'false'));
+        
+        // Accept any request method for now (for debugging)
+        $postData = $this->request->getPost();
+        log_message('debug', 'POST data received: ' . json_encode($postData));
+        
+        // If no POST data, try to get from input stream
+        if (empty($postData)) {
+            $input = $this->request->getBody();
+            log_message('debug', 'Raw input: ' . $input);
+            parse_str($input, $postData);
+            log_message('debug', 'Parsed input: ' . json_encode($postData));
+        }
+        
+        if (!empty($postData)) {
+            $role = $postData['role'] ?? '';
+            $loket_id = $postData['loket_id'] ?? '';
             
             // Validate loket_id for petugas
             if ($role === 'petugas' && empty($loket_id)) {
@@ -162,16 +179,16 @@ class AdminController extends BaseController
             }
             
             $data = [
-                'nama_lengkap' => $this->request->getPost('nama_lengkap'),
-                'username' => $this->request->getPost('username'),
-                'email' => $this->request->getPost('email'),
-                'password' => password_hash($this->request->getPost('password'), PASSWORD_DEFAULT),
+                'nama_lengkap' => $postData['nama_lengkap'] ?? '',
+                'username' => $postData['username'] ?? '',
+                'email' => $postData['email'] ?? '',
+                'password' => password_hash($postData['password'] ?? '', PASSWORD_DEFAULT),
                 'role' => $role,
                 'loket_id' => $role === 'petugas' ? $loket_id : null,
             ];
 
             // Validate password confirmation
-            if ($this->request->getPost('password') !== $this->request->getPost('confirm_password')) {
+            if (($postData['password'] ?? '') !== ($postData['confirm_password'] ?? '')) {
                 return $this->response->setJSON([
                     'success' => false,
                     'message' => 'Konfirmasi password tidak cocok'
@@ -198,8 +215,8 @@ class AdminController extends BaseController
                 $user_id = $this->userModel->insertID();
                 
                 // Assign kategori if role is petugas
-                if ($data['role'] === 'petugas' && $this->request->getPost('kategori_ids')) {
-                    $kategori_ids = $this->request->getPost('kategori_ids');
+                if ($data['role'] === 'petugas' && isset($postData['kategori_ids'])) {
+                    $kategori_ids = $postData['kategori_ids'];
                     $this->userKategoriModel->assignCategoriesToUser($user_id, $kategori_ids);
                 }
 
@@ -213,9 +230,9 @@ class AdminController extends BaseController
                     'message' => 'Gagal menambahkan pengguna'
                 ]);
             }
+        } else {
+            return $this->response->setJSON(['success' => false, 'message' => 'No data received']);
         }
-
-        return $this->response->setJSON(['success' => false, 'message' => 'Invalid request method']);
     }
 
     public function updatePengguna($user_id)

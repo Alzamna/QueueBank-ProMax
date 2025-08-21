@@ -315,9 +315,64 @@
 <!-- Delete Confirmation Script -->
 <script>
 function deleteUser(id) {
-    if (confirm('Apakah Anda yakin ingin menghapus pengguna ini?')) {
-        window.location.href = `<?= base_url('admin/pengguna/delete/') ?>${id}`;
-    }
+    Swal.fire({
+        title: 'Konfirmasi Hapus',
+        text: 'Apakah Anda yakin ingin menghapus pengguna ini?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Show loading state
+            Swal.fire({
+                title: 'Menghapus...',
+                text: 'Mohon tunggu sebentar',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Send AJAX request
+            fetch(`<?= base_url('admin/pengguna/delete/') ?>${id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil!',
+                        text: data.message,
+                        showConfirmButton: false,
+                        timer: 1500
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: data.message || 'Terjadi kesalahan saat menghapus pengguna'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'Terjadi kesalahan sistem: ' + error.message
+                });
+            });
+        }
+    });
 }
 
 function editUser(id, namaLengkap, username, email, role, kategori, loketId) {
@@ -402,6 +457,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const addUserModal = document.getElementById('addUserModal');
     const roleSelect = document.getElementById('role');
     const kategoriSection = document.getElementById('kategoriSection');
+    const loketSection = document.getElementById('loketSection');
     
     // Edit modal elements
     const editUserModal = document.getElementById('editUserModal');
@@ -410,12 +466,107 @@ document.addEventListener('DOMContentLoaded', function() {
     const editKategoriSection = document.getElementById('editKategoriSection');
 
     addUserForm.addEventListener('submit', function(e) {
+        e.preventDefault(); // Prevent default form submission
+        
         if (password.value !== confirmPassword.value) {
-            e.preventDefault();
-            alert('Password dan konfirmasi password tidak cocok!');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Password dan konfirmasi password tidak cocok!'
+            });
             confirmPassword.focus();
             return false;
         }
+        
+        // Collect form data
+        const formData = new FormData(this);
+        
+        // Debug: Log form data
+        console.log('Add User Form data:');
+        for (let [key, value] of formData.entries()) {
+            console.log(key + ': ' + value);
+        }
+        
+        // Show loading state
+        Swal.fire({
+            title: 'Menambahkan Pengguna...',
+            text: 'Mohon tunggu sebentar',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        
+        // Send AJAX request to add user
+        fetch('<?= base_url('admin/pengguna/add') ?>', {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(response => {
+            console.log('Add User Response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text().then(text => {
+                console.log('Add User Response text:', text);
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    console.error('Response text:', text);
+                    if (text.includes('<!DOCTYPE html>') || text.includes('<html')) {
+                        throw new Error('Server returned HTML error page instead of JSON response. Please check server logs.');
+                    }
+                    throw new Error('Invalid JSON response from server: ' + text.substring(0, 100));
+                }
+            });
+        })
+        .then(data => {
+            if (data.success) {
+                // Show success message with SweetAlert
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: data.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(addUserModal);
+                    if (modal) {
+                        modal.hide();
+                    }
+                    
+                    // Reset form
+                    addUserForm.reset();
+                    
+                    // Hide loket and kategori sections
+                    loketSection.style.display = 'none';
+                    kategoriSection.style.display = 'none';
+                    
+                    // Reload page to show updated data
+                    location.reload();
+                });
+            } else {
+                // Show error message with SweetAlert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: data.message || 'Terjadi kesalahan saat menambahkan pengguna'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Add User Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Terjadi kesalahan saat menambahkan pengguna: ' + error.message
+            });
+        });
     });
 
     // Real-time password confirmation check
@@ -531,35 +682,45 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data => {
             if (data.success) {
-                // Show success message
-                const alertDiv = document.createElement('div');
-                alertDiv.className = 'alert alert-success alert-dismissible fade show';
-                alertDiv.innerHTML = `
-                    ${data.message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                `;
-                document.querySelector('.container-fluid').insertBefore(alertDiv, document.querySelector('.row'));
-                
-                // Close modal
-                const modal = bootstrap.Modal.getInstance(editUserModal);
-                if (modal) {
-                    modal.hide();
-                }
-                
-                // Reload page after a short delay to show updated data
-                setTimeout(() => {
+                // Show success message with SweetAlert
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: data.message,
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(editUserModal);
+                    if (modal) {
+                        modal.hide();
+                    }
+                    
+                    // Reload page to show updated data
                     location.reload();
-                }, 1500);
+                });
             } else {
-                // Show error message
-                alert('Gagal memperbarui pengguna: ' + (data.message || 'Unknown error'));
+                // Show error message with SweetAlert
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Gagal memperbarui pengguna: ' + (data.message || 'Unknown error')
+                });
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Terjadi kesalahan saat memperbarui pengguna: ' + error.message);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error!',
+                text: 'Terjadi kesalahan saat memperbarui pengguna: ' + error.message
+            });
         });
     });
 });
 </script>
+
+<!-- SweetAlert2 for better notifications -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <?= $this->endSection(); ?>
