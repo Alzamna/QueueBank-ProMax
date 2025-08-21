@@ -491,6 +491,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const formData = new FormData(this);
         const userId = document.getElementById('edit_user_id').value;
         
+        // Debug: Log form data
+        console.log('Form data:');
+        for (let [key, value] of formData.entries()) {
+            console.log(key + ': ' + value);
+        }
+        console.log('User ID:', userId);
+        
         // Send AJAX request to update user
         fetch(`<?= base_url('admin/pengguna/update/') ?>${userId}`, {
             method: 'POST',
@@ -500,12 +507,16 @@ document.addEventListener('DOMContentLoaded', function() {
             body: formData
         })
         .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            
             // Check if response is ok
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             // Try to parse JSON
             return response.text().then(text => {
+                console.log('Response text:', text);
                 try {
                     return JSON.parse(text);
                 } catch (e) {

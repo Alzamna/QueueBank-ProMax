@@ -26,7 +26,7 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->get('pengguna', 'Admin\PenggunaController::index');
     $routes->post('pengguna/add', 'AdminController::addPengguna');
     $routes->get('pengguna/edit/(:num)', 'Admin\PenggunaController::edit/$1');
-    $routes->post('pengguna/update/(:num)', 'AdminController::updatePengguna/$1');
+    $routes->match(['get', 'post'], 'pengguna/update/(:num)', 'AdminController::updatePengguna/$1');
     $routes->get('pengguna/delete/(:num)', 'AdminController::deletePengguna/$1');
 
     $routes->get('lokets', 'Loket::index');
@@ -85,3 +85,9 @@ $routes->get('cleanup-old-data', 'AntrianController::cleanupOldData');
 $routes->get('desktop', 'DesktopController::index');
 $routes->post('desktop/ambilNomorDesktop', 'DesktopController::ambilNomorDesktop');
 $routes->get('desktop/getStatistikHarian', 'DesktopController::getStatistikHarian');
+
+// Cleanup Routes (Admin only)
+$routes->group('cleanup', ['filter' => 'auth'], function($routes) {
+    $routes->post('antrian', 'CleanupController::cleanupAntrian');
+    $routes->post('antrian/(:any)', 'CleanupController::cleanupAntrianByDate/$1');
+});

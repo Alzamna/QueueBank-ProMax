@@ -513,4 +513,47 @@ class AntrianModel extends Model
 
         return $result;
     }
+
+    /**
+     * Cleanup semua antrian (untuk dijalankan setiap hari jam 00:00)
+     * @return bool
+     */
+    public function cleanupAntrian()
+    {
+        try {
+            // Hapus semua antrian dari database
+            $result = $this->db->table($this->table)->truncate();
+            
+            // Log cleanup activity
+            log_message('info', 'Cleanup antrian berhasil dilakukan pada: ' . date('Y-m-d H:i:s'));
+            
+            return true;
+        } catch (\Exception $e) {
+            log_message('error', 'Gagal melakukan cleanup antrian: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Cleanup antrian berdasarkan tanggal (alternatif)
+     * @param string $tanggal Format: Y-m-d
+     * @return bool
+     */
+    public function cleanupAntrianByDate($tanggal)
+    {
+        try {
+            // Hapus antrian berdasarkan tanggal
+            $result = $this->db->table($this->table)
+                ->where('DATE(waktu_ambil)', $tanggal)
+                ->delete();
+            
+            // Log cleanup activity
+            log_message('info', 'Cleanup antrian untuk tanggal ' . $tanggal . ' berhasil dilakukan pada: ' . date('Y-m-d H:i:s'));
+            
+            return true;
+        } catch (\Exception $e) {
+            log_message('error', 'Gagal melakukan cleanup antrian untuk tanggal ' . $tanggal . ': ' . $e->getMessage());
+            return false;
+        }
+    }
 }
