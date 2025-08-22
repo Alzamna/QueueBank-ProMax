@@ -1,7 +1,6 @@
 <?= $this->extend('layouts/main') ?>
 <?= $this->section('content') ?>
 
-<h1><?= $title ?></h1>
 <a href="/admin/kategori/create" class="btn btn-primary">Tambah Kategori</a>
 <table class="table">
     <thead>

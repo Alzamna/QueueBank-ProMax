@@ -2,7 +2,6 @@
 <?= $this->section('content') ?>
 
 <div class="container mt-4">
-    <h2>Kelola Loket</h2>
     <a href="<?= base_url('admin/lokets/create') ?>" class="btn btn-primary mb-3">Tambah Loket</a>
 
     <?php if(session()->getFlashdata('success')): ?>
