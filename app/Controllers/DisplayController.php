@@ -47,6 +47,62 @@ class DisplayController extends BaseController
         ]);
     }
 
+    public function getNextQueue()
+    {
+        // Get next 3 waiting queues
+        $nextQueues = $this->antrianModel->getAntrianAktif();
+        
+        // Format the data for display
+        $formattedQueues = [];
+        foreach (array_slice($nextQueues, 0, 3) as $antrian) {
+            $formattedQueues[] = [
+                'nomor_antrian' => $this->antrianModel->getDisplayNomorAntrian($antrian['nomor_antrian']),
+                'kategori' => $antrian['nama_kategori'],
+                'waktu_ambil' => $antrian['waktu_ambil']
+            ];
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'data' => $formattedQueues,
+            'message' => 'Data antrian berikutnya berhasil dimuat'
+        ]);
+    }
+
+    public function getStatistics()
+    {
+        $today = date('Y-m-d');
+        
+        // Get total queues for today
+        $total = $this->antrianModel->where('DATE(waktu_ambil)', $today)->countAllResults();
+        
+        // Get completed queues for today
+        $selesai = $this->antrianModel->where('DATE(waktu_ambil)', $today)
+                                    ->where('status', 'selesai')
+                                    ->countAllResults();
+        
+        // Get waiting queues
+        $menunggu = $this->antrianModel->where('DATE(waktu_ambil)', $today)
+                                     ->where('status', 'menunggu')
+                                     ->countAllResults();
+        
+        // Get called queues
+        $dipanggil = $this->antrianModel->where('DATE(waktu_ambil)', $today)
+                                      ->where('status', 'dipanggil')
+                                      ->countAllResults();
+
+        return $this->response->setJSON([
+            'success' => true,
+            'data' => [
+                'total' => $total,
+                'selesai' => $selesai,
+                'menunggu' => $menunggu,
+                'dipanggil' => $dipanggil
+            ],
+            'message' => 'Statistik berhasil dimuat'
+        ]);
+    }
+
 
 
 

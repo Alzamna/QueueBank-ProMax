@@ -68,6 +68,8 @@ $routes->group('petugas', ['filter' => 'auth'], function($routes) {
 // Display Routes
 $routes->get('display', 'DisplayController::index');
 $routes->get('display/antrian', 'DisplayController::getAntrian');
+$routes->get('display/next-queue', 'DisplayController::getNextQueue');
+$routes->get('display/statistics', 'DisplayController::getStatistics');
 $routes->get('display/pengaturan', 'DisplayController::getPengaturan');
 
 // Antrian Routes

@@ -1216,43 +1216,146 @@
         </div>
     </div>
 
-    <script>
-   document.addEventListener('DOMContentLoaded', function() {
-    loadCurrentAntrian();
-    setInterval(loadCurrentAntrian, 3000); // refresh every 3 seconds
-});
+         <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize all data
+        loadCurrentAntrian();
+        loadNextQueue();
+        loadStatistics();
+        updateClock();
+        
+        // Set intervals for real-time updates
+        setInterval(loadCurrentAntrian, 3000); // refresh every 3 seconds
+        setInterval(loadNextQueue, 5000); // refresh every 5 seconds
+        setInterval(loadStatistics, 10000); // refresh every 10 seconds
+        setInterval(updateClock, 1000); // update clock every second
+    });
 
-function loadCurrentAntrian() {
-    fetch("<?= base_url('display/antrian') ?>")
-        .then(res => res.json())
-        .then(data => {
-            if (data.success && data.data) {
-                let antrian = data.data;
-                // Use only nomor_antrian to avoid duplicate prefix
-                document.getElementById("currentNumber").innerText = antrian.nomor_antrian ?? '-';
+    function loadCurrentAntrian() {
+        fetch("<?= base_url('display/antrian') ?>")
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    let antrian = data.data;
+                    // Use only nomor_antrian to avoid duplicate prefix
+                    document.getElementById("currentNumber").innerText = antrian.nomor_antrian ?? '-';
 
-                if (antrian.loket) {
-                    document.getElementById("currentLoket").style.display = 'block';
-                    document.getElementById("loketText").innerText = antrian.loket;
+                    if (antrian.loket) {
+                        document.getElementById("currentLoket").style.display = 'block';
+                        document.getElementById("loketText").innerText = antrian.loket;
+                    } else {
+                        document.getElementById("currentLoket").style.display = 'none';
+                    }
+
+                    if (antrian.kategori) {
+                        document.getElementById("serviceBadge").style.display = 'block';
+                        document.getElementById("serviceText").innerText = antrian.kategori;
+                    } else {
+                        document.getElementById("serviceBadge").style.display = 'none';
+                    }
                 } else {
+                    document.getElementById("currentNumber").innerText = "-";
                     document.getElementById("currentLoket").style.display = 'none';
-                }
-
-                if (antrian.kategori) {
-                    document.getElementById("serviceBadge").style.display = 'block';
-                    document.getElementById("serviceText").innerText = antrian.kategori;
-                } else {
                     document.getElementById("serviceBadge").style.display = 'none';
                 }
-            } else {
-                document.getElementById("currentNumber").innerText = "-";
-                document.getElementById("currentLoket").style.display = 'none';
-                document.getElementById("serviceBadge").style.display = 'none';
-            }
-        })
-        .catch(err => console.error("Failed to load queue:", err));
-}
+            })
+            .catch(err => console.error("Failed to load queue:", err));
+    }
 
-    </script>
+    function loadNextQueue() {
+        fetch("<?= base_url('display/next-queue') ?>")
+            .then(res => res.json())
+            .then(data => {
+                const nextQueueContainer = document.getElementById("nextQueue");
+                
+                if (data.success && data.data && data.data.length > 0) {
+                    let html = '';
+                    data.data.forEach((antrian, index) => {
+                        html += `
+                            <div class="queue-item">
+                                <div class="queue-item-left">
+                                    <div class="queue-position position-${index + 1}">${index + 1}</div>
+                                    <div class="queue-details">
+                                        <h4>${antrian.nomor_antrian}</h4>
+                                        <p>${antrian.kategori}</p>
+                                    </div>
+                                </div>
+                                <div class="queue-status status-waiting">Menunggu</div>
+                            </div>
+                        `;
+                    });
+                    nextQueueContainer.innerHTML = html;
+                } else {
+                    nextQueueContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-users"></i>
+                            <h4>Tidak Ada Antrian</h4>
+                            <p>Belum ada antrian yang menunggu</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(err => {
+                console.error("Failed to load next queue:", err);
+                document.getElementById("nextQueue").innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h4>Error</h4>
+                        <p>Gagal memuat data antrian</p>
+                    </div>
+                `;
+            });
+    }
+
+    function loadStatistics() {
+        fetch("<?= base_url('display/statistics') ?>")
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    document.getElementById("totalAntrian").innerText = data.data.total || 0;
+                    document.getElementById("completedAntrian").innerText = data.data.selesai || 0;
+                    document.getElementById("waitingAntrian").innerText = data.data.menunggu || 0;
+                    
+                    // Update mobile info cards if they exist
+                    const mobileTotal = document.getElementById("mobileTotalAntrian");
+                    const mobileDipanggil = document.getElementById("mobileSedangDipanggil");
+                    const mobileMenunggu = document.getElementById("mobileSedangMenunggu");
+                    
+                    if (mobileTotal) mobileTotal.innerText = data.data.total || 0;
+                    if (mobileDipanggil) mobileDipanggil.innerText = data.data.dipanggil || 0;
+                    if (mobileMenunggu) mobileMenunggu.innerText = data.data.menunggu || 0;
+                }
+            })
+            .catch(err => console.error("Failed to load statistics:", err));
+    }
+
+    function updateClock() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('id-ID', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        const dateString = now.toLocaleDateString('id-ID', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        document.getElementById("clock").innerText = timeString;
+        document.getElementById("date").innerText = dateString;
+        
+        // Update mobile update time
+        const mobileUpdate = document.getElementById("mobileUpdateTerakhir");
+        if (mobileUpdate) {
+            mobileUpdate.innerText = now.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+    }
+     </script>
 </body>
 </html>
