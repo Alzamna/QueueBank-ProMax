@@ -1240,14 +1240,16 @@
                     // Use only nomor_antrian to avoid duplicate prefix
                     document.getElementById("currentNumber").innerText = antrian.nomor_antrian ?? '-';
 
-                    if (antrian.loket) {
+                    // Show loket information if available
+                    if (antrian.loket && antrian.loket.trim() !== '') {
                         document.getElementById("currentLoket").style.display = 'block';
                         document.getElementById("loketText").innerText = antrian.loket;
                     } else {
                         document.getElementById("currentLoket").style.display = 'none';
                     }
 
-                    if (antrian.kategori) {
+                    // Show kategori information if available
+                    if (antrian.kategori && antrian.kategori.trim() !== '') {
                         document.getElementById("serviceBadge").style.display = 'block';
                         document.getElementById("serviceText").innerText = antrian.kategori;
                     } else {

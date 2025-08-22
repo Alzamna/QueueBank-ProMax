@@ -38,6 +38,13 @@ class DisplayController extends BaseController
         if (!empty($antrian)) {
             // Use display number for user-friendly format
             $antrian[0]['nomor_antrian'] = $this->antrianModel->getDisplayNomorAntrian($antrian[0]['nomor_antrian']);
+            
+            // Format loket information
+            if (!empty($antrian[0]['nama_loket'])) {
+                $antrian[0]['loket'] = $antrian[0]['nama_loket'];
+            } else {
+                $antrian[0]['loket'] = null;
+            }
         }
 
         return $this->response->setJSON([
