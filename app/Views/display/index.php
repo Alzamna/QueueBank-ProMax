@@ -1228,8 +1228,8 @@ function loadCurrentAntrian() {
         .then(data => {
             if (data.success && data.data) {
                 let antrian = data.data;
-                document.getElementById("currentNumber").innerText = 
-                    (antrian.prefix ?? '') + (antrian.nomor_antrian ?? '-');
+                // Use only nomor_antrian to avoid duplicate prefix
+                document.getElementById("currentNumber").innerText = antrian.nomor_antrian ?? '-';
 
                 if (antrian.loket) {
                     document.getElementById("currentLoket").style.display = 'block';

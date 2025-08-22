@@ -35,6 +35,11 @@ class DisplayController extends BaseController
     {
         $antrian = $this->antrianModel->getAntrianDipanggil();
 
+        if (!empty($antrian)) {
+            // Use display number for user-friendly format
+            $antrian[0]['nomor_antrian'] = $this->antrianModel->getDisplayNomorAntrian($antrian[0]['nomor_antrian']);
+        }
+
         return $this->response->setJSON([
             'success' => !empty($antrian),
             'data' => !empty($antrian) ? $antrian[0] : null,
