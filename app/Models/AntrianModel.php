@@ -119,7 +119,7 @@ class AntrianModel extends Model
             ->select('antrians.*, kategori_antrians.nama_kategori, lokets.nama_loket')
             ->join('kategori_antrians', 'kategori_antrians.id = antrians.kategori_id')
             ->join('lokets', 'lokets.id = antrians.loket_id', 'left')
-            ->whereIn('antrians.status', ['menunggu', 'dipanggil']) // Get both waiting and called
+            ->whereIn('antrians.status', ['dipanggil']) // Get both waiting and called
             ->orderBy('lokets.nama_loket, antrians.id', 'ASC') // Order by loket and then by antrian id
             ->get()
             ->getResultArray();
