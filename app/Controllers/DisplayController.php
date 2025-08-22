@@ -33,14 +33,17 @@ class DisplayController extends BaseController
 
     public function getAntrian()
     {
-        $antrian = $this->antrianModel->getAntrianDipanggil();
+        // Fetch all queues that are either called or waiting
+        $antrian = $this->antrianModel->getAntrianDipanggil(); // Get called queues
+        $allAntrian = $this->antrianModel->getAllAntrian(); // Create a new method to get all queues
 
         return $this->response->setJSON([
-            'success' => !empty($antrian),
-            'data' => !empty($antrian) ? $antrian[0] : null,
-            'message' => !empty($antrian) ? 'Data antrian ditemukan' : 'Belum ada antrian dipanggil'
+            'success' => !empty($allAntrian),
+            'data' => $allAntrian,
+            'message' => !empty($allAntrian) ? 'Data antrian ditemukan' : 'Belum ada antrian'
         ]);
     }
+
 
 
 
