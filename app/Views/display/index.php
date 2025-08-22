@@ -712,7 +712,7 @@
                     // Create queue cards for each active queue
                     data.data.forEach((antrian, index) => {
                         const queueCard = document.createElement('div');
-                        queueCard.classList.add('queue-card', 'fade-in', antrian.status === 'dipanggil' ? 'active' : 'waiting');
+                        queueCard.classList.add('queue-card', antrian.status === 'dipanggil' ? 'active' : 'waiting');
                         
                         queueCard.innerHTML = `
                             <div class="queue-header">
