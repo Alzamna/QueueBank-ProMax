@@ -37,6 +37,7 @@ class KategoriAntrianController extends Controller
             'nama_kategori' => 'required|max_length[50]',
             'prefix'        => 'required|max_length[5]|is_unique[kategori_antrians.prefix]',
             'deskripsi'     => 'permit_empty|max_length[500]',
+            'warna'         => 'required|max_length[7]',
             'status'        => 'required|in_list[aktif,nonaktif]',
         ];
 
@@ -48,6 +49,7 @@ class KategoriAntrianController extends Controller
             'nama_kategori' => $this->request->getPost('nama_kategori'),
             'prefix'        => $this->request->getPost('prefix'),
             'deskripsi'     => $this->request->getPost('deskripsi'),
+            'warna'         => $this->request->getPost('warna'),
             'status'        => $this->request->getPost('status'),
         ]);
 
@@ -79,6 +81,7 @@ class KategoriAntrianController extends Controller
     $rules = [
         'nama_kategori' => 'required|max_length[50]',
         'deskripsi'     => 'permit_empty|max_length[500]',
+        'warna'         => 'required|max_length[7]',
         'status'        => 'required|in_list[aktif,nonaktif]',
     ];
 
@@ -97,6 +100,7 @@ class KategoriAntrianController extends Controller
         'nama_kategori' => $this->request->getPost('nama_kategori'),
         'prefix'        => $this->request->getPost('prefix'),
         'deskripsi'     => $this->request->getPost('deskripsi'),
+        'warna'         => $this->request->getPost('warna'),
         'status'        => $this->request->getPost('status'),
     ]);
 

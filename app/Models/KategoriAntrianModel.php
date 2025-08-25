@@ -12,7 +12,7 @@ class KategoriAntrianModel extends Model
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
     protected $protectFields = true;
-    protected $allowedFields = ['nama_kategori', 'prefix', 'deskripsi', 'status'];
+    protected $allowedFields = ['nama_kategori', 'prefix', 'deskripsi', 'warna', 'status'];
 
     protected $useTimestamps = true;
     protected $dateFormat = 'datetime';
@@ -23,6 +23,7 @@ class KategoriAntrianModel extends Model
         'nama_kategori' => 'required|max_length[50]',
         'prefix' => 'required|max_length[5]|is_unique[kategori_antrians.prefix]',
         'deskripsi' => 'permit_empty|max_length[500]',
+        'warna' => 'required|max_length[7]',
         'status' => 'required|in_list[aktif,nonaktif]',
     ];
 
