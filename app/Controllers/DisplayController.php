@@ -113,6 +113,17 @@ class DisplayController extends BaseController
     }
 
 
+// Method to get the next queue
+    public function getNextAntrian()
+    {
+        return $this->db->table($this->table)
+            ->select('nomor_antrian, layanan, estimasi, nama_loket')
+            ->where('status', 'menunggu') // Assuming the next queue is the first waiting queue
+            ->orderBy('id', 'ASC')
+            ->limit(1)
+            ->get()
+            ->getRowArray();
+    }
 
 
 

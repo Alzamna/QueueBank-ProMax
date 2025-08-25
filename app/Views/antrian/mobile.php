@@ -189,26 +189,6 @@
         </div>
     </header>
 
-    <!-- Info Cards -->
-    <div class="grid info-grid grid-cols-4 gap-2 px-4 my-4">
-        <div class="bg-white/20 rounded-lg p-3 text-center backdrop-blur-sm border border-white/10 shadow-sm hover:shadow-md transition-all">
-            <div class="text-xs font-medium uppercase tracking-wider text-white/80">Total</div>
-            <div class="text-xl font-bold mt-1" id="mobileTotalAntrian">0</div>
-        </div>
-        <div class="bg-white/20 rounded-lg p-3 text-center backdrop-blur-sm border border-white/10 shadow-sm hover:shadow-md transition-all">
-            <div class="text-xs font-medium uppercase tracking-wider text-white/80">Dipanggil</div>
-            <div class="text-xl font-bold mt-1" id="mobileSedangDipanggil">0</div>
-        </div>
-        <div class="bg-white/20 rounded-lg p-3 text-center backdrop-blur-sm border border-white/10 shadow-sm hover:shadow-md transition-all">
-            <div class="text-xs font-medium uppercase tracking-wider text-white/80">Menunggu</div>
-            <div class="text-xl font-bold mt-1" id="mobileSedangMenunggu">0</div>
-        </div>
-        <div class="bg-white/20 rounded-lg p-3 text-center backdrop-blur-sm border border-white/10 shadow-sm hover:shadow-md transition-all">
-            <div class="text-xs font-medium uppercase tracking-wider text-white/80">Update</div>
-            <div class="text-sm font-medium mt-1" id="mobileUpdateTerakhir">-</div>
-        </div>
-    </div>
-
     <!-- Current Queue Status Bar -->
     <div class="px-4 mb-4" id="currentQueueStatusBar" style="display: none;">
         <div class="bg-white border-2 border-success-500 rounded-xl p-4 shadow-lg">

@@ -758,43 +758,90 @@
             .catch(err => console.error("Failed to load all queues:", err));
     }
 
-    // Update next queue section
-    function updateNextQueue(nextQueueData) {
-        const nextQueueContainer = document.getElementById("nextQueue");
-        
-        if (nextQueueData && nextQueueData.length > 0) {
-            nextQueueContainer.innerHTML = '';
-            
-            nextQueueData.forEach((queue, index) => {
-                const positionClass = index === 0 ? 'position-1' : index === 1 ? 'position-2' : 'position-3';
-                const statusClass = index === 0 ? 'status-next' : 'status-waiting';
-                
-                const queueItem = document.createElement('div');
-                queueItem.classList.add('queue-item');
-                queueItem.innerHTML = `
-                    <div class="queue-item-left">
-                        <div class="queue-position ${positionClass}">${index + 1}</div>
-                        <div class="queue-details">
-                            <h4>${queue.nomor_antrian}</h4>
-                            <p>${queue.layanan}</p>
+    // Load and display active queues and next queue
+function loadQueues() {
+    fetch("<?= base_url('display/antrian') ?>")
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.data) {
+                const activeQueuesContainer = document.getElementById("activeQueues");
+                activeQueuesContainer.innerHTML = '';
+
+                // Create queue cards for each active queue
+                data.data.forEach((antrian) => {
+                    const queueCard = document.createElement('div');
+                    queueCard.classList.add('queue-card', 'fade-in', antrian.status === 'dipanggil' ? 'active' : 'waiting');
+                    
+                    queueCard.innerHTML = `
+                        <div class="queue-header">
+                            <div class="queue-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <h3>Nomor Antrian</h3>
                         </div>
-                    </div>
-                    <div class="queue-status ${statusClass}">
-                        Est. ${queue.estimasi}
+                        <div class="queue-number animate">${antrian.nomor_antrian}</div>
+                        <div class="loket-info">
+                            <i class="fas fa-map-marker-alt" style="color: #3b82f6;"></i>
+                            <span>${antrian.nama_loket}</span>
+                        </div>
+                        <div class="status-badge ${antrian.status === 'dipanggil' ? 'status-active' : 'status-waiting'}">
+                            <i class="fas fa-bell" style="margin-right: 0.5rem;"></i>
+                            ${antrian.layanan}
+                        </div>
+                    `;
+                    
+                    activeQueuesContainer.appendChild(queueCard);
+                });
+
+                // Update next queue
+                updateNextQueue(data.nextQueue);
+            } else {
+                document.getElementById("activeQueues").innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <h4>Belum Ada Antrian Aktif</h4>
+                        <p>Sistem menunggu antrian yang dipanggil...</p>
                     </div>
                 `;
-                nextQueueContainer.appendChild(queueItem);
-            });
-        } else {
-            nextQueueContainer.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-clock"></i>
-                    <h4>Tidak Ada Antrian Berikutnya</h4>
-                    <p>Sistem menunggu antrian berikutnya...</p>
+            }
+        })
+        .catch(err => console.error("Failed to load queues:", err));
+}
+
+    // Update next queue section
+function updateNextQueue(nextQueueData) {
+    const nextQueueContainer = document.getElementById("nextQueue");
+    
+    if (nextQueueData && nextQueueData.length > 0) {
+        nextQueueContainer.innerHTML = '';
+        
+        nextQueueData.forEach((queue, index) => {
+            const queueItem = document.createElement('div');
+            queueItem.classList.add('queue-item');
+            queueItem.innerHTML = `
+                <div class="queue-item-left">
+                    <div class="queue-position">${index + 1}</div>
+                    <div class="queue-details">
+                        <h4>${queue.nomor_antrian}</h4>
+                        <p>${queue.layanan}</p>
+                    </div>
+                </div>
+                <div class="queue-status">
+                    Est. ${queue.estimasi}
                 </div>
             `;
-        }
+            nextQueueContainer.appendChild(queueItem);
+        });
+    } else {
+        nextQueueContainer.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-clock"></i>
+                <h4>Tidak Ada Antrian Berikutnya</h4>
+                <p>Sistem menunggu antrian berikutnya...</p>
+            </div>
+        `;
     }
+}
 
     // Update statistics
     function updateStatistics(stats) {
