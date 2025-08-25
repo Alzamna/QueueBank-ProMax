@@ -41,7 +41,7 @@ $routes->group('admin', ['filter' => 'auth'], function($routes) {
     $routes->post('kategori/store', 'KategoriAntrianController::store');
     $routes->get('kategori/edit/(:num)', 'KategoriAntrianController::edit/$1');
     $routes->post('kategori/update/(:num)', 'KategoriAntrianController::update/$1');
-    $routes->get('kategori/delete/(:num)', 'KategoriAntrianController::delete/$1');
+    $routes->post('kategori/delete/(:num)', 'KategoriAntrianController::delete/$1');
 });
 
 // Petugas Routes
