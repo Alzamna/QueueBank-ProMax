@@ -89,12 +89,6 @@
                                 Kategori Antrian
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-white-50" href="<?= base_url('admin/pengaturan') ?>">
-                                <i class="fas fa-cog me-2"></i>
-                                Pengaturan
-                            </a>
-                        </li>
                     </ul>
                 </div>
             </div>

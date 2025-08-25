@@ -169,10 +169,6 @@
                                     <i class="fas fa-tags sidebar-icon w-5 mr-3"></i>
                                     <span class="font-medium">Kategori Antrian</span>
                                 </a>
-                                <a href="<?= site_url('admin/pengaturan') ?>" class="sidebar-link <?= strpos(current_url(), 'admin/pengaturan') !== false ? 'active' : '' ?>">
-                                    <i class="fas fa-cog sidebar-icon w-5 mr-3"></i>
-                                    <span class="font-medium">Pengaturan Display</span>
-                                </a>
                             <?php else: ?>
                                 <a href="<?= site_url('petugas/dashboard') ?>" class="sidebar-link <?= strpos(current_url(), 'petugas/dashboard') !== false ? 'active' : '' ?>">
                                     <i class="fas fa-tachometer-alt sidebar-icon w-5 mr-3"></i>
