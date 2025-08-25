@@ -15,9 +15,9 @@
                         primary: {
                             50: '#f0f9ff',
                             100: '#e0f2fe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
+                            500: '#1e40af',
+                            600: '#1e40af',
+                            700: '#1e3a8a',
                         },
                         secondary: {
                             500: '#64748b',
@@ -51,19 +51,20 @@
     </script>
     <style type="text/css">
         .bg-gradient-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
         }
         .bg-gradient-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 1px solid #e2e8f0;
         }
         .bg-gradient-selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
         }
         .bg-gradient-button {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
         }
         .bg-gradient-button-disabled {
-            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
         }
         
         .service-card {
@@ -177,27 +178,27 @@
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-primary font-sans text-gray-100 antialiased pb-20">
+<body class="min-h-screen bg-gradient-primary font-sans text-white antialiased pb-20">
     <!-- Header Section -->
     <header class="sticky top-0 z-10 bg-white/10 backdrop-blur-md border-b border-white/20 px-4 py-3">
         <div class="flex flex-col items-center justify-center">
             <h1 class="text-xl font-bold flex items-center gap-2">
                 <i class="fas fa-mobile-alt animate-pulse-slow"></i>
-                MESIN ANTRIAN MOBILE
+                MESIN ANTRIAN
             </h1>
-            <p class="text-sm opacity-90 mt-1">Pilih layanan & ambil nomor antrian</p>
+            <p class="text-sm opacity-90 mt-1 text-center">Silakan pilih kategori layanan dan ambil nomor antrian<br>Desktop Mode</p>
         </div>
     </header>
 
     <!-- Current Queue Status Bar -->
     <div class="px-4 mb-4" id="currentQueueStatusBar" style="display: none;">
-        <div class="bg-white border-2 border-success-500 rounded-xl p-4 shadow-lg">
+        <div class="bg-white border-2 border-primary-500 rounded-xl p-4 shadow-lg">
             <!-- Header -->
             <div class="flex items-center justify-center gap-2 mb-3">
-                <div class="bg-success-500 rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">
+                <div class="bg-primary-500 rounded-full w-5 h-5 flex items-center justify-center flex-shrink-0">
                     <i class="fas fa-check text-white text-xs"></i>
                 </div>
-                <h3 class="text-base font-semibold text-success-600 text-center leading-tight">Anda Sudah Mengambil Antrian</h3>
+                <h3 class="text-base font-semibold text-primary-600 text-center leading-tight">Anda Sudah Mengambil Antrian</h3>
             </div>
             
             <!-- Queue Info -->
@@ -205,19 +206,19 @@
                 <div class="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 text-sm">
                     <div class="flex items-center gap-1">
                         <span class="font-medium text-gray-700">Nomor:</span> 
-                        <span class="text-lg font-bold text-success-600" id="statusBarNomorAntrian">-</span>
+                        <span class="text-lg font-bold text-primary-600" id="statusBarNomorAntrian">-</span>
                     </div>
-                    <div class="hidden sm:block text-success-500">•</div>
+                    <div class="hidden sm:block text-primary-500">•</div>
                     <div class="flex items-center gap-1">
                         <span class="font-medium text-gray-700">Layanan:</span> 
-                        <span class="text-success-600 font-medium" id="statusBarKategori">-</span>
+                        <span class="text-primary-600 font-medium" id="statusBarKategori">-</span>
                     </div>
                 </div>
             </div>
             
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row justify-center gap-2">
-                <button onclick="showQueueNumberFromStatusBar()" class="px-4 py-2 bg-success-600 hover:bg-success-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1">
+                <button onclick="showQueueNumberFromStatusBar()" class="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1">
                     <i class="fas fa-eye text-xs"></i> 
                     <span>Lihat Detail</span>
                 </button>
@@ -233,7 +234,7 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300 opacity-0 pointer-events-none" id="currentQueueStatus">
         <div class="bg-white rounded-xl overflow-hidden w-full max-w-md mx-4 shadow-2xl transform transition-all duration-300 scale-95">
             <!-- Header -->
-            <div class="bg-success-600 p-5 flex items-center justify-between">
+            <div class="bg-primary-600 p-5 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <div class="bg-white/20 rounded-full w-8 h-8 flex items-center justify-center">
                         <i class="fas fa-check text-white text-sm"></i>
@@ -248,8 +249,8 @@
             <!-- Content -->
             <div class="p-6 text-center">
                 <div class="mb-6">
-                    <div class="text-5xl font-bold text-success-600 mb-2 animate-float" id="currentNomorAntrian">-</div>
-                    <span class="inline-block bg-success-600 text-white text-sm font-medium px-4 py-1 rounded-full" id="currentKategoriAntrian">-</span>
+                    <div class="text-5xl font-bold text-primary-600 mb-2 animate-float" id="currentNomorAntrian">-</div>
+                    <span class="inline-block bg-primary-600 text-white text-sm font-medium px-4 py-1 rounded-full" id="currentKategoriAntrian">-</span>
                 </div>
                 
                 <div class="text-gray-700 mb-1">
@@ -530,10 +531,10 @@
             const printContent = `
                 <div style="text-align: center; padding: 20px; font-family: Arial, sans-serif;">
                     <h2 style="font-size: 24px; margin-bottom: 10px;">Nomor Antrian</h2>
-                    <div style="font-size: 48px; font-weight: bold; color: #28a745; margin: 20px 0;">
+                    <div style="font-size: 48px; font-weight: bold; color: #1e40af; margin: 20px 0;">
                         ${document.getElementById('currentNomorAntrian').textContent}
                     </div>
-                    <div style="font-size: 18px; margin: 10px 0; background: #28a745; color: white; display: inline-block; padding: 5px 15px; border-radius: 20px;">
+                    <div style="font-size: 18px; margin: 10px 0; background: #1e40af; color: white; display: inline-block; padding: 5px 15px; border-radius: 20px;">
                         ${document.getElementById('currentKategoriAntrian').textContent}
                     </div>
                     <div style="font-size: 14px; color: #666; margin: 10px 0;">
