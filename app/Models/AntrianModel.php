@@ -568,4 +568,69 @@ class AntrianModel extends Model
             return false;
         }
     }
+
+    /**
+ * Get active categories with waiting queues
+ * @return array
+ */
+public function getActiveCategoriesWithQueues()
+{
+    return $this->db->table('kategori_antrians as k')
+        ->select('k.id, k.nama_kategori, k.prefix, COUNT(a.id) as jumlah_antrian')
+        ->join('antrians as a', 'a.kategori_id = k.id AND a.status = "menunggu" AND DATE(a.waktu_ambil) = CURDATE()', 'left')
+        ->where('k.status', 'aktif')
+        ->groupBy('k.id, k.nama_kategori, k.prefix')
+        ->having('jumlah_antrian > 0')
+        ->orderBy('k.nama_kategori', 'ASC')
+        ->get()
+        ->getResultArray();
+}
+
+/**
+ * Get next queues by category
+ * @param int $kategori_id
+ * @param int $limit
+ * @return array
+ */
+public function getNextQueuesByCategory($kategori_id, $limit = 3)
+{
+    return $this->db->table($this->table . ' as a')
+        ->select('a.*, k.nama_kategori, k.prefix')
+        ->join('kategori_antrians k', 'k.id = a.kategori_id')
+        ->where('a.kategori_id', $kategori_id)
+        ->where('a.status', 'menunggu')
+        ->where('DATE(a.waktu_ambil)', date('Y-m-d'))
+        ->orderBy('a.id', 'ASC')
+        ->limit($limit)
+        ->get()
+        ->getResultArray();
+}
+
+/**
+ * Get estimated wait time for a queue
+ * @param int $antrian_id
+ * @return int Estimated minutes
+ */
+public function getEstimatedWaitTime($antrian_id)
+{
+    // Get average service time from completed queues today
+    $avgServiceTime = $this->db->table($this->table)
+        ->select('AVG(TIMESTAMPDIFF(SECOND, waktu_panggil, waktu_selesai)) as avg_time')
+        ->where('status', 'selesai')
+        ->where('DATE(waktu_ambil)', date('Y-m-d'))
+        ->get()
+        ->getRowArray();
+    
+    $avgTime = $avgServiceTime['avg_time'] ?? 300; // Default 5 minutes
+    
+    // Get position in queue
+    $antrian = $this->find($antrian_id);
+    if (!$antrian) return 0;
+    
+    $position = $this->getPosisiAntrian($antrian_id, $antrian['kategori_id']);
+    
+    // Calculate estimated time (position * average service time)
+    return ceil(($position * $avgTime) / 60);
+}
+
 }

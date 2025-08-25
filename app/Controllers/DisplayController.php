@@ -24,51 +24,62 @@ class DisplayController extends BaseController
     {
         $data = [
             'title'      => 'Display Publik',
-            'antrian'    => $this->antrianModel->getAntrianDipanggil(), // ambil yang status 'dipanggil'
+            'antrian'    => $this->antrianModel->getAntrianDipanggil(),
             'pengaturan' => $this->pengaturanDisplayModel->first(),
         ];
 
         return view('display/index', $data);
     }
 
+    /**
+     * Ambil semua antrian yang aktif (dipanggil)
+     */
     public function getAntrian()
     {
-        // Fetch all queues that are either called or waiting
-        $antrian = $this->antrianModel->getAntrianDipanggil(); // Get called queues
-        $allAntrian = $this->antrianModel->getAllAntrian(); // Create a new method to get all queues
+        $antrian = $this->antrianModel->getAntrianDipanggil();
 
         if (!empty($antrian)) {
-            // Use display number for user-friendly format
-            $antrian[0]['nomor_antrian'] = $this->antrianModel->getDisplayNomorAntrian($antrian[0]['nomor_antrian']);
-            
-            // Format loket information
-            if (!empty($antrian[0]['nama_loket'])) {
-                $antrian[0]['loket'] = $antrian[0]['nama_loket'];
-            } else {
-                $antrian[0]['loket'] = null;
+            foreach ($antrian as &$item) {
+                $item['nomor_antrian_display'] = $this->antrianModel->getDisplayNomorAntrian($item['nomor_antrian']);
             }
         }
 
         return $this->response->setJSON([
-            'success' => !empty($allAntrian),
-            'data' => $allAntrian,
-            'message' => !empty($allAntrian) ? 'Data antrian ditemukan' : 'Belum ada antrian'
+            'success' => !empty($antrian),
+            'data' => $antrian,
+            'message' => !empty($antrian) ? 'Data antrian ditemukan' : 'Belum ada antrian'
         ]);
     }
 
+    /**
+     * Ambil antrian berikutnya per kategori
+     */
     public function getNextQueue()
     {
-        // Get next 3 waiting queues
-        $nextQueues = $this->antrianModel->getAntrianAktif();
+        // Get all active categories
+        $categories = $this->antrianModel->getActiveCategoriesWithQueues();
         
-        // Format the data for display
         $formattedQueues = [];
-        foreach (array_slice($nextQueues, 0, 3) as $antrian) {
-            $formattedQueues[] = [
-                'nomor_antrian' => $this->antrianModel->getDisplayNomorAntrian($antrian['nomor_antrian']),
-                'kategori' => $antrian['nama_kategori'],
-                'waktu_ambil' => $antrian['waktu_ambil']
-            ];
+        foreach ($categories as $category) {
+            // Get next 3 waiting queues for each category
+            $nextQueues = $this->antrianModel->getNextQueuesByCategory($category['id'], 3);
+            
+            $categoryQueues = [];
+            foreach ($nextQueues as $index => $antrian) {
+                $categoryQueues[] = [
+                    'nomor_antrian' => $this->antrianModel->getDisplayNomorAntrian($antrian['nomor_antrian']),
+                    'waktu_ambil' => $antrian['waktu_ambil'],
+                    'position' => $index + 1
+                ];
+            }
+            
+            if (!empty($categoryQueues)) {
+                $formattedQueues[] = [
+                    'kategori' => $category['nama_kategori'],
+                    'prefix' => $category['prefix'],
+                    'queues' => $categoryQueues
+                ];
+            }
         }
 
         return $this->response->setJSON([
@@ -78,6 +89,9 @@ class DisplayController extends BaseController
         ]);
     }
 
+    /**
+     * Ambil statistik antrian
+     */
     public function getStatistics()
     {
         $today = date('Y-m-d');
@@ -111,11 +125,6 @@ class DisplayController extends BaseController
             'message' => 'Statistik berhasil dimuat'
         ]);
     }
-
-
-
-
-
 
     /**
      * Ambil pengaturan display dalam bentuk JSON

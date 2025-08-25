@@ -4,320 +4,237 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $title ?></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        },
+                        secondary: {
+                            500: '#64748b',
+                            600: '#475569',
+                        },
+                        success: {
+                            500: '#10b981',
+                            600: '#059669',
+                        },
+                        dark: {
+                            500: '#1e293b',
+                            600: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        display: ['Poppins', 'sans-serif']
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 3s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' },
+                        }
+                    }
+                }
+            }
         }
-        .queue-machine {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            padding: 2rem;
-            margin: 2rem auto;
-            max-width: 1200px;
-            width: 100%;
+    </script>
+    <style type="text/css">
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&display=swap');
+        
+        .bg-glass {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 3px solid #667eea;
+        
+        .card-hover-effect {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .header h1 {
-            color: #667eea;
-            font-weight: bold;
-            font-size: 2.5rem;
-            margin-bottom: 0.5rem;
+        
+        .card-hover-effect:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
-        .header p {
-            color: #374151;
-            font-size: 1.1rem;
-            margin: 0;
-            font-weight: 500;
-        }
+        
         .category-card {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border: none;
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 1.5rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            height: 200px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(245, 245, 245, 0.9) 100%);
+            position: relative;
+            overflow: hidden;
         }
-        .category-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: 0.5s;
         }
+        
+        .category-card:hover::before {
+            left: 100%;
+        }
+        
         .category-card.selected {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            transform: translateY(-5px);
-            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
-        }
-        .category-card.selected .category-name {
-            color: white;
         }
         
-        .category-card.selected .category-description {
-            color: rgba(255, 255, 255, 0.9);
-            font-weight: 500;
-        }
-        
-        .category-card.selected .text-dark {
-            color: rgba(255, 255, 255, 0.9) !important;
-        }
-        
-        .category-card.selected .text-primary {
-            color: rgba(255, 255, 255, 0.95) !important;
-        }
-        
-        .category-card.selected small {
-            color: rgba(255, 255, 255, 0.85) !important;
-        }
-        
-        .category-card.selected strong {
-            color: rgba(255, 255, 255, 1) !important;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        }
-        .category-name {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #1f2937;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-        .category-description {
-            color: #374151;
-            font-size: 1rem;
-            font-weight: 500;
-            text-align: center;
-            line-height: 1.5;
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .btn-ambil {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            border: none;
-            border-radius: 50px;
-            padding: 1rem 3rem;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: white;
-            transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 1rem;
-        }
-        .btn-ambil:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(40, 167, 69, 0.3);
-            color: white;
-        }
-        .btn-ambil:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        .result-modal .modal-content {
-            border-radius: 20px;
-            border: none;
-        }
-        .result-modal .modal-header {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-            color: white;
-            border-radius: 20px 20px 0 0;
-            border: none;
-        }
         .queue-number {
-            font-size: 4rem;
-            font-weight: bold;
-            color: #28a745;
-            text-align: center;
-            margin: 1rem 0;
-        }
-        .queue-info {
-            text-align: center;
-            margin: 1rem 0;
-        }
-        .stats-card {
-            background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            height: 120px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        .stats-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 0.5rem;
-        }
-        .stats-label {
-            color: #374151;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-        .loading {
-            display: none;
-        }
-        .spinner-border-sm {
-            width: 1rem;
-            height: 1rem;
+            font-family: 'Poppins', sans-serif;
+            text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            letter-spacing: 1px;
         }
         
-        /* Responsive Design */
-        @media (max-width: 1200px) {
-            .queue-machine {
-                max-width: 95%;
-                margin: 1rem auto;
-            }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 6px -1px rgba(102, 126, 234, 0.3), 0 2px 4px -1px rgba(102, 126, 234, 0.2);
         }
         
-        @media (max-width: 768px) {
-            .queue-machine {
-                max-width: 98%;
-                padding: 1rem;
-                margin: 1rem auto;
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(102, 126, 234, 0.4), 0 4px 6px -2px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            box-shadow: 0 4px 6px -1px rgba(40, 167, 69, 0.3), 0 2px 4px -1px rgba(40, 167, 69, 0.2);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(40, 167, 69, 0.4), 0 4px 6px -2px rgba(40, 167, 69, 0.3);
+        }
+        
+        @media print {
+            .queue-number {
+                color: #000 !important;
+                text-shadow: none !important;
             }
-            
-            .category-card {
-                height: 180px;
-                padding: 1.5rem;
-            }
-            
-            .stats-card {
-                height: 100px;
-                padding: 1rem;
-            }
-            
-            .stats-number {
-                font-size: 2rem;
-            }
-            
-            .category-name {
-                font-size: 1.3rem;
-            }
-            
-            .category-description {
-                font-size: 0.9rem;
+            .badge {
+                background-color: #000 !important;
+                color: #fff !important;
             }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="queue-machine">
-            <!-- Header -->
-            <div class="header">
-                <h1><i class="fas fa-ticket-alt"></i> MESIN ANTRIAN</h1>
-                <p>Silakan pilih kategori layanan dan ambil nomor antrian</p>
-                <div class="text-muted">
-                    <small><i class="fas fa-desktop"></i> Desktop Mode</small>
+<body class="min-h-screen bg-gradient-to-br from-indigo-600 to-purple-600 font-sans antialiased text-gray-800">
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Glass Panel -->
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden">
+            <!-- Header Section -->
+            <div class="text-center py-10 px-6 border-b border-gray-200">
+                <div class="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-ticket-alt text-3xl text-indigo-600"></i>
+                </div>
+                <h1 class="text-4xl font-bold text-indigo-600 font-display mb-3">
+                    MESIN ANTRIAN DIGITAL
+                </h1>
+                <p class="text-lg text-gray-700 font-medium max-w-2xl mx-auto">
+                    Silakan pilih kategori layanan dan ambil nomor antrian Anda
+                </p>
+                
+                <div class="text-gray-500 mt-2">
+                    <small><i class="fas fa-desktop mr-1"></i> Desktop Mode</small>
                 </div>
             </div>
 
-            <!-- Statistics -->
-            <div class="row mb-4" id="statistics">
-                <div class="col-lg-3 col-md-6 mb-3">
-                    <div class="stats-card text-center">
-                        <div class="stats-number" id="total-antrian">-</div>
-                        <div class="stats-label">Total Antrian</div>
-                    </div>
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 px-6 py-4" id="statistics">
+                <div class="bg-white rounded-xl shadow-sm p-5 text-center">
+                    <div class="text-3xl font-bold text-indigo-600 mb-2" id="total-antrian">-</div>
+                    <div class="text-sm font-medium text-gray-600">Total Antrian</div>
                 </div>
-                <div class="col-lg-3 col-md-6 mb-3">
-                    <div class="stats-card text-center">
-                        <div class="stats-number" id="antrian-dipanggil">-</div>
-                        <div class="stats-label">Sedang Dipanggil</div>
-                    </div>
+                <div class="bg-white rounded-xl shadow-sm p-5 text-center">
+                    <div class="text-3xl font-bold text-indigo-600 mb-2" id="antrian-dipanggil">-</div>
+                    <div class="text-sm font-medium text-gray-600">Sedang Dipanggil</div>
                 </div>
-                <div class="col-lg-3 col-md-6 mb-3">
-                    <div class="stats-card text-center">
-                        <div class="stats-number" id="antrian-menunggu">-</div>
-                        <div class="stats-label">Sedang Menunggu</div>
-                    </div>
+                <div class="bg-white rounded-xl shadow-sm p-5 text-center">
+                    <div class="text-3xl font-bold text-indigo-600 mb-2" id="antrian-menunggu">-</div>
+                    <div class="text-sm font-medium text-gray-600">Sedang Menunggu</div>
                 </div>
-                <div class="col-lg-3 col-md-6 mb-3">
-                    <div class="stats-card text-center">
-                        <div class="stats-number" id="timestamp">-</div>
-                        <div class="stats-label">Update Terakhir</div>
-                    </div>
+                <div class="bg-white rounded-xl shadow-sm p-5 text-center">
+                    <div class="text-3xl font-bold text-indigo-600 mb-2" id="timestamp">-</div>
+                    <div class="text-sm font-medium text-gray-600">Update Terakhir</div>
                 </div>
             </div>
 
-                            <!-- Categories -->
-                <div class="row" id="categories">
-                    <?php foreach ($kategori as $kat): ?>
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="category-card" data-kategori-id="<?= $kat['id'] ?>">
-                            <div class="category-name"><?= $kat['nama_kategori'] ?></div>
-                            <div class="category-description"><?= $kat['deskripsi'] ?? 'Layanan ' . $kat['nama_kategori'] ?></div>
-                            <div class="text-dark text-center">
-                                <small class="fw-semibold">Prefix: <strong class="text-primary"><?= $kat['prefix'] ?></strong></small>
-                            </div>
-                        </div>
+            <!-- Categories Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6" id="categories">
+                <?php foreach ($kategori as $kat): ?>
+                <div class="category-card card-hover-effect rounded-2xl p-8 cursor-pointer flex flex-col items-center justify-between h-60 border border-gray-200 shadow-sm" data-kategori-id="<?= $kat['id'] ?>">
+                    <div class="text-2xl font-bold text-gray-800 text-center font-display"><?= $kat['nama_kategori'] ?></div>
+                    <div class="text-gray-600 text-center font-medium flex-grow flex items-center justify-center">
+                        <?= $kat['deskripsi'] ?? 'Layanan ' . $kat['nama_kategori'] ?>
                     </div>
-                    <?php endforeach; ?>
+                    <div class="text-gray-700 text-center text-sm mt-4">
+                        <span class="font-semibold">Prefix: </span>
+                        <span class="font-bold text-indigo-600"><?= $kat['prefix'] ?></span>
+                    </div>
                 </div>
+                <?php endforeach; ?>
+            </div>
 
             <!-- Action Button -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <button class="btn btn-ambil" id="btnAmbil" disabled>
-                        <span class="btn-text">Pilih kategori terlebih dahulu</span>
-                        <span class="loading">
-                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            Memproses...
-                        </span>
-                    </button>
-                </div>
+            <div class="px-6 pb-8">
+                <button id="btnAmbil" disabled class="w-full py-4 px-6 btn-success text-white font-bold rounded-xl transition-all duration-300 disabled:bg-gray-500 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
+                    <span class="btn-text">Pilih kategori terlebih dahulu</span>
+                    <span class="loading hidden">
+                        <i class="fas fa-spinner fa-spin mr-2"></i> Memproses...
+                    </span>
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Result Modal -->
-    <div class="modal fade result-modal" id="resultModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-check-circle"></i> Nomor Antrian Berhasil
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <div class="queue-number" id="modalNomorAntrian"></div>
-                    <div class="queue-info">
-                        <h6 id="modalKategori"></h6>
-                        <p class="text-muted">Posisi antrian: <span id="modalPosisi"></span></p>
-                        <p class="text-muted">Waktu: <span id="modalWaktu"></span></p>
+    <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 hidden" id="resultModal">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+            <div class="bg-gradient-to-r from-green-600 to-green-500 text-white px-8 py-6">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-check-circle text-xl"></i>
+                        <h3 class="text-xl font-bold font-display">Nomor Antrian Berhasil</h3>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                    <button type="button" class="btn btn-primary" onclick="printQueue()">
-                        <i class="fas fa-print"></i> Cetak
+                    <button onclick="document.getElementById('resultModal').classList.add('hidden')" class="text-white hover:text-white/80 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
+            </div>
+            <div class="p-8 text-center">
+                <div class="queue-number text-6xl font-bold text-green-600 animate-float mb-6" id="modalNomorAntrian"></div>
+                <div class="space-y-4">
+                    <h4 class="text-lg font-medium text-gray-800" id="modalKategori"></h4>
+                    <div class="text-gray-600">
+                        <p>Posisi antrian: <span class="font-semibold text-gray-800" id="modalPosisi"></span></p>
+                        <p>Waktu: <span class="font-semibold text-gray-800" id="modalWaktu"></span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="px-6 pb-6 flex justify-center space-x-4">
+                <button onclick="document.getElementById('resultModal').classList.add('hidden')" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                    <i class="fas fa-times mr-2"></i> Tutup
+                </button>
+                <button onclick="printQueue()" class="px-6 py-2 btn-primary text-white rounded-lg font-medium transition-colors">
+                    <i class="fas fa-print mr-2"></i> Cetak
+                </button>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let selectedKategori = null;
         let currentQueueData = null;
@@ -351,10 +268,17 @@
             // Remove previous selection
             document.querySelectorAll('.category-card').forEach(c => {
                 c.classList.remove('selected');
+                c.querySelector('div:nth-child(1)').classList.remove('text-white');
+                c.querySelector('div:nth-child(2)').classList.remove('text-white');
+                c.querySelector('div:nth-child(3)').classList.remove('text-white');
             });
             
             // Select current category
             card.classList.add('selected');
+            card.querySelector('div:nth-child(1)').classList.add('text-white');
+            card.querySelector('div:nth-child(2)').classList.add('text-white');
+            card.querySelector('div:nth-child(3)').classList.add('text-white');
+            
             selectedKategori = card.dataset.kategoriId;
             
             // Enable button
@@ -376,8 +300,8 @@
             const loading = btn.querySelector('.loading');
 
             // Show loading
-            btnText.style.display = 'none';
-            loading.style.display = 'inline-block';
+            btnText.classList.add('hidden');
+            loading.classList.remove('hidden');
             btn.disabled = true;
 
             try {
@@ -411,8 +335,8 @@
                 alert('Terjadi kesalahan saat mengambil nomor antrian');
             } finally {
                 // Hide loading
-                btnText.style.display = 'inline-block';
-                loading.style.display = 'none';
+                btnText.classList.remove('hidden');
+                loading.classList.add('hidden');
                 btn.disabled = false;
             }
         }
@@ -423,8 +347,7 @@
             document.getElementById('modalPosisi').textContent = data.posisi_antrian + 1;
             document.getElementById('modalWaktu').textContent = data.timestamp;
             
-            const modal = new bootstrap.Modal(document.getElementById('resultModal'));
-            modal.show();
+            document.getElementById('resultModal').classList.remove('hidden');
         }
 
         async function loadStatistics() {
@@ -451,6 +374,7 @@
 
             document.getElementById('total-antrian').textContent = totalAntrian;
             document.getElementById('antrian-dipanggil').textContent = totalDipanggil;
+            document.getElementById('antrian-menunggu').textContent = totalAntrian - totalDipanggil;
             document.getElementById('timestamp').textContent = new Date().toLocaleTimeString('id-ID');
         }
 
@@ -463,23 +387,86 @@
                 <head>
                     <title>Nomor Antrian</title>
                     <style>
-                        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-                        .queue-number { font-size: 48px; font-weight: bold; color: #28a745; margin: 20px 0; }
-                        .queue-info { margin: 20px 0; }
-                        .timestamp { color: #666; font-size: 14px; }
-                        @media print { body { margin: 0; } }
+                        @media print {
+                            @page {
+                                size: A6;
+                                margin: 5mm;
+                            }
+                            body { 
+                                margin: 0; 
+                                padding: 0;
+                                width: 105mm;
+                                height: 148mm;
+                            }
+                            .print-container { 
+                                page-break-inside: avoid;
+                                width: 100%;
+                                height: 100%;
+                            }
+                            * {
+                                -webkit-print-color-adjust: exact;
+                                color-adjust: exact;
+                            }
+                        }
+                        
+                        body { 
+                            font-family: 'Poppins', sans-serif; 
+                            text-align: center; 
+                            margin: 0; 
+                            padding: 0;
+                            background: #fff;
+                            width: 105mm;
+                            height: 148mm;
+                            overflow: hidden;
+                        }
+                        
+                        .print-container {
+                            width: 100%;
+                            height: 100%;
+                            padding: 8mm;
+                            box-sizing: border-box;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                        }
+                        
+                        .queue-number {
+                            font-size: 48px;
+                            font-weight: 800;
+                            color: #28a745;
+                            margin: 10mm 0;
+                            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+                            letter-spacing: 1px;
+                            line-height: 1;
+                        }
+                        
+                        .queue-info {
+                            margin: 6mm 0;
+                            padding: 4mm;
+                            background: #fff;
+                            border-radius: 6px;
+                            border: 1px solid #e2e8f0;
+                        }
+                        
+                        .timestamp {
+                            color: #64748b;
+                            font-size: 10px;
+                            margin-top: 10mm;
+                        }
                     </style>
                 </head>
                 <body>
-                    <h2>NOMOR ANTRIAN</h2>
-                    <div class="queue-number">${currentQueueData.nomor_antrian}</div>
-                    <div class="queue-info">
-                        <h3>${currentQueueData.kategori}</h3>
-                        <p>Posisi: ${currentQueueData.posisi_antrian + 1}</p>
-                        <p>Waktu: ${currentQueueData.timestamp}</p>
-                    </div>
-                    <div class="timestamp">
-                        Dicetak pada: ${new Date().toLocaleString('id-ID')}
+                    <div class="print-container">
+                        <h2>NOMOR ANTRIAN</h2>
+                        <div class="queue-number">${currentQueueData.nomor_antrian}</div>
+                        <div class="queue-info">
+                            <h3>${currentQueueData.kategori}</h3>
+                            <p>Posisi: ${currentQueueData.posisi_antrian + 1}</p>
+                            <p>Waktu: ${currentQueueData.timestamp}</p>
+                        </div>
+                        <div class="timestamp">
+                            Dicetak pada: ${new Date().toLocaleString('id-ID')}
+                        </div>
                     </div>
                 </body>
                 </html>
