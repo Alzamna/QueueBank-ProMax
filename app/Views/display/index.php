@@ -675,9 +675,7 @@
     <main class="container">
         <div class="main-content">
             <!-- Statistics Section -->
-            <div class="stats-container" id="statsContainer">
-                <!-- Stats will be populated by JavaScript -->
-            </div>
+            
 
             <!-- Active Queues Display -->
             <div class="queues-container" id="queuesContainer">

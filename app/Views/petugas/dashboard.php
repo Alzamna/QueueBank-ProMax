@@ -923,8 +923,7 @@ setInterval(function() {
 <!-- SweetAlert2 for better notifications -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- Debug Script -->
-<?= $this->include('petugas/debug_script') ?>
+
 
 <style>
 /* Custom Navigation Tabs Styling */
