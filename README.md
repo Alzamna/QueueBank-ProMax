@@ -195,13 +195,6 @@ php spark serve
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 📞 Support
-
-Untuk dukungan teknis atau pertanyaan:
-- Email: support@queuebank.com
-- Documentation: [docs.queuebank.com](https://docs.queuebank.com)
-- Issues: [GitHub Issues](https://github.com/queuebank/issues)
-
 ---
 
 **QueueBank ProMax** - Modern Digital Queue System for Banking Industry 🏦✨
