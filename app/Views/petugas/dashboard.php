@@ -909,15 +909,15 @@ setInterval(function() {
     if (!document.querySelector('.modal.show') && <?= $selected_kategori ? 'true' : 'false' ?>) {
         refreshStatistik();
     }
-}, 10000);
+}, 5000);
 
-// Auto refresh page every 60 seconds (less frequent)
+// Auto refresh page every 3 seconds (less frequent)
 setInterval(function() {
     // Only refresh if no modal is open
     if (!document.querySelector('.modal.show')) {
         location.reload();
     }
-}, 60000);
+}, 5000);
 </script>
 
 <!-- SweetAlert2 for better notifications -->
